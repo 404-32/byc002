@@ -1,0 +1,99 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "404-32/mooncompat"
+
+// Values
+pub fn compare_api_sets(Array[ApiSnapshot], Array[ApiSnapshot], base_label~ : String, head_label~ : String) -> CompatibilityReport
+
+pub fn compare_snapshots(ApiSnapshot, ApiSnapshot) -> CompatibilityReport
+
+pub fn parse_api(String, source_name? : String) -> ApiSnapshot raise
+
+pub fn parser_version() -> String
+
+pub fn render_report_json(CompatibilityReport) -> String
+
+pub fn render_report_text(CompatibilityReport, verbose? : Bool) -> String
+
+pub fn render_snapshot_json(ApiSnapshot) -> String
+
+pub fn report_to_json(CompatibilityReport) -> Json
+
+pub fn snapshot_to_json(ApiSnapshot) -> Json
+
+// Errors
+
+// Types and methods
+pub struct ApiSnapshot {
+  package_id : String
+  declarations : Array[Declaration]
+  source : String
+}
+
+pub struct Change {
+  package_id : String
+  name : String
+  declaration_kind : String
+  kind : ChangeKind
+  severity : ChangeSeverity
+  before : String
+  after : String
+  message : String
+}
+
+pub enum ChangeKind {
+  PackageRenamed
+  Removed
+  Added
+  DeclarationChanged
+}
+pub fn ChangeKind::label(Self) -> String
+
+pub enum ChangeSeverity {
+  Breaking
+  Compatible
+}
+pub fn ChangeSeverity::label(Self) -> String
+
+pub struct CompatibilityReport {
+  base_package : String
+  head_package : String
+  changes : Array[Change]
+  breaking_count : Int32
+  compatible_count : Int32
+  unchanged_count : Int32
+}
+pub fn CompatibilityReport::has_breaking_changes(Self) -> Bool
+pub fn CompatibilityReport::recommended_bump(Self) -> VersionBump
+pub fn CompatibilityReport::result(Self) -> String
+
+pub struct Declaration {
+  kind : DeclarationKind
+  name : String
+  canonical : String
+  line : Int32
+}
+pub fn Declaration::key(Self) -> String
+
+pub enum DeclarationKind {
+  Function
+  Struct
+  Enum
+  Type
+  Error
+  Trait
+  Impl
+  Value
+  Other
+}
+pub fn DeclarationKind::label(Self) -> String
+
+pub enum VersionBump {
+  Major
+  Minor
+  Patch
+}
+pub fn VersionBump::label(Self) -> String
+
+// Type aliases
+
+// Traits
