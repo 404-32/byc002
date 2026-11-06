@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/404-32/byc002/actions/workflows/ci.yml/badge.svg)](https://github.com/404-32/byc002/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/404-32/byc002)](https://github.com/404-32/byc002/releases)
+[![Mooncakes](https://img.shields.io/badge/mooncakes-404--32%2Fmooncompat-6f42c1)](https://mooncakes.io/docs/404-32/mooncompat)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 **MoonCompat is a MoonBit-native public API compatibility guard for semver-aware package releases.**
@@ -19,6 +20,14 @@ MoonCompat makes that risk explicit and machine-checkable. It is deliberately a 
 ## Quick start
 
 Prerequisites: the current MoonBit toolchain and Git.
+
+Install the library from Mooncakes:
+
+```bash
+moon add 404-32/mooncompat@0.1.0
+```
+
+Or build the CLI from source:
 
 ```bash
 git clone https://github.com/404-32/byc002.git
