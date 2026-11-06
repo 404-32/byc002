@@ -34,6 +34,12 @@ moon add 404-32/mooncompat@0.1.0
 - `mooncompat-linux-x86_64`: Linux native CLI.
 - `SHA256SUMS`: artifact checksums.
 
+Verify downloads from the directory containing all three assets:
+
+```bash
+sha256sum --check SHA256SUMS
+```
+
 ## Scope
 
 MoonCompat checks source-level public interface compatibility. It does not verify ABI, runtime behavior, performance, or protocols.
