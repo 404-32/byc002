@@ -1,0 +1,2 @@
+package "example/text"
+pub fn parse(String) -> String

@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "github/404-32/weather-client"
+
+// Values
+pub fn parse(String, strict? : Bool) -> Forecast raise
+
+pub async fn fetch(String, timeout_ms? : Int32) -> Forecast raise
+
+pub fn format(Forecast) -> String
+
+// Errors
+
+// Types and methods
+pub(all) enum Unit {
+  Celsius
+  Fahrenheit
+  Kelvin
+}
+
+pub(all) struct Forecast {
+  city : String
+  temperature : Double
+  unit : Unit
+  observed_at : Int64
+}
+pub impl Show for Forecast
+
+// Type aliases
+
+// Traits

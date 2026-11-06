@@ -1,0 +1,11 @@
+import {
+  "404-32/mooncompat",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/stdio",
+  "moonbitlang/core/async",
+  "moonbitlang/core/env",
+}
+
+supported_targets = "native+wasm"
+
+pkgtype(kind: "executable")

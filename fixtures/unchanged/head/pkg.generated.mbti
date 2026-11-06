@@ -1,0 +1,6 @@
+package "example/text"
+// The following private representation changed in source, but not in .mbti.
+pub struct Message {
+  value : String
+  // private fields
+}

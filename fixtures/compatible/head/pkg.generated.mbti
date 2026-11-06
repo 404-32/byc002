@@ -1,0 +1,3 @@
+package "example/text"
+pub fn parse(String) -> String
+pub fn format(String) -> String

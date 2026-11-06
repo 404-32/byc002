@@ -1,0 +1,5 @@
+package "example/text"
+pub struct Message {
+  value : String
+  // private fields
+}

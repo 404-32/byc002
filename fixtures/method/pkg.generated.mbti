@@ -1,0 +1,4 @@
+package "example/method"
+type File
+pub fn File::size(Self) -> Int64
+pub async fn File::read(Self) -> Bytes
