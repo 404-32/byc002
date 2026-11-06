@@ -161,7 +161,7 @@ The parser and comparison engine are in the public MoonBit library package. File
 
 ## Validation
 
-- 32 library tests pass on `wasm`, `wasm-gc`, `js`, and `native` where the toolchain supports the target.
+- 33 library tests pass on `wasm`, `wasm-gc`, `js`, and `native` where the toolchain supports the target.
 - CLI end-to-end tests cover breaking, compatible, unchanged, JSON, file-output, and parse-error paths.
 - Smoke-tested against real releases of `moonbitlang/x` (`v0.5.6` → `v0.5.7`) and `moonbitlang/async` (`v0.21.3` → `v0.22.7`).
 - Unknown public `.mbti` syntax fails closed instead of being silently omitted.

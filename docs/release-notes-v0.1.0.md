@@ -16,7 +16,7 @@ The first public release of MoonCompat provides a MoonBit-native public API comp
 
 ## Verified
 
-- 32 MoonBit library tests.
+- 33 MoonBit library tests.
 - CLI fixture tests for breaking, compatible, unchanged, JSON, snapshot, file output, and parse errors.
 - Smoke tests against `moonbitlang/x` and `moonbitlang/async` releases.
 - CI targets: `wasm`, `wasm-gc`, `js`, and `native`.

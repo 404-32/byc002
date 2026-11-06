@@ -16,7 +16,14 @@ fn collapse_whitespace(text : StringView) -> String {
       out.write_char(ch)
     }
   }
-  out.to_string()
+  out
+  .to_string()
+  .replace_all(old="@json.Json", new="Json")
+  .replace_all(old="@builtin.Json", new="Json")
+  .replace_all(old="@json.ToJson", new="ToJson")
+  .replace_all(old="@builtin.ToJson", new="ToJson")
+  .replace_all(old="@json.FromJson", new="FromJson")
+  .replace_all(old="@builtin.FromJson", new="FromJson")
 }
 
 ///|

@@ -47,7 +47,7 @@ Exit code: 1
 
 ## 工程质量
 
-- 32 个 MoonBit 库测试；
+- 33 个 MoonBit 库测试；
 - 覆盖破坏、兼容、无变化、畸形输入和不支持语法的 fixture；
 - JSON 报告拥有固定 schema 与快照断言；
 - 未知公共 `.mbti` 语法显式失败，不静默漏检；

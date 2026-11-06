@@ -15,7 +15,7 @@ moon test --target wasm-gc --deny-warn
 moon test --target js --deny-warn
 ```
 
-Observed result: 32 tests passed. The test suite covers parser failures, all declaration kinds used by the project, signature removal/change/addition, field and enum changes, trait implementations, derive normalization, `Int` aliases, package renames, multi-package comparisons, deterministic reports, and JSON fields.
+Observed result: 33 tests passed. The test suite covers parser failures, all declaration kinds used by the project, signature removal/change/addition, field and enum changes, trait implementations, derive normalization, `Int` and prelude alias normalization, package renames, multi-package comparisons, deterministic reports, and JSON fields.
 
 Native compilation is exercised in GitHub Actions on Ubuntu. The local Windows environment used for development did not have MSVC Build Tools installed, so local native compilation was not claimed as verified.
 

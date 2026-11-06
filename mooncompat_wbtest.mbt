@@ -56,6 +56,20 @@ test "Int aliases are normalized to Int32" {
 }
 
 ///|
+test "prelude Json aliases are platform-independent" {
+  let plain =
+    #|package "example/core"
+    #|pub fn report() -> Json
+  let qualified =
+    #|package "example/core"
+    #|pub fn report() -> @json.Json
+  assert_eq(
+    parse_api(plain).declarations[0].canonical,
+    parse_api(qualified).declarations[0].canonical,
+  )
+}
+
+///|
 test "public constants and re-exports are part of the API surface" {
   let source =
     #|package "example/core"
