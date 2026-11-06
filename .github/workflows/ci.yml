@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [wasm, wasm-gc, js, native]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Show toolchain
+        run: moon version --all
+      - name: Fetch dependencies
+        run: moon update
+      - name: Check
+        run: moon check --target ${{ matrix.target }} --deny-warn
+      - name: Test
+        run: moon test --target ${{ matrix.target }} --deny-warn
+
+  cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Fetch dependencies
+        run: moon update
+      - name: Format check
+        run: moon fmt --check
+      - name: CLI integration tests
+        run: bash scripts/test-cli.sh
+      - name: Dogfood API compatibility check
+        run: bash scripts/check-self-api.sh
+      - name: Build release CLI
+        run: moon build cmd/main --release --target wasm --deny-warn

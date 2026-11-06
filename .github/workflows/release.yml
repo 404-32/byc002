@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Build release artifacts
+        run: |
+          moon update
+          moon build cmd/main --release --target wasm --deny-warn
+          moon build cmd/main --release --target native --deny-warn
+          mkdir -p dist
+          cp _build/wasm/release/build/cmd/main/main.wasm dist/mooncompat-wasm32-wasi.wasm
+          NATIVE_BIN="$(find _build/native/release/build/cmd/main -maxdepth 1 -type f \( -name main -o -name main.exe \) -print -quit)"
+          test -n "$NATIVE_BIN"
+          cp "$NATIVE_BIN" dist/mooncompat-linux-x86_64
+          chmod +x dist/mooncompat-linux-x86_64
+          sha256sum dist/* > dist/SHA256SUMS
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: docs/release-notes-v0.1.0.md
+          files: |
+            dist/mooncompat-wasm32-wasi.wasm
+            dist/mooncompat-linux-x86_64
+            dist/SHA256SUMS

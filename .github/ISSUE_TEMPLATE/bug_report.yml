@@ -1,0 +1,29 @@
+name: Bug report
+description: Report a parser, comparison, report, or CLI bug
+body:
+  - type: textarea
+    id: input
+    attributes:
+      label: Input
+      description: Include the relevant .mbti declaration and command line.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: toolchain
+    attributes:
+      label: MoonBit toolchain version
+      placeholder: Output of `moon version --all`
+    validations:
+      required: true
