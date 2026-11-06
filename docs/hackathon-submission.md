@@ -1,68 +1,47 @@
-# MoonCompat 项目说明
+# MoonCompat 项目申报书
 
-## 项目名称
+## 基本信息
 
-MoonCompat
+- 项目名称：MoonCompat
+- 参赛者：404-32
+- 联系方式：待填写
+- GitHub：https://github.com/404-32/byc002
+- 项目方向：开发者工具 / MoonBit 包管理与发布工程
+- 项目性质：原创项目，非移植
+- 项目状态：v0.1.0 已发布，Apache-2.0 开源
 
-## 一句话介绍
+## 项目简介
 
-MoonCompat 是一个 MoonBit 原生的包 API 兼容性检查工具：比较两个版本的 `.mbti` 公共接口，识别破坏性变更，给出 SemVer 建议，并作为 CI 发布门禁。
+MoonCompat 是用 MoonBit 实现的 MoonBit 包公开接口兼容性检查工具。它读取 `moon info` 生成的 `.mbti` 文件，比较函数、类型、字段、枚举、Trait 实现和包名，识别破坏性变更，给出 major/minor/patch 建议，并输出文本或 JSON。工具通过退出码接入 CI，在发布前发现会导致下游代码失效的接口变化。
 
-## 解决的问题
+## 项目方向与通用性
 
-MoonBit 包管理遵循 SemVer 和 minimal version selection，但修改函数参数、公开字段、枚举构造器、Trait 实现或包名时，作者不一定能及时发现下游代码会失效。
+项目属于开发者工具方向，服务于 MoonBit 包在 SemVer 和最小版本选择下的发布流程。任何能够生成 `.mbti` 的 MoonBit 库、应用或多包仓库都可接入。核心库只处理公共接口数据，CLI 负责文件访问，同一比较引擎可用于命令行、CI 和后续编辑器工具，不依赖特定业务领域。
 
-MoonCompat 把这一风险变成可运行的检查结果。输入是 MoonBit 官方 `moon info` 生成的接口，不依赖模型猜测。
+## 预期使用场景
 
-## MoonBit 的作用
+1. **版本发布。** 维护者为新旧版本生成接口并运行 `mooncompat check base/ head/`；工具显示前后签名、判定破坏性并返回退出码 1，帮助作者决定是否发布 major 版本。
+2. **PR 自动门禁。** GitHub Actions 检出基线和当前提交，生成 `.mbti` 后执行检查并上传 JSON；破坏性变更阻止合并，兼容新增返回 0 并建议 minor。
+3. **多包仓库升级。** 工具递归扫描多个包的接口，按包名匹配新旧版本，报告包删除、新增及包内 API 变化，可用于 monorepo 的统一发布检查。
 
-MoonBit 是项目的主要实现语言，负责：
+## 已实现核心功能
 
-- `.mbti` 解析；
-- 公共声明规范化；
-- derive 与显式 `pub impl` 的等价处理；
-- `Int`/`Int32` 别名规范化；
-- 单包和多包比较；
-- SemVer 推荐；
-- 文本与 JSON 报告；
-- CLI 参数、文件扫描和退出码。
+- 解析函数、类型、结构体、枚举、错误、Trait、实现、常量和公开别名；
+- 规范化空白、成员顺序、`derive` 与等价显式 `impl`、`Int`/`Int32` 等差异；
+- 比较单包及多包 API，识别删除、签名、字段、枚举、实现和包名变化；
+- 输出文本、固定 schema 的 JSON、接口快照，并提供 0/1/2 退出码；
+- 在未知公开语法、未闭合结构和缺失包名时失败关闭，避免静默漏检；
+- 已提供 33 个 MoonBit 测试、CLI 集成测试和真实包回归，四个编译后端 CI 通过；
+- 已发布 WASM、Linux 可执行文件及 Mooncakes 包。
 
-文件系统与进程相关逻辑位于独立 CLI 包，核心引擎保持跨目标可测试。
+验证包括 `moonbitlang/x v0.5.6 → v0.5.7` 的 854 个声明，以及 `moonbitlang/async/fs v0.21.3 → v0.22.7` 的 3 个破坏变更、11 个兼容新增和 60 个不变声明。项目运行时不依赖大模型，解析、分类和拒错均由 MoonBit 代码与测试决定。
 
-## 实际演示
+## 原创性与参考说明
 
-```bash
-moon run cmd/main -- check fixtures/demo/base fixtures/demo/head
-```
+本项目为原创项目，不是移植，也不是现有工具的简单封装。比较规则、规范化逻辑、报告结构和测试 fixture 均在本仓库实现。使用 MoonBit 标准库（Apache-2.0）及 `moonbitlang/async` v0.22.7（https://github.com/moonbitlang/async，Apache-2.0）作为运行依赖；完整来源见仓库 `THIRD_PARTY_NOTICES.md`。
 
-结果：
+## GitHub 仓库
 
-```text
-3 breaking, 1 compatible, 2 unchanged
-Recommended bump: major
-Exit code: 1
-```
+https://github.com/404-32/byc002
 
-`--format json` 输出固定字段和稳定排序的结果，可用于 CI 和后续工具链。
-
-## 工程质量
-
-- 33 个 MoonBit 库测试；
-- 覆盖破坏、兼容、无变化、畸形输入和不支持语法的 fixture；
-- JSON 报告拥有固定 schema 与快照断言；
-- 未知公共 `.mbti` 语法显式失败，不静默漏检；
-- 目录扫描排除依赖缓存与构建目录；
-- CI 覆盖 `wasm`、`wasm-gc`、`js`、`native`；
-- 对 `moonbitlang/x` 和 `moonbitlang/async` 已发布版本做真实回归；
-- Apache-2.0 开源，第三方来源单独记录。
-
-## 创新点
-
-1. 直接利用 MoonBit 官方生成的 `.mbti`，输入边界明确。
-2. 将 derive 能力与显式 Trait 实现统一建模，避免格式差异造成误报。
-3. 同时提供库 API、CLI、JSON 和退出码，不只停留在展示页面。
-4. 采用失败关闭策略，无法识别的新公开语法不会被误判为兼容。
-
-## 当前边界
-
-MoonCompat 检查源码公共接口兼容性，不检查 ABI、运行时行为、性能或协议兼容性。对签名变化采用保守策略。文档和帮助信息均明确这些边界。
+当前 `main` 分支包含不少于 10 个有效提交，覆盖核心引擎、CLI、fixture、跨平台规范化、CI、文档和发布流程，未使用空提交或重复提交满足次数要求。
