@@ -16,6 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: hustcer/setup-moonbit@v1
+      - name: Update registry
+        run: moon update
       - name: Format
         run: moon fmt --check
       - name: Check
@@ -29,6 +31,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: hustcer/setup-moonbit@v1
+      - name: Update registry
+        run: moon update
       - name: Check native
         run: moon check --target native --deny-warn
       - name: Run example
