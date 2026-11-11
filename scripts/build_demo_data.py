@@ -82,7 +82,13 @@ def main() -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(scenarios, ensure_ascii=False, indent=2)
     out.write_text(f"window.GRIDLATCH_SCENARIOS = {payload};\n", encoding="utf-8")
+    example_out = ROOT / "examples/branch_fault_output.json"
+    example_out.write_text(
+        json.dumps(branch_output, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     print(f"wrote {out} with {len(scenarios)} scenarios")
+    print(f"wrote {example_out}")
 
 
 if __name__ == "__main__":

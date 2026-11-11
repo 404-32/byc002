@@ -70,6 +70,9 @@ Use `--json` for machine-readable output:
 moon run cmd/gridlatch --target js -- analyze examples/branch_fault.json --json
 ```
 
+The committed result for that case is
+[`examples/branch_fault_output.json`](examples/branch_fault_output.json).
+
 Verify a repair:
 
 ```bash
