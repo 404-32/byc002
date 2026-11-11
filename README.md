@@ -209,6 +209,9 @@ evidence, and utility-specific state-estimation interfaces is future work.
 - `scripts/`: deterministic case generator, evaluator, and demo builder.
 - `docs/`: design, evaluation, and architecture notes.
 
+Deployment assumptions and calibration guidance are in
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
