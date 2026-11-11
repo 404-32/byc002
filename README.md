@@ -41,6 +41,7 @@ Install the MoonBit toolchain, then run:
 ```bash
 moon check --target wasm-gc --deny-warn
 moon test --target wasm-gc --deny-warn
+gridlatch --version
 
 # Native backend when an MSVC/C toolchain is available:
 moon run cmd/gridlatch --target native -- analyze examples/branch_fault.json

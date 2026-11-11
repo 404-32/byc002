@@ -38,6 +38,11 @@ fn obs(
 }
 
 ///|
+test "public version is exposed" {
+  assert_eq(@gridlatch.version(), "0.1.0")
+}
+
+///|
 test "localizes a branch fault from meter evidence" {
   let result = @gridlatch.infer_faults(
     sample_network(),

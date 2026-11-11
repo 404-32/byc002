@@ -299,6 +299,10 @@ fn execute(options : CliOptions) -> Result[String, String] {
 ///|
 fn main {
   let args = @env.args()
+  if args.contains("--version") {
+    println(@core.version())
+    return
+  }
   if args.contains("--help") {
     println(usage())
     return
