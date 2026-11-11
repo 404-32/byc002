@@ -124,6 +124,9 @@ nodes; each edge is a field-testable section.
 node wins. Missing `confidence` defaults to `1.0`; missing `observed_at`
 defaults to `analysis_time`.
 
+The machine-readable contract is in
+[`schema/gridlatch-input.schema.json`](schema/gridlatch-input.schema.json).
+
 ## Algorithm
 
 For every non-root tree node, the candidate hypothesis is “the edge immediately

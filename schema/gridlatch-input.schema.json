@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/404-32/byc002/schema/gridlatch-input.schema.json",
+  "title": "GridLatch outage evidence input",
+  "description": "Topology and observation input accepted by the GridLatch analyzer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["analysis_time", "network", "observations"],
+  "properties": {
+    "analysis_time": {
+      "type": "number",
+      "description": "Analysis time in the same unit as observation timestamps."
+    },
+    "confirmed_fault_edge_id": {
+      "type": ["string", "null"],
+      "description": "Optional confirmed section used by restoration verification."
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "nodes", "edges"],
+      "properties": {
+        "root": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "kind"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "label": {"type": "string"},
+              "kind": {
+                "type": "string",
+                "enum": ["source", "junction", "meter"]
+              }
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "from", "to"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "from": {"type": "string", "minLength": 1},
+              "to": {"type": "string", "minLength": 1},
+              "section": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["node_id", "state"],
+        "properties": {
+          "node_id": {"type": "string", "minLength": 1},
+          "state": {
+            "type": "string",
+            "enum": ["energized", "powered", "on", "outage", "off", "lost", "unknown", "blind"]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "observed_at": {"type": "number"}
+        }
+      }
+    }
+  }
+}
