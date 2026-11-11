@@ -145,6 +145,7 @@ score  = sum(compatible weighted evidence)
 
 Candidate scores are normalized with a stable softmax. This produces a ranked
 fault-section distribution rather than an opaque binary alarm. See
+[the algorithm walkthrough](docs/ALGORITHM.md) and
 [the design note](docs/DESIGN.md) for assumptions, failure paths, and complexity.
 
 ## Evaluation
