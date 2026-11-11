@@ -1,0 +1,35 @@
+{
+  "analysis_time": 380,
+  "confirmed_fault_edge_id": "E17",
+  "network": {
+    "root": "T1",
+    "nodes": [
+      {"id": "T1", "label": "配变 T1", "kind": "source"},
+      {"id": "J1", "label": "干线 A", "kind": "junction"},
+      {"id": "J2", "label": "干线 B", "kind": "junction"},
+      {"id": "J5", "label": "东支路", "kind": "junction"},
+      {"id": "M11", "label": "用户 M11", "kind": "meter"},
+      {"id": "M21", "label": "用户 M21", "kind": "meter"},
+      {"id": "M51", "label": "用户 M51", "kind": "meter"},
+      {"id": "M52", "label": "用户 M52", "kind": "meter"},
+      {"id": "M53", "label": "用户 M53", "kind": "meter"}
+    ],
+    "edges": [
+      {"id": "E00", "from": "T1", "to": "J1", "section": "首段馈线"},
+      {"id": "E01", "from": "J1", "to": "M11", "section": "M11 入户线"},
+      {"id": "E10", "from": "J1", "to": "J2", "section": "主线"},
+      {"id": "E11", "from": "J2", "to": "M21", "section": "M21 入户线"},
+      {"id": "E17", "from": "J2", "to": "J5", "section": "东侧电缆"},
+      {"id": "E18", "from": "J5", "to": "M51", "section": "M51 入户线"},
+      {"id": "E19", "from": "J5", "to": "M52", "section": "M52 入户线"},
+      {"id": "E20", "from": "J5", "to": "M53", "section": "M53 入户线"}
+    ]
+  },
+  "observations": [
+    {"node_id": "M11", "state": "energized", "confidence": 0.98, "observed_at": 379},
+    {"node_id": "M21", "state": "energized", "confidence": 0.98, "observed_at": 379},
+    {"node_id": "M51", "state": "energized", "confidence": 0.99, "observed_at": 379},
+    {"node_id": "M52", "state": "energized", "confidence": 0.98, "observed_at": 379},
+    {"node_id": "M53", "state": "unknown", "confidence": 0.80, "observed_at": 360}
+  ]
+}

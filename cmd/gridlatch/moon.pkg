@@ -1,0 +1,10 @@
+import {
+  "404-32/gridlatch" @core,
+  "moonbitlang/core/env",
+  "moonbitlang/core/string",
+  "moonbitlang/x/fs",
+}
+
+pkgtype(kind: "executable")
+
+supported_targets = "js+native"

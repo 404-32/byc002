@@ -1,0 +1,527 @@
+{
+  "cases": 36,
+  "difficulty_distribution": {
+    "clean": 12,
+    "mixed": 12,
+    "severe": 12
+  },
+  "gridlatch_top1_accuracy": 0.9166666666666666,
+  "gridlatch_top3_recall": 0.9444444444444444,
+  "gridlatch_mean_affected_meter_jaccard": 0.925925925925926,
+  "nearest_outage_edge_baseline_top1_accuracy": 0.0,
+  "accuracy_by_difficulty": {
+    "clean": 1.0,
+    "mixed": 0.9166666666666666,
+    "severe": 0.8333333333333334
+  },
+  "cli_latency_ms_median": 71.42125000245869,
+  "cli_latency_ms_p95": 82.83148001064546,
+  "failures": [],
+  "predictions": [
+    {
+      "case": 0,
+      "seed": 1000,
+      "difficulty": "clean",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J3"
+      ],
+      "confidence": 0.5866175789173304,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 1,
+      "seed": 1001,
+      "difficulty": "mixed",
+      "truth_edge": "E-J6-J13",
+      "predicted_edge": "E-J6-J13",
+      "top3_edges": [
+        "E-J6-J13",
+        "E-J13-M129",
+        "E-J13-M128"
+      ],
+      "confidence": 0.8581026239806736,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 2,
+      "seed": 1002,
+      "difficulty": "severe",
+      "truth_edge": "E-J4-J9",
+      "predicted_edge": "E-J4-J9",
+      "top3_edges": [
+        "E-J4-J9",
+        "E-J15-M134",
+        "E-J9-M117"
+      ],
+      "confidence": 0.6773569268664152,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 3,
+      "seed": 1003,
+      "difficulty": "clean",
+      "truth_edge": "E-J4-J8",
+      "predicted_edge": "E-J4-J8",
+      "top3_edges": [
+        "E-J4-J8",
+        "E-J8-M113",
+        "E-J8-M112"
+      ],
+      "confidence": 0.9842898188611358,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 4,
+      "seed": 1004,
+      "difficulty": "mixed",
+      "truth_edge": "E-J3-J7",
+      "predicted_edge": "E-J3-J7",
+      "top3_edges": [
+        "E-J3-J7",
+        "E-J7-J14",
+        "E-J7-J15"
+      ],
+      "confidence": 0.9999760662562551,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 5,
+      "seed": 1005,
+      "difficulty": "severe",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J3"
+      ],
+      "confidence": 0.5866175789173304,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 6,
+      "seed": 1006,
+      "difficulty": "clean",
+      "truth_edge": "E-J3-J6",
+      "predicted_edge": "E-J3-J6",
+      "top3_edges": [
+        "E-J3-J6",
+        "E-J6-J12",
+        "E-J12-M125"
+      ],
+      "confidence": 0.9994598654540152,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 7,
+      "seed": 1007,
+      "difficulty": "mixed",
+      "truth_edge": "E-J7-J14",
+      "predicted_edge": "E-J14-M132",
+      "top3_edges": [
+        "E-J14-M132",
+        "E-J14-M131",
+        "E-J7-J14"
+      ],
+      "confidence": 0.39547493361005903,
+      "affected_jaccard": 0.3333333333333333
+    },
+    {
+      "case": 8,
+      "seed": 1008,
+      "difficulty": "severe",
+      "truth_edge": "E-J4-J9",
+      "predicted_edge": "E-J4-J9",
+      "top3_edges": [
+        "E-J4-J9",
+        "E-J9-M117",
+        "E-J7-M111"
+      ],
+      "confidence": 0.7731183888256509,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 9,
+      "seed": 1009,
+      "difficulty": "clean",
+      "truth_edge": "E-J1-J3",
+      "predicted_edge": "E-J1-J3",
+      "top3_edges": [
+        "E-J1-J3",
+        "E-J3-J7",
+        "E-J3-J6"
+      ],
+      "confidence": 0.999999999998787,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 10,
+      "seed": 1010,
+      "difficulty": "mixed",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J3"
+      ],
+      "confidence": 0.5866175789173304,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 11,
+      "seed": 1011,
+      "difficulty": "severe",
+      "truth_edge": "E-J3-J6",
+      "predicted_edge": "E-J3-J6",
+      "top3_edges": [
+        "E-J3-J6",
+        "E-J6-J13",
+        "E-J4-M105"
+      ],
+      "confidence": 0.9995364396835554,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 12,
+      "seed": 1012,
+      "difficulty": "clean",
+      "truth_edge": "E-J3-J6",
+      "predicted_edge": "E-J3-J6",
+      "top3_edges": [
+        "E-J3-J6",
+        "E-J6-J13",
+        "E-J6-J12"
+      ],
+      "confidence": 0.9999999290082034,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 13,
+      "seed": 1013,
+      "difficulty": "mixed",
+      "truth_edge": "E-J7-J15",
+      "predicted_edge": "E-J7-J15",
+      "top3_edges": [
+        "E-J7-J15",
+        "E-J1-M101",
+        "E-J15-M133"
+      ],
+      "confidence": 0.9702520760536365,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 14,
+      "seed": 1014,
+      "difficulty": "severe",
+      "truth_edge": "E-J4-J9",
+      "predicted_edge": "E-J13-M128",
+      "top3_edges": [
+        "E-J13-M128",
+        "E-J8-M112",
+        "E-J11-M122"
+      ],
+      "confidence": 0.18456430484792594,
+      "affected_jaccard": 0.0
+    },
+    {
+      "case": 15,
+      "seed": 1015,
+      "difficulty": "clean",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J2"
+      ],
+      "confidence": 0.5866175789173304,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 16,
+      "seed": 1016,
+      "difficulty": "mixed",
+      "truth_edge": "E-J3-J6",
+      "predicted_edge": "E-J3-J6",
+      "top3_edges": [
+        "E-J3-J6",
+        "E-J6-J13",
+        "E-J6-J12"
+      ],
+      "confidence": 0.9999765168258765,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 17,
+      "seed": 1017,
+      "difficulty": "severe",
+      "truth_edge": "E-J4-J8",
+      "predicted_edge": "E-J11-M122",
+      "top3_edges": [
+        "E-J11-M122",
+        "E-J6-M109",
+        "E-J8-M113"
+      ],
+      "confidence": 0.2950394743462818,
+      "affected_jaccard": 0.0
+    },
+    {
+      "case": 18,
+      "seed": 1018,
+      "difficulty": "clean",
+      "truth_edge": "E-J3-J7",
+      "predicted_edge": "E-J3-J7",
+      "top3_edges": [
+        "E-J3-J7",
+        "E-J7-J15",
+        "E-J14-M131"
+      ],
+      "confidence": 0.9992476788527221,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 19,
+      "seed": 1019,
+      "difficulty": "mixed",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J2"
+      ],
+      "confidence": 0.5866175789173304,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 20,
+      "seed": 1020,
+      "difficulty": "severe",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J3"
+      ],
+      "confidence": 0.5866175788873565,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 21,
+      "seed": 1021,
+      "difficulty": "clean",
+      "truth_edge": "E-J4-J9",
+      "predicted_edge": "E-J4-J9",
+      "top3_edges": [
+        "E-J4-J9",
+        "E-J9-M115",
+        "E-J9-M116"
+      ],
+      "confidence": 0.9869533132976793,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 22,
+      "seed": 1022,
+      "difficulty": "mixed",
+      "truth_edge": "E-J1-J3",
+      "predicted_edge": "E-J1-J3",
+      "top3_edges": [
+        "E-J1-J3",
+        "E-J3-J7",
+        "E-J3-J6"
+      ],
+      "confidence": 0.9999999996444142,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 23,
+      "seed": 1023,
+      "difficulty": "severe",
+      "truth_edge": "E-J4-J8",
+      "predicted_edge": "E-J4-J8",
+      "top3_edges": [
+        "E-J4-J8",
+        "E-J8-M112",
+        "E-J8-M113"
+      ],
+      "confidence": 0.9755556510124075,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 24,
+      "seed": 1024,
+      "difficulty": "clean",
+      "truth_edge": "E-J6-J13",
+      "predicted_edge": "E-J6-J13",
+      "top3_edges": [
+        "E-J6-J13",
+        "E-J13-M128",
+        "E-J13-M129"
+      ],
+      "confidence": 0.9842650891050196,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 25,
+      "seed": 1025,
+      "difficulty": "mixed",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J2"
+      ],
+      "confidence": 0.5866175789173304,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 26,
+      "seed": 1026,
+      "difficulty": "severe",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J3"
+      ],
+      "confidence": 0.5866175789173289,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 27,
+      "seed": 1027,
+      "difficulty": "clean",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J3"
+      ],
+      "confidence": 0.5866175789173304,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 28,
+      "seed": 1028,
+      "difficulty": "mixed",
+      "truth_edge": "E-J4-J8",
+      "predicted_edge": "E-J4-J8",
+      "top3_edges": [
+        "E-J4-J8",
+        "E-J8-M113",
+        "E-J14-M130"
+      ],
+      "confidence": 0.9684721462260789,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 29,
+      "seed": 1029,
+      "difficulty": "severe",
+      "truth_edge": "E-J5-J10",
+      "predicted_edge": "E-J5-J10",
+      "top3_edges": [
+        "E-J5-J10",
+        "E-J10-M119",
+        "E-J10-M118"
+      ],
+      "confidence": 0.8206507198198604,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 30,
+      "seed": 1030,
+      "difficulty": "clean",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J3"
+      ],
+      "confidence": 0.5866175789173304,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 31,
+      "seed": 1031,
+      "difficulty": "mixed",
+      "truth_edge": "E-J6-J12",
+      "predicted_edge": "E-J6-J12",
+      "top3_edges": [
+        "E-J6-J12",
+        "E-J12-M124",
+        "E-J12-M126"
+      ],
+      "confidence": 0.7928252858495746,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 32,
+      "seed": 1032,
+      "difficulty": "severe",
+      "truth_edge": "E-J3-J7",
+      "predicted_edge": "E-J3-J7",
+      "top3_edges": [
+        "E-J3-J7",
+        "E-J7-M111",
+        "E-J14-M130"
+      ],
+      "confidence": 0.9609039814169557,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 33,
+      "seed": 1033,
+      "difficulty": "clean",
+      "truth_edge": "E-J5-J11",
+      "predicted_edge": "E-J5-J11",
+      "top3_edges": [
+        "E-J5-J11",
+        "E-J11-M122",
+        "E-J11-M121"
+      ],
+      "confidence": 0.9867277761789945,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 34,
+      "seed": 1034,
+      "difficulty": "mixed",
+      "truth_edge": "E-J7-J14",
+      "predicted_edge": "E-J7-J14",
+      "top3_edges": [
+        "E-J7-J14",
+        "E-J7-M111",
+        "E-J14-M131"
+      ],
+      "confidence": 0.9785314616393613,
+      "affected_jaccard": 1.0
+    },
+    {
+      "case": 35,
+      "seed": 1035,
+      "difficulty": "severe",
+      "truth_edge": "E-T1-J1",
+      "predicted_edge": "E-T1-J1",
+      "top3_edges": [
+        "E-T1-J1",
+        "SOURCE",
+        "E-J1-J2"
+      ],
+      "confidence": 0.5866175789173279,
+      "affected_jaccard": 1.0
+    }
+  ],
+  "seed_policy": "seed=1000+index; difficulty cycles clean,mixed,severe"
+}

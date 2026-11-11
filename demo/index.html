@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GridLatch | 配电网停电断点定位</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <div class="brand-name">GridLatch</div>
+            <div class="brand-subtitle">FAULT EVIDENCE ENGINE</div>
+          </div>
+        </div>
+        <div class="topbar-status">
+          <span class="live-dot"></span>
+          MoonBit core · deterministic replay
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="rail">
+          <div class="rail-heading">实验场景</div>
+          <div id="scenario-list" class="scenario-list"></div>
+          <div class="rail-note">
+            <div class="note-kicker">为什么不同</div>
+            <p>不是停电地图。系统用拓扑约束、时间衰减和通信盲区，推断“真正需要断开/抢修的那一段”。</p>
+          </div>
+        </aside>
+
+        <section class="map-card">
+          <div class="map-head">
+            <div>
+              <div class="section-kicker" id="scenario-eyebrow"></div>
+              <h1 id="scenario-name"></h1>
+              <p id="scenario-description"></p>
+            </div>
+            <div class="legend">
+              <span><i class="dot powered"></i>带电</span>
+              <span><i class="dot outage"></i>停电</span>
+              <span><i class="dot blind"></i>未知</span>
+              <span><i class="line fault"></i>候选故障段</span>
+            </div>
+          </div>
+          <div class="map-stage">
+            <svg id="network-map" viewBox="0 0 1120 640" role="img" aria-label="低压配电台区拓扑与故障推断"></svg>
+            <div class="map-grid"></div>
+          </div>
+          <div class="map-foot">
+            <div>
+              <span class="meta-label">DATA SOURCE</span>
+              <span id="observation-count"></span>
+            </div>
+            <div>
+              <span class="meta-label">ANALYSIS MODE</span>
+              <span>topology-aware weighted evidence</span>
+            </div>
+            <button id="download-json" class="ghost-button" type="button">导出当前结果</button>
+          </div>
+        </section>
+
+        <aside class="inspector">
+          <div id="result-panel"></div>
+          <div class="evidence-panel">
+            <div class="panel-title">最新观测</div>
+            <div id="evidence-list" class="evidence-list"></div>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script src="scenarios.generated.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

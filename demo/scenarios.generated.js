@@ -1,0 +1,1415 @@
+window.GRIDLATCH_SCENARIOS = [
+  {
+    "id": "branch",
+    "eyebrow": "缺失告警场景",
+    "name": "东侧电缆故障",
+    "description": "M52 在停电后掉线，算法仍利用边界与相邻电表定位到 E17。",
+    "kind": "analysis",
+    "network": {
+      "root": "T1",
+      "nodes": [
+        {
+          "id": "T1",
+          "label": "配变 T1",
+          "kind": "source"
+        },
+        {
+          "id": "J1",
+          "label": "干线 A",
+          "kind": "junction"
+        },
+        {
+          "id": "J2",
+          "label": "干线 B",
+          "kind": "junction"
+        },
+        {
+          "id": "J3",
+          "label": "西支路",
+          "kind": "junction"
+        },
+        {
+          "id": "J4",
+          "label": "北支路",
+          "kind": "junction"
+        },
+        {
+          "id": "J5",
+          "label": "东支路",
+          "kind": "junction"
+        },
+        {
+          "id": "M11",
+          "label": "用户 M11",
+          "kind": "meter"
+        },
+        {
+          "id": "M12",
+          "label": "用户 M12",
+          "kind": "meter"
+        },
+        {
+          "id": "M13",
+          "label": "用户 M13",
+          "kind": "meter"
+        },
+        {
+          "id": "M21",
+          "label": "用户 M21",
+          "kind": "meter"
+        },
+        {
+          "id": "M22",
+          "label": "用户 M22",
+          "kind": "meter"
+        },
+        {
+          "id": "M31",
+          "label": "用户 M31",
+          "kind": "meter"
+        },
+        {
+          "id": "M32",
+          "label": "用户 M32",
+          "kind": "meter"
+        },
+        {
+          "id": "M33",
+          "label": "用户 M33",
+          "kind": "meter"
+        },
+        {
+          "id": "M41",
+          "label": "用户 M41",
+          "kind": "meter"
+        },
+        {
+          "id": "M42",
+          "label": "用户 M42",
+          "kind": "meter"
+        },
+        {
+          "id": "M43",
+          "label": "用户 M43",
+          "kind": "meter"
+        },
+        {
+          "id": "M51",
+          "label": "用户 M51",
+          "kind": "meter"
+        },
+        {
+          "id": "M52",
+          "label": "用户 M52",
+          "kind": "meter"
+        },
+        {
+          "id": "M53",
+          "label": "用户 M53",
+          "kind": "meter"
+        }
+      ],
+      "edges": [
+        {
+          "id": "E00",
+          "from": "T1",
+          "to": "J1",
+          "section": "配变首段馈线"
+        },
+        {
+          "id": "E01",
+          "from": "J1",
+          "to": "M11",
+          "section": "M11 入户线"
+        },
+        {
+          "id": "E02",
+          "from": "J1",
+          "to": "M12",
+          "section": "M12 入户线"
+        },
+        {
+          "id": "E03",
+          "from": "J1",
+          "to": "M13",
+          "section": "M13 入户线"
+        },
+        {
+          "id": "E04",
+          "from": "J1",
+          "to": "J3",
+          "section": "西侧电缆"
+        },
+        {
+          "id": "E05",
+          "from": "J3",
+          "to": "M31",
+          "section": "M31 入户线"
+        },
+        {
+          "id": "E06",
+          "from": "J3",
+          "to": "M32",
+          "section": "M32 入户线"
+        },
+        {
+          "id": "E07",
+          "from": "J3",
+          "to": "M33",
+          "section": "M33 入户线"
+        },
+        {
+          "id": "E10",
+          "from": "J1",
+          "to": "J2",
+          "section": "干线 J1-J2"
+        },
+        {
+          "id": "E11",
+          "from": "J2",
+          "to": "M21",
+          "section": "M21 入户线"
+        },
+        {
+          "id": "E12",
+          "from": "J2",
+          "to": "M22",
+          "section": "M22 入户线"
+        },
+        {
+          "id": "E13",
+          "from": "J2",
+          "to": "J4",
+          "section": "北侧电缆"
+        },
+        {
+          "id": "E14",
+          "from": "J4",
+          "to": "M41",
+          "section": "M41 入户线"
+        },
+        {
+          "id": "E15",
+          "from": "J4",
+          "to": "M42",
+          "section": "M42 入户线"
+        },
+        {
+          "id": "E16",
+          "from": "J4",
+          "to": "M43",
+          "section": "M43 入户线"
+        },
+        {
+          "id": "E17",
+          "from": "J2",
+          "to": "J5",
+          "section": "东侧电缆"
+        },
+        {
+          "id": "E18",
+          "from": "J5",
+          "to": "M51",
+          "section": "M51 入户线"
+        },
+        {
+          "id": "E19",
+          "from": "J5",
+          "to": "M52",
+          "section": "M52 入户线"
+        },
+        {
+          "id": "E20",
+          "from": "J5",
+          "to": "M53",
+          "section": "M53 入户线"
+        }
+      ]
+    },
+    "observations": [
+      {
+        "node_id": "J2",
+        "state": "energized",
+        "confidence": 0.95,
+        "observed_at": 177
+      },
+      {
+        "node_id": "M11",
+        "state": "energized",
+        "confidence": 0.98,
+        "observed_at": 176
+      },
+      {
+        "node_id": "M12",
+        "state": "energized",
+        "confidence": 0.96,
+        "observed_at": 177
+      },
+      {
+        "node_id": "M13",
+        "state": "energized",
+        "confidence": 0.95,
+        "observed_at": 176
+      },
+      {
+        "node_id": "M21",
+        "state": "energized",
+        "confidence": 0.98,
+        "observed_at": 177
+      },
+      {
+        "node_id": "M22",
+        "state": "energized",
+        "confidence": 0.91,
+        "observed_at": 176
+      },
+      {
+        "node_id": "M31",
+        "state": "energized",
+        "confidence": 0.94,
+        "observed_at": 176
+      },
+      {
+        "node_id": "M32",
+        "state": "energized",
+        "confidence": 0.97,
+        "observed_at": 177
+      },
+      {
+        "node_id": "M33",
+        "state": "energized",
+        "confidence": 0.93,
+        "observed_at": 176
+      },
+      {
+        "node_id": "M41",
+        "state": "energized",
+        "confidence": 0.96,
+        "observed_at": 177
+      },
+      {
+        "node_id": "M42",
+        "state": "energized",
+        "confidence": 0.97,
+        "observed_at": 176
+      },
+      {
+        "node_id": "M43",
+        "state": "energized",
+        "confidence": 0.94,
+        "observed_at": 177
+      },
+      {
+        "node_id": "M51",
+        "state": "outage",
+        "confidence": 0.99,
+        "observed_at": 172
+      },
+      {
+        "node_id": "M52",
+        "state": "unknown",
+        "confidence": 0.8,
+        "observed_at": 160
+      },
+      {
+        "node_id": "M53",
+        "state": "outage",
+        "confidence": 0.97,
+        "observed_at": 173
+      }
+    ],
+    "analysis": {
+      "analysis_time": 180,
+      "used_observation_count": 15,
+      "warnings": [],
+      "candidates": [
+        {
+          "edge_id": "E17",
+          "fault_node_id": "J5",
+          "section": "东侧电缆",
+          "raw_score": 12.838637227896369,
+          "confidence": 0.8959167786154045,
+          "affected_meter_ids": [
+            "M51",
+            "M52",
+            "M53"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43",
+            "M51",
+            "M53"
+          ],
+          "contradicting_node_ids": [],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E18",
+          "fault_node_id": "M51",
+          "section": "M51 入户线",
+          "raw_score": 9.982406098958844,
+          "confidence": 0.051501781469598586,
+          "affected_meter_ids": [
+            "M51"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43",
+            "M51"
+          ],
+          "contradicting_node_ids": [
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E20",
+          "fault_node_id": "M53",
+          "section": "M53 入户线",
+          "raw_score": 9.938465519208961,
+          "confidence": 0.04928776219839187,
+          "affected_meter_ids": [
+            "M53"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43",
+            "M53"
+          ],
+          "contradicting_node_ids": [
+            "M51"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E19",
+          "fault_node_id": "M52",
+          "section": "M52 入户线",
+          "raw_score": 6.957467897770644,
+          "confidence": 0.0025009688518156524,
+          "affected_meter_ids": [
+            "M52"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E12",
+          "fault_node_id": "M22",
+          "section": "M22 入户线",
+          "raw_score": 3.57844872692502,
+          "confidence": 8.523518394240243e-05,
+          "affected_meter_ids": [
+            "M22"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M22",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E07",
+          "fault_node_id": "M33",
+          "section": "M33 入户线",
+          "raw_score": 3.504184569324018,
+          "confidence": 7.913459588044147e-05,
+          "affected_meter_ids": [
+            "M33"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M33",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E05",
+          "fault_node_id": "M31",
+          "section": "M31 入户线",
+          "raw_score": 3.4670524905235163,
+          "confidence": 7.625004985023747e-05,
+          "affected_meter_ids": [
+            "M31"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M31",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E16",
+          "fault_node_id": "M43",
+          "section": "M43 入户线",
+          "raw_score": 3.446832719767006,
+          "confidence": 7.472377379779898e-05,
+          "affected_meter_ids": [
+            "M43"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42"
+          ],
+          "contradicting_node_ids": [
+            "M43",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E03",
+          "fault_node_id": "M13",
+          "section": "M13 入户线",
+          "raw_score": 3.4299204117230144,
+          "confidence": 7.347064880381445e-05,
+          "affected_meter_ids": [
+            "M13"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M13",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E02",
+          "fault_node_id": "M12",
+          "section": "M12 入户线",
+          "raw_score": 3.3721383542775674,
+          "confidence": 6.934568561093204e-05,
+          "affected_meter_ids": [
+            "M12"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M12",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E14",
+          "fault_node_id": "M41",
+          "section": "M41 入户线",
+          "raw_score": 3.3721383542775656,
+          "confidence": 6.934568561093191e-05,
+          "affected_meter_ids": [
+            "M41"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M41",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E15",
+          "fault_node_id": "M42",
+          "section": "M42 入户线",
+          "raw_score": 3.3556562541220125,
+          "confidence": 6.821209074990147e-05,
+          "affected_meter_ids": [
+            "M42"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M42",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E06",
+          "fault_node_id": "M32",
+          "section": "M32 入户线",
+          "raw_score": 3.334791171532848,
+          "confidence": 6.68035852340151e-05,
+          "affected_meter_ids": [
+            "M32"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M33",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M32",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E01",
+          "fault_node_id": "M11",
+          "section": "M11 入户线",
+          "raw_score": 3.3185241753215107,
+          "confidence": 6.572568245533184e-05,
+          "affected_meter_ids": [
+            "M11"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M11",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E11",
+          "fault_node_id": "M21",
+          "section": "M21 入户线",
+          "raw_score": 3.2974439887881286,
+          "confidence": 6.435467413440343e-05,
+          "affected_meter_ids": [
+            "M21"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M21",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E04",
+          "fault_node_id": "J3",
+          "section": "西侧电缆",
+          "raw_score": -3.7336740566616933,
+          "confidence": 5.688585982703678e-08,
+          "affected_meter_ids": [
+            "M31",
+            "M32",
+            "M33"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "contradicting_node_ids": [
+            "M31",
+            "M32",
+            "M33",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E13",
+          "fault_node_id": "J4",
+          "section": "北侧电缆",
+          "raw_score": -3.8650749598754905,
+          "confidence": 4.988128577493819e-08,
+          "affected_meter_ids": [
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "supporting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33"
+          ],
+          "contradicting_node_ids": [
+            "M41",
+            "M42",
+            "M43",
+            "M51",
+            "M53"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E10",
+          "fault_node_id": "J2",
+          "section": "干线 J1-J2",
+          "raw_score": -8.592132016744408,
+          "confidence": 4.4157333920234766e-10,
+          "affected_meter_ids": [
+            "M21",
+            "M22",
+            "M41",
+            "M42",
+            "M43",
+            "M51",
+            "M52",
+            "M53"
+          ],
+          "supporting_node_ids": [
+            "M11",
+            "M12",
+            "M13",
+            "M31",
+            "M32",
+            "M33",
+            "M51",
+            "M53"
+          ],
+          "contradicting_node_ids": [
+            "J2",
+            "M21",
+            "M22",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "E00",
+          "fault_node_id": "J1",
+          "section": "配变首段馈线",
+          "raw_score": -30.00227684294367,
+          "confidence": 2.221749491396775e-19,
+          "affected_meter_ids": [
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43",
+            "M51",
+            "M52",
+            "M53"
+          ],
+          "supporting_node_ids": [
+            "M51",
+            "M53"
+          ],
+          "contradicting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        },
+        {
+          "edge_id": "SOURCE",
+          "fault_node_id": "T1",
+          "section": "Transformer / feeder",
+          "raw_score": -30.35227684294367,
+          "confidence": 1.5656404049259142e-19,
+          "affected_meter_ids": [
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43",
+            "M51",
+            "M52",
+            "M53"
+          ],
+          "supporting_node_ids": [
+            "M51",
+            "M53"
+          ],
+          "contradicting_node_ids": [
+            "J2",
+            "M11",
+            "M12",
+            "M13",
+            "M21",
+            "M22",
+            "M31",
+            "M32",
+            "M33",
+            "M41",
+            "M42",
+            "M43"
+          ],
+          "blind_node_ids": [
+            "M52"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "feeder",
+    "eyebrow": "台区级故障",
+    "name": "配电变压器失电",
+    "description": "根节点和全部电表失电，系统将 SOURCE 与第一条馈线正确拆分。",
+    "kind": "analysis",
+    "network": {
+      "root": "T1",
+      "nodes": [
+        {
+          "id": "T1",
+          "label": "配变 T1",
+          "kind": "source"
+        },
+        {
+          "id": "J1",
+          "label": "干线 A",
+          "kind": "junction"
+        },
+        {
+          "id": "J2",
+          "label": "干线 B",
+          "kind": "junction"
+        },
+        {
+          "id": "M1",
+          "label": "用户 M1",
+          "kind": "meter"
+        },
+        {
+          "id": "M2",
+          "label": "用户 M2",
+          "kind": "meter"
+        },
+        {
+          "id": "M3",
+          "label": "用户 M3",
+          "kind": "meter"
+        },
+        {
+          "id": "M4",
+          "label": "用户 M4",
+          "kind": "meter"
+        }
+      ],
+      "edges": [
+        {
+          "id": "E0",
+          "from": "T1",
+          "to": "J1",
+          "section": "首段馈线"
+        },
+        {
+          "id": "E1",
+          "from": "J1",
+          "to": "M1",
+          "section": "M1 入户线"
+        },
+        {
+          "id": "E2",
+          "from": "J1",
+          "to": "J2",
+          "section": "主线"
+        },
+        {
+          "id": "E3",
+          "from": "J2",
+          "to": "M2",
+          "section": "M2 入户线"
+        },
+        {
+          "id": "E4",
+          "from": "J2",
+          "to": "M3",
+          "section": "M3 入户线"
+        },
+        {
+          "id": "E5",
+          "from": "J2",
+          "to": "M4",
+          "section": "M4 入户线"
+        }
+      ]
+    },
+    "observations": [
+      {
+        "node_id": "T1",
+        "state": "outage",
+        "confidence": 0.99,
+        "observed_at": 319
+      },
+      {
+        "node_id": "M1",
+        "state": "outage",
+        "confidence": 0.99,
+        "observed_at": 319
+      },
+      {
+        "node_id": "M2",
+        "state": "outage",
+        "confidence": 0.98,
+        "observed_at": 319
+      },
+      {
+        "node_id": "M3",
+        "state": "outage",
+        "confidence": 0.99,
+        "observed_at": 319
+      },
+      {
+        "node_id": "M4",
+        "state": "outage",
+        "confidence": 0.97,
+        "observed_at": 319
+      }
+    ],
+    "analysis": {
+      "analysis_time": 320,
+      "used_observation_count": 5,
+      "warnings": [],
+      "candidates": [
+        {
+          "edge_id": "SOURCE",
+          "fault_node_id": "T1",
+          "section": "Transformer / feeder",
+          "raw_score": 4.2519640609441955,
+          "confidence": 0.9402355290804152,
+          "affected_meter_ids": [
+            "M1",
+            "M2",
+            "M3",
+            "M4"
+          ],
+          "supporting_node_ids": [
+            "T1",
+            "M1",
+            "M2",
+            "M3",
+            "M4"
+          ],
+          "contradicting_node_ids": [],
+          "blind_node_ids": []
+        },
+        {
+          "edge_id": "E0",
+          "fault_node_id": "J1",
+          "section": "首段馈线",
+          "raw_score": 1.4522103982902046,
+          "confidence": 0.057189867670997846,
+          "affected_meter_ids": [
+            "M1",
+            "M2",
+            "M3",
+            "M4"
+          ],
+          "supporting_node_ids": [
+            "M1",
+            "M2",
+            "M3",
+            "M4"
+          ],
+          "contradicting_node_ids": [
+            "T1"
+          ],
+          "blind_node_ids": []
+        },
+        {
+          "edge_id": "E2",
+          "fault_node_id": "J2",
+          "section": "主线",
+          "raw_score": -1.6573774251272277,
+          "confidence": 0.002551774298790248,
+          "affected_meter_ids": [
+            "M2",
+            "M3",
+            "M4"
+          ],
+          "supporting_node_ids": [
+            "M2",
+            "M3",
+            "M4"
+          ],
+          "contradicting_node_ids": [
+            "T1",
+            "M1"
+          ],
+          "blind_node_ids": []
+        },
+        {
+          "edge_id": "E1",
+          "fault_node_id": "M1",
+          "section": "M1 入户线",
+          "raw_score": -7.736671177247934,
+          "confidence": 5.843035548614163e-06,
+          "affected_meter_ids": [
+            "M1"
+          ],
+          "supporting_node_ids": [
+            "M1"
+          ],
+          "contradicting_node_ids": [
+            "T1",
+            "M2",
+            "M3",
+            "M4"
+          ],
+          "blind_node_ids": []
+        },
+        {
+          "edge_id": "E4",
+          "fault_node_id": "M3",
+          "section": "M3 入户线",
+          "raw_score": -7.736671177247934,
+          "confidence": 5.843035548614163e-06,
+          "affected_meter_ids": [
+            "M3"
+          ],
+          "supporting_node_ids": [
+            "M3"
+          ],
+          "contradicting_node_ids": [
+            "T1",
+            "M1",
+            "M2",
+            "M4"
+          ],
+          "blind_node_ids": []
+        },
+        {
+          "edge_id": "E3",
+          "fault_node_id": "M2",
+          "section": "M2 入户线",
+          "raw_score": -7.7684868708100945,
+          "confidence": 5.660061477797457e-06,
+          "affected_meter_ids": [
+            "M2"
+          ],
+          "supporting_node_ids": [
+            "M2"
+          ],
+          "contradicting_node_ids": [
+            "T1",
+            "M1",
+            "M3",
+            "M4"
+          ],
+          "blind_node_ids": []
+        },
+        {
+          "edge_id": "E5",
+          "fault_node_id": "M4",
+          "section": "M4 入户线",
+          "raw_score": -7.800302564372258,
+          "confidence": 5.482817221614366e-06,
+          "affected_meter_ids": [
+            "M4"
+          ],
+          "supporting_node_ids": [
+            "M4"
+          ],
+          "contradicting_node_ids": [
+            "T1",
+            "M1",
+            "M2",
+            "M3"
+          ],
+          "blind_node_ids": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "restore",
+    "eyebrow": "抢修闭环",
+    "name": "复电范围核验",
+    "description": "E17 修复后两户恢复，M53 尚未回传，系统判定为部分完成而非全部成功。",
+    "kind": "restore",
+    "network": {
+      "root": "T1",
+      "nodes": [
+        {
+          "id": "T1",
+          "label": "配变 T1",
+          "kind": "source"
+        },
+        {
+          "id": "J1",
+          "label": "干线 A",
+          "kind": "junction"
+        },
+        {
+          "id": "J2",
+          "label": "干线 B",
+          "kind": "junction"
+        },
+        {
+          "id": "J5",
+          "label": "东支路",
+          "kind": "junction"
+        },
+        {
+          "id": "M11",
+          "label": "用户 M11",
+          "kind": "meter"
+        },
+        {
+          "id": "M21",
+          "label": "用户 M21",
+          "kind": "meter"
+        },
+        {
+          "id": "M51",
+          "label": "用户 M51",
+          "kind": "meter"
+        },
+        {
+          "id": "M52",
+          "label": "用户 M52",
+          "kind": "meter"
+        },
+        {
+          "id": "M53",
+          "label": "用户 M53",
+          "kind": "meter"
+        }
+      ],
+      "edges": [
+        {
+          "id": "E00",
+          "from": "T1",
+          "to": "J1",
+          "section": "首段馈线"
+        },
+        {
+          "id": "E01",
+          "from": "J1",
+          "to": "M11",
+          "section": "M11 入户线"
+        },
+        {
+          "id": "E10",
+          "from": "J1",
+          "to": "J2",
+          "section": "主线"
+        },
+        {
+          "id": "E11",
+          "from": "J2",
+          "to": "M21",
+          "section": "M21 入户线"
+        },
+        {
+          "id": "E17",
+          "from": "J2",
+          "to": "J5",
+          "section": "东侧电缆"
+        },
+        {
+          "id": "E18",
+          "from": "J5",
+          "to": "M51",
+          "section": "M51 入户线"
+        },
+        {
+          "id": "E19",
+          "from": "J5",
+          "to": "M52",
+          "section": "M52 入户线"
+        },
+        {
+          "id": "E20",
+          "from": "J5",
+          "to": "M53",
+          "section": "M53 入户线"
+        }
+      ]
+    },
+    "observations": [
+      {
+        "node_id": "M11",
+        "state": "energized",
+        "confidence": 0.98,
+        "observed_at": 379
+      },
+      {
+        "node_id": "M21",
+        "state": "energized",
+        "confidence": 0.98,
+        "observed_at": 379
+      },
+      {
+        "node_id": "M51",
+        "state": "energized",
+        "confidence": 0.99,
+        "observed_at": 379
+      },
+      {
+        "node_id": "M52",
+        "state": "energized",
+        "confidence": 0.98,
+        "observed_at": 379
+      },
+      {
+        "node_id": "M53",
+        "state": "unknown",
+        "confidence": 0.8,
+        "observed_at": 360
+      }
+    ],
+    "restoration": {
+      "fault_edge_id": "E17",
+      "status": "partial",
+      "expected_affected_meter_ids": [
+        "M51",
+        "M52",
+        "M53"
+      ],
+      "restored_meter_ids": [
+        "M51",
+        "M52"
+      ],
+      "still_out_meter_ids": [],
+      "unknown_meter_ids": [
+        "M53"
+      ],
+      "unexpected_outage_node_ids": []
+    }
+  }
+];

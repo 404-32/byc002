@@ -1,0 +1,30 @@
+{
+  "analysis_time": 320,
+  "network": {
+    "root": "T1",
+    "nodes": [
+      {"id": "T1", "label": "配变 T1", "kind": "source"},
+      {"id": "J1", "label": "干线 A", "kind": "junction"},
+      {"id": "J2", "label": "干线 B", "kind": "junction"},
+      {"id": "M1", "label": "用户 M1", "kind": "meter"},
+      {"id": "M2", "label": "用户 M2", "kind": "meter"},
+      {"id": "M3", "label": "用户 M3", "kind": "meter"},
+      {"id": "M4", "label": "用户 M4", "kind": "meter"}
+    ],
+    "edges": [
+      {"id": "E0", "from": "T1", "to": "J1", "section": "首段馈线"},
+      {"id": "E1", "from": "J1", "to": "M1", "section": "M1 入户线"},
+      {"id": "E2", "from": "J1", "to": "J2", "section": "主线"},
+      {"id": "E3", "from": "J2", "to": "M2", "section": "M2 入户线"},
+      {"id": "E4", "from": "J2", "to": "M3", "section": "M3 入户线"},
+      {"id": "E5", "from": "J2", "to": "M4", "section": "M4 入户线"}
+    ]
+  },
+  "observations": [
+    {"node_id": "T1", "state": "outage", "confidence": 0.99, "observed_at": 319},
+    {"node_id": "M1", "state": "outage", "confidence": 0.99, "observed_at": 319},
+    {"node_id": "M2", "state": "outage", "confidence": 0.98, "observed_at": 319},
+    {"node_id": "M3", "state": "outage", "confidence": 0.99, "observed_at": 319},
+    {"node_id": "M4", "state": "outage", "confidence": 0.97, "observed_at": 319}
+  ]
+}

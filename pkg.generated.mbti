@@ -1,0 +1,169 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "404-32/gridlatch"
+
+import {
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn all_meter_ids(Network) -> Array[String]
+
+pub fn build_tree(Network) -> Result[Tree, TopologyError]
+
+pub fn downstream_mask(Tree, Int32) -> Array[Bool]
+
+pub fn downstream_meter_ids(Network, Tree, Int32) -> Array[String]
+
+pub fn fault_node_for_edge(Network, Tree, String) -> Int32?
+
+pub fn infer_faults(Network, Array[Observation], Double, policy? : InferencePolicy) -> InferenceResult raise AnalysisError
+
+pub fn network_to_json(Network) -> @json.Json
+
+pub fn observations_to_json(Array[Observation]) -> @json.Json
+
+pub fn parse_input(String) -> InputDocument raise AnalysisError
+
+pub fn restore_json_string(RestoreReport) -> String
+
+pub fn restore_to_json(RestoreReport) -> @json.Json
+
+pub fn result_json_string(InferenceResult) -> String
+
+pub fn result_to_json(InferenceResult) -> @json.Json
+
+pub fn verify_restoration(Network, String, Array[Observation], Double) -> RestoreReport raise AnalysisError
+
+// Errors
+pub suberror AnalysisError {
+  Parse(String)
+  InvalidInput(String)
+  Topology(String)
+}
+pub fn AnalysisError::describe(Self) -> String
+
+// Types and methods
+pub struct Candidate {
+  edge_id : String
+  fault_node_id : String
+  section : String
+  raw_score : Double
+  mut confidence : Double
+  affected_meter_ids : Array[String]
+  supporting_node_ids : Array[String]
+  contradicting_node_ids : Array[String]
+  blind_node_ids : Array[String]
+}
+
+pub struct Edge {
+  id : String
+  from_id : String
+  to_id : String
+  section : String
+}
+pub fn Edge::new(String, String, String, section? : String) -> Self
+
+pub struct InferencePolicy {
+  half_life_sec : Double
+  structural_prior : Double
+  outage_penalty : Double
+  powered_penalty : Double
+}
+pub fn InferencePolicy::balanced(Double, Double) -> Self
+pub fn InferencePolicy::default() -> Self
+
+pub struct InferenceResult {
+  analysis_time : Double
+  candidates : Array[Candidate]
+  used_observation_count : Int32
+  warnings : Array[String]
+}
+pub fn InferenceResult::top(Self) -> Candidate?
+
+pub struct InputDocument {
+  network : Network
+  observations : Array[Observation]
+  analysis_time : Double
+  confirmed_fault_edge_id : String?
+}
+
+pub struct Network {
+  root_id : String
+  nodes : Array[Node]
+  edges : Array[Edge]
+}
+pub fn Network::find_node(Self, String) -> Int32?
+pub fn Network::new(String, Array[Node], Array[Edge]) -> Self
+
+pub struct Node {
+  id : String
+  label : String
+  kind : NodeKind
+}
+pub fn Node::new(String, NodeKind, label? : String) -> Self
+
+pub(all) enum NodeKind {
+  Source
+  Junction
+  Meter
+}
+pub fn NodeKind::to_string(Self) -> String
+
+pub struct Observation {
+  node_id : String
+  state : PowerState
+  mut confidence : Double
+  mut observed_at : Double
+}
+pub fn Observation::new(String, PowerState, Double, Double) -> Self
+
+pub(all) enum PowerState {
+  Energized
+  Outage
+  Unknown
+}
+pub fn PowerState::to_string(Self) -> String
+
+pub struct RestoreReport {
+  fault_edge_id : String
+  status : RestoreState
+  expected_affected_meter_ids : Array[String]
+  restored_meter_ids : Array[String]
+  still_out_meter_ids : Array[String]
+  unknown_meter_ids : Array[String]
+  unexpected_outage_node_ids : Array[String]
+}
+
+pub(all) enum RestoreState {
+  Complete
+  Partial
+  UnexpectedOutage
+  Indeterminate
+}
+pub fn RestoreState::to_string(Self) -> String
+
+pub enum TopologyError {
+  EmptyNetwork
+  RootNotFound(String)
+  DuplicateNodeId(String)
+  DuplicateEdgeId(String)
+  UnknownEndpoint(String)
+  NotRadial
+  Disconnected(String)
+}
+pub fn TopologyError::describe(Self) -> String
+
+pub struct Tree {
+  root : Int32
+  order : Array[Int32]
+  parent : Array[Int32]
+  parent_edge : Array[Int32]
+  children : Array[Array[Int32]]
+}
+pub fn Tree::node_count(Self) -> Int32
+pub fn Tree::parent(Self, Int32) -> Int32
+pub fn Tree::root(Self) -> Int32
+
+// Type aliases
+
+// Traits
