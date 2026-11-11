@@ -1,5 +1,7 @@
 # GridLatch
 
+Current release: `0.1.0`
+
 GridLatch is a MoonBit-native fault localization engine for low-voltage
 distribution networks. It converts noisy smart-meter outage evidence and a
 known radial topology into an actionable fault section, affected-customer list,

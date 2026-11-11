@@ -18,6 +18,8 @@ jobs:
       - uses: hustcer/setup-moonbit@v1
       - name: Update registry
         run: moon update
+      - name: Check release metadata
+        run: python scripts/check_release.py
       - name: Format
         run: moon fmt --check
       - name: Check
