@@ -231,3 +231,60 @@ test "invalid non-radial topology is rejected" {
   }
   assert_true(outcome is Err(@gridlatch.AnalysisError::Topology(_)))
 }
+
+///|
+test "malformed JSON returns a structured parse error" {
+  let outcome = Ok(@gridlatch.parse_input("{")) catch { error => Err(error) }
+  assert_true(outcome is Err(@gridlatch.AnalysisError::Parse(_)))
+}
+
+///|
+test "invalid confidence, future timestamps, and unknown nodes are reported" {
+  let network = @gridlatch.Network::new(
+    "T",
+    [
+      @gridlatch.Node::new("T", @gridlatch.Source),
+      @gridlatch.Node::new("M1", @gridlatch.Meter),
+    ],
+    [@gridlatch.Edge::new("E1", "T", "M1")],
+  )
+  let result = @gridlatch.infer_faults(
+    network,
+    [
+      @gridlatch.Observation::new("M1", @gridlatch.Outage, 2.0, 120.0),
+      @gridlatch.Observation::new("UNKNOWN", @gridlatch.Unknown, 1.0, 90.0),
+    ],
+    100.0,
+  )
+  assert_eq(result.used_observation_count, 1)
+  assert_eq(result.warnings.length(), 3)
+}
+
+///|
+test "restoration verification reports complete and still-out states" {
+  let network = sample_network()
+  let complete = @gridlatch.verify_restoration(
+    network,
+    "E5",
+    [
+      obs("M4", @gridlatch.Energized, 210.0),
+      obs("M5", @gridlatch.Energized, 210.0),
+      obs("M6", @gridlatch.Energized, 210.0),
+    ],
+    210.0,
+  )
+  assert_eq(complete.status.to_string(), "complete")
+
+  let still_out = @gridlatch.verify_restoration(
+    network,
+    "E5",
+    [
+      obs("M4", @gridlatch.Energized, 210.0),
+      obs("M5", @gridlatch.Outage, 210.0),
+      obs("M6", @gridlatch.Energized, 210.0),
+    ],
+    210.0,
+  )
+  assert_eq(still_out.status.to_string(), "partial")
+  assert_eq(still_out.still_out_meter_ids, ["M5"])
+}
