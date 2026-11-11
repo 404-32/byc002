@@ -37,3 +37,25 @@ jobs:
         run: moon check --target native --deny-warn
       - name: Run example
         run: moon run cmd/gridlatch --target native -- analyze examples/branch_fault.json
+
+  benchmark:
+    name: Deterministic benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hustcer/setup-moonbit@v1
+      - name: Update registry
+        run: moon update
+      - name: Build JavaScript CLI
+        run: moon build cmd/gridlatch --target js --release
+      - name: Run 18-case benchmark
+        run: >-
+          python scripts/evaluate.py
+          --bin _build/js/release/build/cmd/gridlatch/gridlatch.js
+          --cases 18
+          --out benchmark/ci-results.json
+      - name: Upload benchmark report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gridlatch-benchmark
+          path: benchmark/ci-results.json
