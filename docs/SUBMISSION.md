@@ -1,104 +1,97 @@
-# GridLatch submission brief
+# GridDiagnose submission brief
 
 ## One-line pitch
 
-GridLatch is a MoonBit-native evidence engine that turns noisy smart-meter
-outage alerts into a ranked, explainable fault section and a restoration
-checklist for low-voltage distribution networks.
+GridDiagnose is a MoonBit-native multi-model diagnostic engine that connects
+distribution-network topology, outage evidence, phase measurements, voltage
+traces, and telemetry quality to produce explainable operational findings.
 
-## Real problem
+## Problem
 
-During a low-voltage outage, a smart-meter dashboard can show dozens of dark
-users without telling the crew which cable section failed. Communication
-dropouts make the status set incomplete, and false or stale reports can point
-at the wrong branch.
+A low-voltage distribution operator may simultaneously see missing meter
+messages, a phase voltage at zero, a short voltage sag, and a topology record
+that disagrees with observed upstream relationships. A dashboard presents each
+as a separate alert. A single-purpose outage locator treats the latter events
+as missing or contradictory data.
 
-GridLatch combines the known radial topology with last-gasp events, online
-status, confidence, timestamps, and optional branch-point telemetry. It answers
-three operational questions:
+GridDiagnose makes those signals part of one diagnostic workflow while keeping
+their physical meaning separate. The common layer supplies graph context,
+timestamp normalization, severity, confidence, affected objects, and evidence.
 
-1. Which field-testable section is most likely faulty?
-2. Which meters should be affected if that hypothesis is true?
-3. After repair, is the affected area actually restored?
+## Implemented diagnostic coverage
 
-## Users and deployment
+1. **Outage and fault section**: topology-aware ranking, source outage,
+   communication dropouts, restoration checks, and greedy multi-fault
+   decomposition.
+2. **Phase supply**: phase loss, three-phase unbalance, sustained undervoltage,
+   and overvoltage.
+3. **Power quality**: grouped voltage-sag and voltage-swell events with
+   duration and deviation.
+4. **Telemetry integrity**: stale series, frozen values, clock anomalies,
+   missing series, and declared-vs-observed parent mismatch.
+5. **Topology assessment**: radial, weakly meshed, partial, disconnected, and
+   empty network classification.
 
-Primary users are distribution-network dispatch teams and field crews. The
-engine is intended for a concentrator, edge gateway, or browser/WebAssembly
-environment where connectivity to a cloud service may be intermittent.
+GridLatch remains available as a compatible outage-specific module.
 
-## What is implemented
+## Broad deployment scenarios
 
-- Typed MoonBit network and event model.
-- Radial-tree validation with structured error paths.
-- Confidence- and age-weighted evidence scoring.
-- Source, trunk, branch, and service section candidates.
-- Stable normalized confidence and top-k ranking.
-- Supporting, contradicting, and communication-blind evidence.
-- Restoration verification for complete, partial, unknown, and out-of-scope
-  states.
-- JSON API and CLI.
-- Interactive three-scenario dashboard.
-- Reproducible fault injection and a 36-case benchmark.
-- Unit tests and cross-target CI configuration.
+- utility low-voltage station-area diagnosis;
+- campus, park, and commercial-building power operations;
+- industrial auxiliary power systems;
+- microgrids and distributed-energy low-voltage networks;
+- commissioning teams checking topology and sensor integrity;
+- operators correlating outages with phase and voltage-quality events.
 
-## Why it is not an existing-project resubmission
+## What is reusable
 
-The rejected project addressed API compatibility and permission guarding. This
-project has a different domain, different input/output, and different technical
-core.
+The repository does not duplicate generic time-series statistics. Its reusable
+capability is domain-specific evidence orchestration:
 
-Within the MoonBit ecosystem, the closest existing projects are calculation
-libraries:
-
-- `MoonElec`: circuit and electrical formulas.
-- `moon-power-flow`: unbalanced distribution power-flow solving.
-- `gridflow`: balanced positive-sequence power-flow solving.
-
-GridLatch does not solve voltages or currents. It performs fault-section
-inference from outage evidence. A separate cold-chain monitoring project was
-also found and is unrelated to this power-system use case.
+- typed physical graph and topology classification;
+- one JSON contract for multiple diagnostic models;
+- deterministic multi-fault reasoning;
+- typed finding severity and evidence;
+- one CLI and report for legacy outage and new multi-model workflows;
+- reproducible generators and cross-model benchmark suites.
 
 ## Validation
 
-The deterministic benchmark covers 36 synthetic cases at three evidence-quality
-levels:
+- 19 MoonBit tests pass on `wasm-gc` and `js`.
+- CI also performs a Native smoke test.
+- The legacy outage benchmark contains 36 cases: 91.7% Top-1 accuracy, 94.4%
+  Top-3 recall, and 92.6% mean affected-meter Jaccard.
+- The multi-model suite contains 48 deterministic cases, 12 per model, and all
+  expected classes pass.
+- GitHub Actions runs formatting, checks, tests, release metadata validation,
+  and both benchmark suites.
 
-| Metric | Value |
-|---|---:|
-| Top-1 fault-section accuracy | 91.7% |
-| Top-3 recall | 94.4% |
-| Mean affected-meter Jaccard | 92.6% |
-| Clean-scenario Top-1 | 100% |
-| Mixed-scenario Top-1 | 91.7% |
-| Severe-scenario Top-1 | 83.3% |
+## Distinction from adjacent MoonBit projects
 
-The included real examples exercise:
+- `MoonElec` provides electrical calculations.
+- `moon-power-flow` and `GridFlow` solve power flow.
+- `MoonSignalKit` provides generic streaming telemetry statistics.
+- `moon-stream-quality` provides generic data-quality rules.
+- GridDiagnose applies physical distribution-network context to combine
+  topology, outages, phases, power quality, and telemetry into diagnostic
+  findings.
 
-- branch fault with a communication dropout;
-- feeder-wide outage with explicit root evidence;
-- partial repair where one meter has not yet returned.
+It is not a rebrand of the rejected MoonCompat API guard, and it is not a
+repackaging of an existing power-flow library.
 
 ## Three-minute demo
 
-1. Open `demo/index.html`.
-2. Show the east-cable fault. Point out M52 as unknown rather than outage.
-3. Explain why E17 beats the two individual service edges.
-4. Switch to the transformer outage and show the `SOURCE` hypothesis.
-5. Switch to repair verification and show two restored meters plus one pending.
-6. Run the CLI on `examples/branch_fault.json` with `--json`.
+1. Open `demo/index.html` on the combined scenario.
+2. Point out two independent outage hypotheses.
+3. Show M21 phase loss and M31 voltage unbalance.
+4. Show M33 sag and swell events from the same voltage trace.
+5. Show M22 frozen, duplicated-timestamp telemetry and topology mismatch.
+6. Switch to the legacy outage scenario to show compatibility.
 
 ## Boundaries
 
-The current release supports one simultaneous fault and an unchanged radial
-tree. It is decision support, not protection or dispatch automation. Production
-deployment requires utility topology integration, phase/voltage evidence,
-telemetry calibration, operator override, and audit logging.
-
-## Next milestones
-
-- Multiple-fault decomposition using connected outage components.
-- Impedance and phase-voltage evidence for sections with identical meter sets.
-- Topology-change reconciliation from field switching records.
-- Import adapters for common distribution automation event formats.
-- Operator-labeled replay set from anonymized utility data.
+Outage localization requires a rooted radial network. Weakly meshed and partial
+topologies are assessed and surfaced, but unknown edges are not invented.
+Multi-fault search is greedy. Phase and power-quality thresholds require
+site-specific calibration. The project is decision support, not protection or
+automatic switching.

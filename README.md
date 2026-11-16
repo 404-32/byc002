@@ -1,108 +1,131 @@
-# GridLatch
+# GridDiagnose
 
-Current release: `0.1.0`
+Current release: `0.2.0`
 
-GridLatch is a MoonBit-native fault localization engine for low-voltage
-distribution networks. It converts noisy smart-meter outage evidence and a
-known radial topology into an actionable fault section, affected-customer list,
-confidence score, and restoration checklist.
+GridDiagnose is a MoonBit-native diagnostic engine for low-voltage distribution
+networks. One shared evidence and topology layer supports four different
+operational problems:
 
-The project targets a concrete operational problem: outage maps show which
-houses are dark, but field crews still need to know which cable section to
-inspect first. GridLatch produces that missing diagnostic layer and can run
-offline in a Native process or JavaScript/WebAssembly deployment.
+- fault-section localization and multi-fault decomposition;
+- phase loss, three-phase unbalance, undervoltage, and overvoltage;
+- voltage-sag and voltage-swell event detection;
+- stale, frozen, out-of-order, and topologically inconsistent telemetry.
 
-![GridLatch demo](docs/demo-preview.png)
+The project started as the narrower GridLatch outage locator. Version `0.2.0`
+retains GridLatch as a compatible diagnostic module while broadening the
+project into a reusable distribution-grid diagnostic engine.
 
-## Why GridLatch
+![GridDiagnose multi-model demo](docs/demo-preview.png)
 
-- **Useful outside a demo:** the output is a ranked cable section, affected
-  meter set, evidence explanation, and post-repair verification.
-- **Built for incomplete data:** communication dropouts are `unknown`, not
-  forced into powered/outaged states. Observation confidence and age decay are
-  included in the score.
-- **Topology aware:** a candidate is not a nearest alert. It is a tree edge whose
-  expected downstream outage footprint is compared with the observed state of
-  the whole feeder.
-- **Explainable by construction:** every candidate reports supporting,
-  contradicting, and blind nodes.
-- **Small deployment surface:** the core is deterministic, has no database or
-  network dependency, and supports WebAssembly-friendly builds.
+## Why GridDiagnose
 
-This is distinct from existing MoonBit electrical libraries such as
-[MoonElec](https://github.com/SupremeHuaji/MoonElec),
-[moon-power-flow](https://github.com/Duckweed-yhb/moon-power-flow), and
-[GridFlow](https://github.com/Zcxssxx/gridflow). Those projects calculate
-circuit quantities or steady-state power flow. GridLatch consumes outage
-events and locates a fault section.
+Distribution operators do not receive one clean signal when equipment fails.
+They receive a mixture of last-gasp messages, stale samples, phase voltages,
+power-quality traces, and inaccurate topology records. Treating each alert as
+an independent dashboard event creates noise; treating every incident as a
+single outage model misses phase, quality, and measurement problems.
+
+GridDiagnose provides a common diagnostic contract:
+
+1. Normalize observations, timestamps, and confidence.
+2. Represent devices and physical sections as a graph.
+3. Evaluate different scenario models against that graph.
+4. Return typed findings, severity, confidence, affected objects, and evidence.
+
+The result is useful for utility dispatch, campus and park power systems,
+industrial auxiliary supplies, building electrical operations, microgrids, and
+commissioning teams. It is not limited to one fixed fault workflow.
+
+## Diagnostic models
+
+### Outage and fault-section diagnosis
+
+The legacy GridLatch model compares proposed open edges with observed meter
+states. It handles missing communication evidence, confidence decay, source
+outage candidates, and restoration checks.
+
+Version `0.2.0` adds greedy multi-fault decomposition: each accepted hypothesis
+must explain at least one currently unexplained outage, then its affected
+subtree is masked before the next hypothesis is evaluated.
+
+### Phase diagnosis
+
+`phase_readings` provide A/B/C voltages at one or more nodes. The engine detects:
+
+- loss of one or two phase voltages;
+- voltage unbalance above warning and critical thresholds;
+- sustained undervoltage;
+- sustained overvoltage.
+
+### Power-quality diagnosis
+
+`voltage_series` provide timestamped voltages. The engine uses interval-aware
+grouping to identify voltage-sag and voltage-swell events, duration, extreme
+voltage, and relative deviation from nominal.
+
+### Telemetry integrity diagnosis
+
+`telemetry_series` and `topology_links` expose operational data problems that a
+pure fault locator cannot explain:
+
+- stale latest samples;
+- frozen values over a configurable window;
+- duplicate or decreasing timestamps;
+- missing series;
+- declared parent differing from an observed parent.
+
+## Topology coverage
+
+`assess_topology` classifies:
+
+- **radial**: one connected component and no cycle;
+- **weakly meshed**: one connected component with independent cycles;
+- **partial**: unregistered relationships or isolated meter nodes;
+- **disconnected**: multiple connected components;
+- **empty**: no nodes.
+
+Outage fault localization still requires a rooted tree. If the topology is not
+radial, the combined report keeps the topology and other diagnostic findings and
+records that outage localization was skipped rather than silently making an
+unsafe approximation.
 
 ## Quick start
 
-Install the MoonBit toolchain, then run:
+Install MoonBit, then run:
 
 ```bash
+moon update
 moon check --target wasm-gc --deny-warn
 moon test --target wasm-gc --deny-warn
-gridlatch --version
-
-# Native backend when an MSVC/C toolchain is available:
-moon run cmd/gridlatch --target native -- analyze examples/branch_fault.json
+moon test --target js --deny-warn
 
 # Portable JavaScript backend:
-moon run cmd/gridlatch --target js -- analyze examples/branch_fault.json
+moon run cmd/griddiagnose --target js -- diagnose examples/griddiagnose_multimodel.json
+
+# Machine-readable report:
+moon run cmd/griddiagnose --target js -- diagnose examples/griddiagnose_multimodel.json --json
+
+# Legacy outage commands remain available:
+moon run cmd/griddiagnose --target js -- analyze examples/branch_fault.json
+moon run cmd/griddiagnose --target js -- verify examples/restore_case.json
 ```
 
-Example output:
-
-```text
-Top candidate: E17 [east cable]
-Fault node: J5
-Confidence: 89.59167786154045%
-Affected meters (3): M51, M52, M53
-Supporting nodes: J2, M11, M12, ...
-Contradicting nodes: (none)
-Blind nodes: M52
-```
-
-Use `--json` for machine-readable output:
+A Native build can be used when a C/MSVC toolchain is available:
 
 ```bash
-moon run cmd/gridlatch --target js -- analyze examples/branch_fault.json --json
+moon run cmd/griddiagnose --target native -- diagnose examples/griddiagnose_multimodel.json
 ```
 
-The committed result for that case is
-[`examples/branch_fault_output.json`](examples/branch_fault_output.json).
+## Combined input
 
-Verify a repair:
-
-```bash
-moon run cmd/gridlatch --target js -- verify examples/restore_case.json
-```
-
-## Interactive demo
-
-Build the JavaScript CLI, regenerate the demo from real CLI responses, then open
-[`demo/index.html`](demo/index.html):
-
-```bash
-moon build cmd/gridlatch --target js --release
-python scripts/build_demo_data.py
-```
-
-The demo contains three deterministic scenarios:
-
-1. A branch cable fault with one meter offline for communication reasons.
-2. A transformer/feeder-wide outage.
-3. A partial restoration where one repaired meter has not yet reported back.
-
-## Input contract
-
-The network must be a single connected radial tree. Meters and junctions are
-nodes; each edge is a field-testable section.
+The unified input is defined by
+[`schema/griddiagnose-input.schema.json`](schema/griddiagnose-input.schema.json).
+Only `analysis_time` is mandatory; each diagnostic section may be supplied
+independently.
 
 ```json
 {
-  "analysis_time": 180,
+  "analysis_time": 500,
   "network": {
     "root": "T1",
     "nodes": [
@@ -115,53 +138,76 @@ nodes; each edge is a field-testable section.
       {"id": "E1", "from": "J1", "to": "M1", "section": "service M1"}
     ]
   },
+  "unknown_topology_edge_ids": ["X-NEW"],
   "observations": [
+    {"node_id": "M1", "state": "outage", "confidence": 0.97}
+  ],
+  "phase_readings": [
     {
       "node_id": "M1",
-      "state": "outage",
-      "confidence": 0.96,
-      "observed_at": 177
+      "timestamp": 499,
+      "a_voltage": 230,
+      "b_voltage": 230,
+      "c_voltage": 0
+    }
+  ],
+  "voltage_series": [
+    {
+      "node_id": "M1",
+      "nominal_voltage": 230,
+      "samples": [
+        {"timestamp": 490.00, "voltage": 230},
+        {"timestamp": 490.01, "voltage": 178},
+        {"timestamp": 490.02, "voltage": 230}
+      ]
     }
   ]
 }
 ```
 
-`state` accepts `energized`, `outage`, or `unknown`. The newest observation per
-node wins. Missing `confidence` defaults to `1.0`; missing `observed_at`
-defaults to `analysis_time`.
-
-The machine-readable contract is in
+The older outage-only contract remains available at
 [`schema/gridlatch-input.schema.json`](schema/gridlatch-input.schema.json).
 
-## Algorithm
+## Combined report
 
-For every non-root tree node, the candidate hypothesis is “the edge immediately
-above this node is the failed section”. Its expected outage set is the
-downstream subtree. The `SOURCE` hypothesis represents complete feeder loss.
-
-Each observation contributes evidence according to:
+The `diagnose` command returns separate sections rather than combining
+unrelated failure models into one opaque score:
 
 ```text
-weight = confidence * 0.5 ^ ((analysis_time - observed_at) / half_life)
-score  = sum(compatible weighted evidence)
-       - sum(weighted contradictions * class penalty)
-       - structural prior
+GridDiagnose combined diagnostic report
+Analysis time: 500 s
+Critical findings: 6
+Warnings: 3
+
+Topology: partial
+  nodes=9 edges=8 components=1 cycles=0
+
+Outage hypotheses: 2
+  1. E2 [J1-J3 cable] stage confidence 49.85%
+     affected: M31, M32, M33
+  2. E3 [M21 service] stage confidence 80.16%
+     affected: M21
+
+Phase findings: 2
+  [critical] M21 phase_loss
+  [critical] M31 voltage_unbalance
+
+Power-quality events: 2
+  [critical] M33 voltage_sag
+  [warning] M33 voltage_swell
+
+Telemetry findings: 3
+  [warning] M22 clock_anomaly
+  [warning] M22 stuck_series
+  [critical] M22 topology_mismatch
 ```
 
-Candidate scores are normalized with a stable softmax. This produces a ranked
-fault-section distribution rather than an opaque binary alarm. See
-[the algorithm walkthrough](docs/ALGORITHM.md) and
-[the design note](docs/DESIGN.md) for assumptions, failure paths, and complexity.
+A committed machine-readable result is available in
+[`examples/griddiagnose_multimodel_output.json`](examples/griddiagnose_multimodel_output.json).
 
 ## Evaluation
 
-The repository includes a deterministic benchmark generator with 36 scenarios
-across three noise levels. It injects:
-
-- 2%, 12%, or 28% communication dropouts;
-- 1%, 4%, or 8% false meter-state reports;
-- branch, trunk, and feeder faults;
-- delayed observations and low-confidence evidence.
+The legacy outage benchmark contains 36 reproducible scenarios:
 
 | Metric | Result |
 |---|---:|
@@ -171,51 +217,91 @@ across three noise levels. It injects:
 | Clean-scenario Top-1 | 100% |
 | Mixed-scenario Top-1 | 91.7% |
 | Severe-scenario Top-1 | 83.3% |
-| Nearest-outage-edge baseline | 0% |
-| CLI median latency | 70.9 ms |
 
-The baseline is intentionally simple: it follows the first outaged meter to a
-leaf service edge. It is not a substitute for a utility production model. The
-benchmark uses synthetic topology and reproducible fault injection because
-customer-level low-voltage outage data is normally private. Reproduce it with:
+The multi-model benchmark contains 48 deterministic cases, 12 per model:
+
+| Model | Passed | Accuracy |
+|---|---:|---:|
+| Multi-fault outage | 12/12 | 100% |
+| Phase diagnosis | 12/12 | 100% |
+| Power quality | 12/12 | 100% |
+| Telemetry integrity | 12/12 | 100% |
+
+These are synthetic benchmark suites with controlled ground truth. They
+demonstrate behavior and regression safety, not field accuracy on a specific
+utility network.
+
+Reproduce both:
 
 ```bash
-moon build cmd/gridlatch --target js --release
+moon build cmd/griddiagnose --target js --release
+
 python scripts/evaluate.py \
-  --bin _build/js/release/build/cmd/gridlatch/gridlatch.js \
+  --bin _build/js/release/build/cmd/griddiagnose/griddiagnose.js \
   --cases 36
+
+python scripts/evaluate_multimodel.py \
+  --bin _build/js/release/build/cmd/griddiagnose/griddiagnose.js \
+  --cases-per-model 12
 ```
 
-See [`benchmark/results.json`](benchmark/results.json) and
-[`docs/EVALUATION.md`](docs/EVALUATION.md) for the complete methodology.
+## Interactive demo
+
+```bash
+moon build cmd/griddiagnose --target js --release
+python scripts/build_demo_data.py
+```
+
+Open [`demo/index.html`](demo/index.html). The first scenario is a combined
+diagnosis containing two independent fault sections, a missing phase, three-
+phase unbalance, voltage sag and swell, a frozen/stale telemetry series, a clock
+anomaly, partially unknown topology, and a confirmed topology mismatch.
+
+## Relationship to existing MoonBit projects
+
+- `MoonElec` computes electrical formulas.
+- `moon-power-flow` and `GridFlow` solve steady-state power flow.
+- `MoonSignalKit` provides general streaming statistics and CUSUM utilities.
+- `moon-stream-quality` provides generic stream-quality rules.
+- GridDiagnose applies physical distribution-network context to combine
+  topology, outage, phase, power-quality, and telemetry evidence.
+
+The project does not duplicate a power-flow solver, a generic statistics
+library, or a generic data-quality rule engine.
 
 ## Scope and safety
 
-GridLatch is a decision-support prototype, not a protection relay or a
-production SCADA controller. The current release assumes:
+GridDiagnose is decision support, not a protection relay or SCADA controller.
+The current release does not perform full unbalanced power flow, protection
+coordination, switching commands, or automatic dispatch.
 
-- one simultaneous fault;
-- a known, connected radial tree;
-- meter status as the primary evidence;
-- branch-point telemetry is optional.
+- Outage localization supports a rooted radial topology.
+- Weakly meshed and partial networks are classified, but unknown physical
+  relationships are not guessed.
+- Multi-fault decomposition is greedy and should be treated as ranked
+  guidance.
+- Phase and power-quality thresholds are configurable defaults, not universal
+  standards.
+- Operator review is required before field work or switching.
 
-The output should be reviewed by an operator before switching or field work.
-Support for multiple faults, unmodeled topology changes, phase-level voltage
-evidence, and utility-specific state-estimation interfaces is future work.
+See [`docs/DESIGN.md`](docs/DESIGN.md),
+[`docs/ALGORITHM.md`](docs/ALGORITHM.md),
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), and
+[`docs/EVALUATION.md`](docs/EVALUATION.md) for the detailed contracts.
 
 ## Repository map
 
-- `model.mbt`, `topology.mbt`: typed network model and radial-tree validation.
-- `inference.mbt`: weighted topology-aware fault ranking.
-- `json_io.mbt`: documented JSON input/output contract.
-- `cmd/gridlatch`: CLI entry point.
-- `examples/`: hand-checkable fault and restoration cases.
-- `demo/`: zero-build interactive SVG dashboard.
-- `scripts/`: deterministic case generator, evaluator, and demo builder.
-- `docs/`: design, evaluation, and architecture notes.
-
-Deployment assumptions and calibration guidance are in
-[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+- `inference.mbt`, `multi_fault.mbt`: outage and multi-fault diagnosis.
+- `topology.mbt`, `topology_assessment.mbt`: radial localization and general
+  topology classification.
+- `phase.mbt`: phase-loss and three-phase supply diagnosis.
+- `power_quality.mbt`: sag and swell event detection.
+- `telemetry.mbt`: telemetry integrity and topology consistency.
+- `diagnostic.mbt`, `diagnostic_io.mbt`: unified report and JSON contract.
+- `cmd/griddiagnose`: CLI.
+- `examples/`: hand-checkable legacy and combined scenarios.
+- `demo/`: interactive multi-model dashboard.
+- `scripts/`: generators, benchmarks, release checks, and demo builder.
 
 ## License
 

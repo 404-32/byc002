@@ -9,9 +9,9 @@ smart meters / concentrator
           v
   local ingestion adapter
           |
-          | normalized GridLatch input
+          | normalized GridDiagnose input
           v
-  GridLatch core (Native or JS/WASM)
+  GridDiagnose core (Native or JS/WASM)
           |
           +--> ranked fault section and affected meters
           +--> support/contradiction/blind evidence
@@ -21,13 +21,15 @@ smart meters / concentrator
  dispatch or work-order system
 ```
 
-GridLatch deliberately does not own SCADA switching, protection decisions, or
+GridDiagnose deliberately does not own SCADA switching, protection decisions, or
 field lockout. It is a diagnostic layer between telemetry and a human operator.
 
 ## Input ingestion
 
 An adapter should produce the JSON contract in
-`schema/gridlatch-input.schema.json`. Required normalization:
+`schema/griddiagnose-input.schema.json`. Only `analysis_time` is mandatory; an
+adapter may supply outage, phase, voltage-series, telemetry, and topology-link
+sections according to available data. Required normalization:
 
 - use one time unit consistently;
 - map device health failures to `unknown`;
@@ -46,7 +48,7 @@ For a concentrator or gateway:
 
 1. Keep a versioned topology snapshot on the device.
 2. Buffer events locally with bounded memory.
-3. Run `gridlatch analyze` when the evidence window closes.
+3. Run `griddiagnose diagnose` when the evidence window closes.
 4. Send the top candidate, confidence, affected IDs, and evidence lists to the
    dispatch service.
 5. Require an operator to confirm field work.
@@ -100,7 +102,7 @@ sufficient for computation.
 ## Safety checklist
 
 - Confirm that the deployed topology matches the current switch state.
-- Do not automatically open or close field equipment from GridLatch output.
+- Do not automatically open or close field equipment from GridDiagnose output.
 - Keep a human-approval step for dispatch and protection actions.
 - Re-run restoration verification after a topology change.
 - Treat low-confidence or high-blind-node results as inspection guidance, not

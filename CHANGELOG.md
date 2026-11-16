@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0 - 2026-11-16
+
+- Broadened the project into GridDiagnose, a multi-model distribution-grid
+  diagnostic engine.
+- Added topology classification for radial, weakly meshed, partial, and
+  disconnected networks.
+- Added greedy multi-fault decomposition.
+- Added phase-loss, unbalance, undervoltage, and overvoltage diagnosis.
+- Added voltage-sag and voltage-swell event detection.
+- Added telemetry staleness, clock anomaly, frozen-signal, and topology-mismatch
+  diagnostics.
+- Added a unified diagnostic JSON contract and combined report.
+
 ## 0.1.0 - 2026-11-11
 
 - Added radial low-voltage topology validation.

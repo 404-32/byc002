@@ -1,117 +1,130 @@
-# GridLatch design note
+# GridDiagnose architecture
 
-## 1. Operational problem
+## Product boundary
 
-A smart-meter outage map answers “which customer meters are not reporting
-power?” It does not directly answer “which cable or service section should the
-field crew inspect?” Communication failures make the first answer noisy, and a
-single transformer fault can look like many independent downstream outages.
+GridDiagnose is a distribution-network diagnostic engine. It consumes
+caller-supplied topology, event, phase, time-series, and telemetry data. It
+returns typed findings and evidence. It does not execute switching, protection,
+or field-control actions.
 
-GridLatch treats fault localization as evidence reconciliation over a known
-radial network:
-
-```text
-topology + meter/status events + optional branch telemetry
-                    |
-                    v
-expected outage footprint for every candidate section
-                    |
-                    v
-ranked candidate section + confidence + affected customers
-                    |
-                    v
-restoration verification
-```
-
-## 2. Actors and workflow
-
-- A concentrator or edge gateway receives smart-meter last-gasp and online
-  events.
-- The gateway calls GridLatch locally when the evidence window closes or a new
-  event arrives.
-- A dispatch operator sees the top candidate section, confidence, supporting
-  evidence, contradictions, and communication blind spots.
-- After repair, a second evidence snapshot is checked against the expected
-  affected set.
-
-## 3. Data model
-
-`Network` is a tree plus a source root. `NodeKind` distinguishes source,
-junction, and meter nodes. `Edge` identifies the physical section to test.
-`Observation` carries state, confidence, and timestamp. The newest observation
-for each node replaces older observations for that node.
-
-The candidate `SOURCE` represents complete transformer/feeder loss. Every
-non-root edge also becomes a candidate; its fault node is the child endpoint
-and its expected outage set is the downstream subtree.
-
-## 4. Scoring
-
-For candidate edge `e` and observation `o`:
+The project has four diagnostic models:
 
 ```text
-w(o) = confidence(o) * 0.5 ^ ((t_analysis - t_observe) / half_life)
+                       shared input and timestamp policy
+                                      |
+                    +-----------------+-----------------+
+                    |                 |                 |
+              graph topology      telemetry       phase / voltage
+                    |                 |                 |
+              outage + multi-fault  data integrity   supply + power quality
+                    +-----------------+-----------------+
+                                      |
+                            unified diagnostic report
 ```
 
-If the expected subtree state agrees with the observed state, `w(o)` is added.
-If it contradicts the observation, a class-specific penalty is subtracted.
-`unknown` observations are recorded as blind evidence and do not change the
-score.
+GridLatch is the outage-localization module retained for compatibility.
 
-The structural term is:
+## Core data flow
 
-```text
--structural_prior * ln(1 + affected_meter_count)
-```
+1. An adapter reads topology and measurements from JSON.
+2. Timestamps and confidence values are normalized.
+3. The topology assessor counts components and independent cycles.
+4. Optional diagnostic modules run independently.
+5. Findings retain source objects and evidence rather than returning one
+   unexplained score.
+6. A combined report counts critical and warning findings.
 
-This is deliberately weak. It resolves ambiguous near-identical hypotheses but
-does not replace meter evidence. A transformer-source hypothesis receives a
-small additional penalty unless the root itself supplies outage evidence.
+This design allows a site to deploy only outage diagnosis, only power quality,
+or the complete suite without changing the wire format.
 
-Normalization uses:
+## Shared graph model
 
-```text
-confidence(e) = exp(score(e) - max_score) / sum_k exp(score(k) - max_score)
-```
+`Network` stores source, junction, and meter nodes plus physical edges. The
+legacy outage model requires a rooted tree. The broader topology assessor uses
+union-find and can classify radial, weakly meshed, partial, disconnected, and
+empty networks.
 
-The subtract-max form avoids overflow. Candidate ordering is stable: raw score
-descending, then edge ID ascending.
+For unsupported physical models, the engine reports what it knows and skips the
+model that requires stronger assumptions. It never fabricates unknown edges.
 
-## 5. Complexity
+## Outage model
 
-Let `N` be nodes, `E = N - 1` edges for a valid tree, and `K` be supplied
-observations. For each of `N` candidate hypotheses, the implementation writes
-or evaluates one expected subtree mask and scans `K` observations. The current
-implementation is `O(N * (N + K))` plus sorting `O(N log N)`. This is intended
-for a low-voltage area with tens to hundreds of nodes, not a city-scale
-distribution management system.
+Every non-root tree edge is a field-testable candidate. Its expected impact is
+the downstream meter set. Evidence compatibility uses outage, energized, and
+unknown states. Observations decay over time and confidence.
 
-## 6. Restoration verification
+The multi-fault extension is greedy:
 
-The confirmed fault edge defines an expected affected-meter set. After repair:
+1. Rank single-fault hypotheses.
+2. Accept the top hypothesis only if it explains unexplained outage evidence.
+3. Mask the explained subtree as unknown.
+4. Repeat up to a configured limit.
+5. Preserve every residual unexplained outage in the report.
 
-- energized affected meters become `restored`;
-- outage affected meters remain `still_out`;
-- unknown affected meters remain `unknown`;
-- outage observations outside the expected set raise
-  `unexpected_outage`.
+Stage confidence is intentionally shown per iteration. Probability mass is
+normalized inside a stage, not across the complete multi-fault chain.
 
-The report avoids the false claim that missing telemetry means a successful
-repair.
+## Phase model
 
-## 7. Failure handling
+A phase is treated as present when its voltage is at least 15% of nominal.
+One or two present phases indicate phase loss. For three present phases,
+`(max-min)/mean` identifies unbalance. Sustained voltage below 90% or above
+110% nominal identifies undervoltage or overvoltage.
 
-The parser returns structured errors for malformed JSON or missing fields.
-Tree validation rejects duplicate node/edge IDs, unknown endpoints, non-radial
-edge counts, and disconnected networks. Unknown observation nodes are listed as
-warnings rather than silently ignored. Extreme confidence values are clamped and
-reported; future timestamps are clamped to analysis time.
+The output distinguishes the fault type, affected phases, metric, and severity.
 
-## 8. Safety boundary
+## Power-quality model
 
-This is decision support, not protection logic. It assumes one simultaneous
-fault and an unchanged radial topology. It does not consume phase voltage,
-protection relay flags, transformer loading, or field lockout state. Production
-deployment would require utility topology integration, telemetry calibration,
-operator override, audit logging, and fail-safe behavior on stale or missing
-data.
+Voltage samples are sorted by timestamp. Adjacent observations outside a 90%
+to 110% nominal band are grouped into intervals. The event duration is based on
+the observed midpoint sample period. A sustained event records start, end,
+duration, extreme voltage, and percentage deviation.
+
+This model does not infer protection operation or a physical fault by itself.
+It supplies evidence that can later be correlated with an outage or equipment
+event.
+
+## Telemetry integrity model
+
+The integrity model reports:
+
+- no samples;
+- latest sample older than the stale threshold;
+- duplicate or decreasing timestamps;
+- a value frozen for longer than the stuck window;
+- a declared parent that differs from an observed upstream relation.
+
+The report does not delete suspect evidence. Other diagnostic models still
+receive it, allowing the combined output to explain disagreement.
+
+## Combined report
+
+`run_diagnostic` runs every supplied model and assembles:
+
+- topology assessment;
+- multi-fault outage hypotheses;
+- phase findings;
+- voltage-quality events;
+- telemetry-integrity findings;
+- warnings and severity counts.
+
+Optional sections are omitted if not supplied. If fault localization is not
+structurally valid, its error becomes a report warning while the other models
+continue.
+
+## Extensibility
+
+New diagnostic models should consume the existing graph/time-series contracts
+and return findings with object IDs, severity, confidence, and evidence. They
+should not duplicate the JSON adapter or aggregate unrelated fault types into a
+single unexplained score.
+
+Potential next models include transformer-load stress, phase-current
+consistency, protection-event correlation, and utility-specific outage
+messages.
+
+## Safety boundary
+
+The engine is deterministic decision support. Production deployment requires
+topology validation, sensor calibration, operator override, audit logging, and
+organization-specific safety procedures.

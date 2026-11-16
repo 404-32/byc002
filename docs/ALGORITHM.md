@@ -1,9 +1,9 @@
-# Fault localization algorithm
+# Diagnostic algorithms
 
 ## Input interpretation
 
-GridLatch assumes a connected radial tree. The source node is the transformer
-or feeder root. Every edge can be represented by two hypotheses:
+The outage model assumes a connected radial tree. The source node is the
+transformer or feeder root. Every edge can be represented by two hypotheses:
 
 1. the edge is healthy; or
 2. the edge is open and its child-side downstream subtree loses power.
@@ -43,7 +43,7 @@ retaining a smooth contribution from older evidence.
 
 ## Candidate scoring
 
-For each candidate edge, GridLatch computes an expected outage mask. A
+For each candidate edge, the outage model computes an expected outage mask. A
 downstream meter is expected to be out; every node outside the subtree is
 expected to have power.
 
@@ -80,7 +80,7 @@ meters.
 
 ## Probability normalization
 
-Raw scores can be negative and can be separated by several units. GridLatch
+Raw scores can be negative and can be separated by several units. The engine
 converts them to a stable distribution:
 
 ```text
@@ -124,7 +124,57 @@ For `N` nodes, `N - 1` edges, and `K` observations, the current implementation
 costs `O(N * (N + K))` plus `O(N log N)` sorting. It targets tens to hundreds of
 low-voltage nodes.
 
-The current boundary is one simultaneous fault, a fixed radial topology,
-optional junction telemetry, and no phase-voltage evidence. Those constraints
-are surfaced in the CLI and documentation rather than hidden behind optimistic
-output.
+The current boundary is explicit: outage localization requires a rooted tree;
+multi-fault decomposition is greedy; phase and quality diagnostics use
+configurable thresholds; and unknown topology relationships are reported rather
+than guessed. The broader combined pipeline can still run other diagnostic
+models when outage localization is unavailable.
+
+## Multi-fault decomposition
+
+The single-fault ranking is reused as one stage of a greedy decomposition.
+After selecting a hypothesis, observations in its affected subtree are masked
+as unknown. The next stage must explain evidence that remains unexplained.
+
+Stage confidence is normalized within each stage. It is not treated as a joint
+probability across all faults.
+
+## Topology assessment
+
+Union-find computes the number of connected components. For a valid graph with
+`N` nodes, `E` edges, and `C` components, the cycle rank is:
+
+```text
+cycle_rank = max(0, E - N + C)
+```
+
+Cycle rank greater than zero produces `weakly_meshed`. Multiple components
+produce `disconnected`. Unregistered relationships or isolated meter nodes
+produce `partial`.
+
+## Phase diagnosis
+
+A phase below 15% nominal is treated as absent. If one or two phases are absent,
+the finding is `phase_loss`. Otherwise, phase voltage unbalance is:
+
+```text
+unbalance_percent = 100 * (max(Va, Vb, Vc) - min(Va, Vb, Vc))
+                    / mean(Va, Vb, Vc)
+```
+
+Thresholds default to 5% warning and 10% critical. Sustained values below 90%
+or above 110% nominal produce undervoltage or overvoltage findings.
+
+## Power-quality events
+
+Samples below 90% nominal are grouped into sag intervals; samples above 110%
+are grouped into swell intervals. A gap larger than 2.5 sample periods splits
+the interval. Each event reports its time range, duration, extreme voltage, and
+relative deviation.
+
+## Telemetry integrity
+
+The integrity model compares the latest sample with `analysis_time`, checks
+strict timestamp ordering, and finds constant-value runs longer than the stuck
+window. Declared and observed parent IDs are compared without changing the
+topology graph.
