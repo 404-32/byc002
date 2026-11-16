@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/404-32/byc002/schema/griddiagnose-input.schema.json",
+  "title": "GridDiagnose multi-model input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["analysis_time"],
+  "properties": {
+    "analysis_time": {"type": "number"},
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "nodes", "edges"],
+      "properties": {
+        "root": {"type": "string"},
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "kind"],
+            "properties": {
+              "id": {"type": "string"},
+              "label": {"type": "string"},
+              "kind": {"enum": ["source", "junction", "meter"]}
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "from", "to"],
+            "properties": {
+              "id": {"type": "string"},
+              "from": {"type": "string"},
+              "to": {"type": "string"},
+              "section": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "unknown_topology_edge_ids": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["node_id", "state"],
+        "properties": {
+          "node_id": {"type": "string"},
+          "state": {
+            "enum": ["energized", "powered", "on", "outage", "off", "lost", "unknown", "blind"]
+          },
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "observed_at": {"type": "number"}
+        }
+      }
+    },
+    "phase_readings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["node_id", "timestamp", "a_voltage", "b_voltage", "c_voltage"],
+        "properties": {
+          "node_id": {"type": "string"},
+          "timestamp": {"type": "number"},
+          "a_voltage": {"type": "number", "minimum": 0},
+          "b_voltage": {"type": "number", "minimum": 0},
+          "c_voltage": {"type": "number", "minimum": 0}
+        }
+      }
+    },
+    "voltage_series": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["node_id", "samples"],
+        "properties": {
+          "node_id": {"type": "string"},
+          "nominal_voltage": {"type": "number", "exclusiveMinimum": 0},
+          "samples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["timestamp", "voltage"],
+              "properties": {
+                "timestamp": {"type": "number"},
+                "voltage": {"type": "number", "minimum": 0}
+              }
+            }
+          }
+        }
+      }
+    },
+    "telemetry_series": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["node_id", "samples"],
+        "properties": {
+          "node_id": {"type": "string"},
+          "samples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["timestamp", "value"],
+              "properties": {
+                "timestamp": {"type": "number"},
+                "value": {"type": "number"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "topology_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["node_id", "declared_parent", "observed_parent"],
+        "properties": {
+          "node_id": {"type": "string"},
+          "declared_parent": {"type": "string"},
+          "observed_parent": {"type": "string"}
+        }
+      }
+    }
+  }
+}

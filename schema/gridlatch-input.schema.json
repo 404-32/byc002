@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/404-32/byc002/schema/gridlatch-input.schema.json",
-  "title": "GridLatch outage evidence input",
-  "description": "Topology and observation input accepted by the GridLatch analyzer.",
+  "title": "GridLatch legacy outage evidence input",
+  "description": "Compatibility schema for the outage-only analyze and verify commands.",
   "type": "object",
   "additionalProperties": false,
   "required": ["analysis_time", "network", "observations"],

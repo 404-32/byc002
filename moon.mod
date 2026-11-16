@@ -9,9 +9,9 @@
 //   "moonbitlang/x@0.4.6",
 // }
 
-name = "404-32/gridlatch"
+name = "404-32/griddiagnose"
 
-version = "0.1.0"
+version = "0.2.0"
 
 readme = "README.md"
 
@@ -22,6 +22,9 @@ license = "Apache-2.0"
 keywords = [
   "power-systems",
   "outage-localization",
+  "distribution-grid",
+  "power-quality",
+  "phase-loss",
   "fault-diagnosis",
   "edge-computing",
   "wasm",
@@ -31,7 +34,7 @@ preferred_target = "wasm-gc"
 
 supported_targets = [ "wasm-gc", "js", "native" ]
 
-description = "Topology-aware low-voltage outage and fault-section localization engine in MoonBit"
+description = "Multi-model low-voltage distribution diagnostic engine in MoonBit"
 
 import {
   "moonbitlang/x@0.5.6",

@@ -1,29 +1,29 @@
 ///|
-fn sample_network() -> @gridlatch.Network {
-  @gridlatch.Network::new(
+fn sample_network() -> @griddiagnose.Network {
+  @griddiagnose.Network::new(
     "T",
     [
-      @gridlatch.Node::new("T", @gridlatch.Source),
-      @gridlatch.Node::new("J1", @gridlatch.Junction),
-      @gridlatch.Node::new("M1", @gridlatch.Meter),
-      @gridlatch.Node::new("J2", @gridlatch.Junction),
-      @gridlatch.Node::new("M2", @gridlatch.Meter),
-      @gridlatch.Node::new("M3", @gridlatch.Meter),
-      @gridlatch.Node::new("J3", @gridlatch.Junction),
-      @gridlatch.Node::new("M4", @gridlatch.Meter),
-      @gridlatch.Node::new("M5", @gridlatch.Meter),
-      @gridlatch.Node::new("M6", @gridlatch.Meter),
+      @griddiagnose.Node::new("T", @griddiagnose.Source),
+      @griddiagnose.Node::new("J1", @griddiagnose.Junction),
+      @griddiagnose.Node::new("M1", @griddiagnose.Meter),
+      @griddiagnose.Node::new("J2", @griddiagnose.Junction),
+      @griddiagnose.Node::new("M2", @griddiagnose.Meter),
+      @griddiagnose.Node::new("M3", @griddiagnose.Meter),
+      @griddiagnose.Node::new("J3", @griddiagnose.Junction),
+      @griddiagnose.Node::new("M4", @griddiagnose.Meter),
+      @griddiagnose.Node::new("M5", @griddiagnose.Meter),
+      @griddiagnose.Node::new("M6", @griddiagnose.Meter),
     ],
     [
-      @gridlatch.Edge::new("E0", "T", "J1", section="feeder"),
-      @gridlatch.Edge::new("E1", "J1", "M1", section="leaf-1"),
-      @gridlatch.Edge::new("E2", "J1", "J2", section="trunk-2"),
-      @gridlatch.Edge::new("E3", "J2", "M2", section="leaf-2"),
-      @gridlatch.Edge::new("E4", "J2", "M3", section="leaf-3"),
-      @gridlatch.Edge::new("E5", "J2", "J3", section="branch-3"),
-      @gridlatch.Edge::new("E6", "J3", "M4", section="leaf-4"),
-      @gridlatch.Edge::new("E7", "J3", "M5", section="leaf-5"),
-      @gridlatch.Edge::new("E8", "J3", "M6", section="leaf-6"),
+      @griddiagnose.Edge::new("E0", "T", "J1", section="feeder"),
+      @griddiagnose.Edge::new("E1", "J1", "M1", section="leaf-1"),
+      @griddiagnose.Edge::new("E2", "J1", "J2", section="trunk-2"),
+      @griddiagnose.Edge::new("E3", "J2", "M2", section="leaf-2"),
+      @griddiagnose.Edge::new("E4", "J2", "M3", section="leaf-3"),
+      @griddiagnose.Edge::new("E5", "J2", "J3", section="branch-3"),
+      @griddiagnose.Edge::new("E6", "J3", "M4", section="leaf-4"),
+      @griddiagnose.Edge::new("E7", "J3", "M5", section="leaf-5"),
+      @griddiagnose.Edge::new("E8", "J3", "M6", section="leaf-6"),
     ],
   )
 }
@@ -31,28 +31,28 @@ fn sample_network() -> @gridlatch.Network {
 ///|
 fn obs(
   node : String,
-  state : @gridlatch.PowerState,
+  state : @griddiagnose.PowerState,
   at : Double,
-) -> @gridlatch.Observation {
-  @gridlatch.Observation::new(node, state, 1.0, at)
+) -> @griddiagnose.Observation {
+  @griddiagnose.Observation::new(node, state, 1.0, at)
 }
 
 ///|
 test "public version is exposed" {
-  assert_eq(@gridlatch.version(), "0.1.0")
+  assert_eq(@griddiagnose.version(), "0.2.0")
 }
 
 ///|
 test "localizes a branch fault from meter evidence" {
-  let result = @gridlatch.infer_faults(
+  let result = @griddiagnose.infer_faults(
     sample_network(),
     [
-      obs("M1", @gridlatch.Energized, 100.0),
-      obs("M2", @gridlatch.Energized, 100.0),
-      obs("M3", @gridlatch.Energized, 100.0),
-      obs("M4", @gridlatch.Outage, 100.0),
-      obs("M5", @gridlatch.Outage, 100.0),
-      obs("M6", @gridlatch.Outage, 100.0),
+      obs("M1", @griddiagnose.Energized, 100.0),
+      obs("M2", @griddiagnose.Energized, 100.0),
+      obs("M3", @griddiagnose.Energized, 100.0),
+      obs("M4", @griddiagnose.Outage, 100.0),
+      obs("M5", @griddiagnose.Outage, 100.0),
+      obs("M6", @griddiagnose.Outage, 100.0),
     ],
     100.0,
   )
@@ -67,15 +67,15 @@ test "localizes a branch fault from meter evidence" {
 
 ///|
 test "communication dropouts are represented as unknown evidence" {
-  let result = @gridlatch.infer_faults(
+  let result = @griddiagnose.infer_faults(
     sample_network(),
     [
-      obs("M1", @gridlatch.Energized, 100.0),
-      obs("M2", @gridlatch.Energized, 100.0),
-      obs("M3", @gridlatch.Energized, 100.0),
-      obs("M4", @gridlatch.Outage, 100.0),
-      obs("M5", @gridlatch.Unknown, 100.0),
-      obs("M6", @gridlatch.Outage, 100.0),
+      obs("M1", @griddiagnose.Energized, 100.0),
+      obs("M2", @griddiagnose.Energized, 100.0),
+      obs("M3", @griddiagnose.Energized, 100.0),
+      obs("M4", @griddiagnose.Outage, 100.0),
+      obs("M5", @griddiagnose.Unknown, 100.0),
+      obs("M6", @griddiagnose.Outage, 100.0),
     ],
     100.0,
   )
@@ -89,16 +89,16 @@ test "communication dropouts are represented as unknown evidence" {
 
 ///|
 test "the latest observation for a node wins" {
-  let result = @gridlatch.infer_faults(
+  let result = @griddiagnose.infer_faults(
     sample_network(),
     [
-      obs("M1", @gridlatch.Energized, 100.0),
-      obs("M2", @gridlatch.Energized, 100.0),
-      obs("M3", @gridlatch.Energized, 100.0),
-      obs("M4", @gridlatch.Outage, 100.0),
-      obs("M5", @gridlatch.Outage, 100.0),
-      obs("M6", @gridlatch.Outage, 100.0),
-      obs("M5", @gridlatch.Energized, 111.0),
+      obs("M1", @griddiagnose.Energized, 100.0),
+      obs("M2", @griddiagnose.Energized, 100.0),
+      obs("M3", @griddiagnose.Energized, 100.0),
+      obs("M4", @griddiagnose.Outage, 100.0),
+      obs("M5", @griddiagnose.Outage, 100.0),
+      obs("M6", @griddiagnose.Outage, 100.0),
+      obs("M5", @griddiagnose.Energized, 111.0),
     ],
     120.0,
   )
@@ -113,16 +113,16 @@ test "the latest observation for a node wins" {
 
 ///|
 test "source outage explains a complete feeder loss" {
-  let result = @gridlatch.infer_faults(
+  let result = @griddiagnose.infer_faults(
     sample_network(),
     [
-      obs("T", @gridlatch.Outage, 100.0),
-      obs("M1", @gridlatch.Outage, 100.0),
-      obs("M2", @gridlatch.Outage, 100.0),
-      obs("M3", @gridlatch.Outage, 100.0),
-      obs("M4", @gridlatch.Outage, 100.0),
-      obs("M5", @gridlatch.Outage, 100.0),
-      obs("M6", @gridlatch.Outage, 100.0),
+      obs("T", @griddiagnose.Outage, 100.0),
+      obs("M1", @griddiagnose.Outage, 100.0),
+      obs("M2", @griddiagnose.Outage, 100.0),
+      obs("M3", @griddiagnose.Outage, 100.0),
+      obs("M4", @griddiagnose.Outage, 100.0),
+      obs("M5", @griddiagnose.Outage, 100.0),
+      obs("M6", @griddiagnose.Outage, 100.0),
     ],
     100.0,
   )
@@ -135,15 +135,15 @@ test "source outage explains a complete feeder loss" {
 
 ///|
 test "candidate probabilities form a normalized distribution" {
-  let result = @gridlatch.infer_faults(
+  let result = @griddiagnose.infer_faults(
     sample_network(),
     [
-      obs("M1", @gridlatch.Energized, 100.0),
-      obs("M2", @gridlatch.Energized, 100.0),
-      obs("M3", @gridlatch.Energized, 100.0),
-      obs("M4", @gridlatch.Outage, 100.0),
-      obs("M5", @gridlatch.Outage, 100.0),
-      obs("M6", @gridlatch.Outage, 100.0),
+      obs("M1", @griddiagnose.Energized, 100.0),
+      obs("M2", @griddiagnose.Energized, 100.0),
+      obs("M3", @griddiagnose.Energized, 100.0),
+      obs("M4", @griddiagnose.Outage, 100.0),
+      obs("M5", @griddiagnose.Outage, 100.0),
+      obs("M6", @griddiagnose.Outage, 100.0),
     ],
     100.0,
   )
@@ -157,13 +157,13 @@ test "candidate probabilities form a normalized distribution" {
 ///|
 test "restoration verification distinguishes partial and unexpected outages" {
   let network = sample_network()
-  let partial = @gridlatch.verify_restoration(
+  let partial = @griddiagnose.verify_restoration(
     network,
     "E5",
     [
-      obs("M4", @gridlatch.Energized, 200.0),
-      obs("M5", @gridlatch.Energized, 200.0),
-      obs("M6", @gridlatch.Unknown, 200.0),
+      obs("M4", @griddiagnose.Energized, 200.0),
+      obs("M5", @griddiagnose.Energized, 200.0),
+      obs("M6", @griddiagnose.Unknown, 200.0),
     ],
     200.0,
   )
@@ -171,14 +171,14 @@ test "restoration verification distinguishes partial and unexpected outages" {
   assert_eq(partial.restored_meter_ids, ["M4", "M5"])
   assert_eq(partial.unknown_meter_ids, ["M6"])
 
-  let unexpected = @gridlatch.verify_restoration(
+  let unexpected = @griddiagnose.verify_restoration(
     network,
     "E5",
     [
-      obs("M1", @gridlatch.Outage, 200.0),
-      obs("M4", @gridlatch.Energized, 200.0),
-      obs("M5", @gridlatch.Energized, 200.0),
-      obs("M6", @gridlatch.Energized, 200.0),
+      obs("M1", @griddiagnose.Outage, 200.0),
+      obs("M4", @griddiagnose.Energized, 200.0),
+      obs("M5", @griddiagnose.Energized, 200.0),
+      obs("M6", @griddiagnose.Energized, 200.0),
     ],
     200.0,
   )
@@ -205,10 +205,10 @@ test "JSON input is parsed into the public data model" {
     #|    {"node_id":"M1","state":"outage","confidence":0.9}
     #|  ]
     #|}
-  let document = @gridlatch.parse_input(source)
+  let document = @griddiagnose.parse_input(source)
   assert_eq(document.network.root_id, "T")
   assert_eq(document.observations.length(), 1)
-  let result = @gridlatch.infer_faults(
+  let result = @griddiagnose.infer_faults(
     document.network,
     document.observations,
     document.analysis_time,
@@ -218,46 +218,51 @@ test "JSON input is parsed into the public data model" {
 
 ///|
 test "invalid non-radial topology is rejected" {
-  let network = @gridlatch.Network::new(
+  let network = @griddiagnose.Network::new(
     "T",
     [
-      @gridlatch.Node::new("T", @gridlatch.Source),
-      @gridlatch.Node::new("A", @gridlatch.Meter),
-      @gridlatch.Node::new("B", @gridlatch.Meter),
+      @griddiagnose.Node::new("T", @griddiagnose.Source),
+      @griddiagnose.Node::new("A", @griddiagnose.Meter),
+      @griddiagnose.Node::new("B", @griddiagnose.Meter),
     ],
     [
-      @gridlatch.Edge::new("E1", "T", "A"),
-      @gridlatch.Edge::new("E2", "T", "B"),
-      @gridlatch.Edge::new("E3", "A", "B"),
+      @griddiagnose.Edge::new("E1", "T", "A"),
+      @griddiagnose.Edge::new("E2", "T", "B"),
+      @griddiagnose.Edge::new("E3", "A", "B"),
     ],
   )
-  let outcome = Ok(@gridlatch.infer_faults(network, [], 100.0)) catch {
+  let outcome = Ok(@griddiagnose.infer_faults(network, [], 100.0)) catch {
     error => Err(error)
   }
-  assert_true(outcome is Err(@gridlatch.AnalysisError::Topology(_)))
+  assert_true(outcome is Err(@griddiagnose.AnalysisError::Topology(_)))
 }
 
 ///|
 test "malformed JSON returns a structured parse error" {
-  let outcome = Ok(@gridlatch.parse_input("{")) catch { error => Err(error) }
-  assert_true(outcome is Err(@gridlatch.AnalysisError::Parse(_)))
+  let outcome = Ok(@griddiagnose.parse_input("{")) catch { error => Err(error) }
+  assert_true(outcome is Err(@griddiagnose.AnalysisError::Parse(_)))
 }
 
 ///|
 test "invalid confidence, future timestamps, and unknown nodes are reported" {
-  let network = @gridlatch.Network::new(
+  let network = @griddiagnose.Network::new(
     "T",
     [
-      @gridlatch.Node::new("T", @gridlatch.Source),
-      @gridlatch.Node::new("M1", @gridlatch.Meter),
+      @griddiagnose.Node::new("T", @griddiagnose.Source),
+      @griddiagnose.Node::new("M1", @griddiagnose.Meter),
     ],
-    [@gridlatch.Edge::new("E1", "T", "M1")],
+    [@griddiagnose.Edge::new("E1", "T", "M1")],
   )
-  let result = @gridlatch.infer_faults(
+  let result = @griddiagnose.infer_faults(
     network,
     [
-      @gridlatch.Observation::new("M1", @gridlatch.Outage, 2.0, 120.0),
-      @gridlatch.Observation::new("UNKNOWN", @gridlatch.Unknown, 1.0, 90.0),
+      @griddiagnose.Observation::new("M1", @griddiagnose.Outage, 2.0, 120.0),
+      @griddiagnose.Observation::new(
+        "UNKNOWN",
+        @griddiagnose.Unknown,
+        1.0,
+        90.0,
+      ),
     ],
     100.0,
   )
@@ -268,28 +273,179 @@ test "invalid confidence, future timestamps, and unknown nodes are reported" {
 ///|
 test "restoration verification reports complete and still-out states" {
   let network = sample_network()
-  let complete = @gridlatch.verify_restoration(
+  let complete = @griddiagnose.verify_restoration(
     network,
     "E5",
     [
-      obs("M4", @gridlatch.Energized, 210.0),
-      obs("M5", @gridlatch.Energized, 210.0),
-      obs("M6", @gridlatch.Energized, 210.0),
+      obs("M4", @griddiagnose.Energized, 210.0),
+      obs("M5", @griddiagnose.Energized, 210.0),
+      obs("M6", @griddiagnose.Energized, 210.0),
     ],
     210.0,
   )
   assert_eq(complete.status.to_string(), "complete")
 
-  let still_out = @gridlatch.verify_restoration(
+  let still_out = @griddiagnose.verify_restoration(
     network,
     "E5",
     [
-      obs("M4", @gridlatch.Energized, 210.0),
-      obs("M5", @gridlatch.Outage, 210.0),
-      obs("M6", @gridlatch.Energized, 210.0),
+      obs("M4", @griddiagnose.Energized, 210.0),
+      obs("M5", @griddiagnose.Outage, 210.0),
+      obs("M6", @griddiagnose.Energized, 210.0),
     ],
     210.0,
   )
   assert_eq(still_out.status.to_string(), "partial")
   assert_eq(still_out.still_out_meter_ids, ["M5"])
+}
+
+///|
+test "topology assessment distinguishes radial and weakly meshed graphs" {
+  let radial = sample_network()
+  let radial_report = @griddiagnose.assess_topology(radial)
+  assert_eq(radial_report.status, "radial")
+
+  let meshed = @griddiagnose.Network::new(
+    "T",
+    [
+      @griddiagnose.Node::new("T", @griddiagnose.Source),
+      @griddiagnose.Node::new("A", @griddiagnose.Junction),
+      @griddiagnose.Node::new("B", @griddiagnose.Junction),
+    ],
+    [
+      @griddiagnose.Edge::new("E1", "T", "A"),
+      @griddiagnose.Edge::new("E2", "T", "B"),
+      @griddiagnose.Edge::new("E3", "A", "B"),
+    ],
+  )
+  let meshed_report = @griddiagnose.assess_topology(meshed)
+  assert_eq(meshed_report.status, "weakly_meshed")
+  assert_eq(meshed_report.cycle_rank, 1)
+}
+
+///|
+test "partial topology is reported separately" {
+  let report = @griddiagnose.assess_topology(sample_network(), unknown_edge_ids=[
+    "E-UNREGISTERED",
+  ])
+  assert_eq(report.status, "partial")
+  assert_eq(report.unknown_edge_ids, ["E-UNREGISTERED"])
+}
+
+///|
+test "phase diagnosis detects phase loss and imbalance" {
+  let report = @griddiagnose.diagnose_phase([
+    @griddiagnose.PhaseReading::new("M1", 100.0, 230.0, 230.0, 0.0),
+    @griddiagnose.PhaseReading::new("M2", 100.0, 240.0, 215.0, 230.0),
+  ])
+  assert_eq(report.findings.length(), 2)
+  assert_eq(report.findings[0].kind, "phase_loss")
+  assert_eq(report.findings[0].affected_phases, ["C"])
+  assert_eq(report.findings[1].kind, "voltage_unbalance")
+}
+
+///|
+test "power quality diagnosis groups sag and swell intervals" {
+  let samples = [
+    @griddiagnose.VoltagePoint::new(0.00, 230.0),
+    @griddiagnose.VoltagePoint::new(0.01, 230.0),
+    @griddiagnose.VoltagePoint::new(0.02, 180.0),
+    @griddiagnose.VoltagePoint::new(0.03, 175.0),
+    @griddiagnose.VoltagePoint::new(0.04, 230.0),
+    @griddiagnose.VoltagePoint::new(0.05, 260.0),
+    @griddiagnose.VoltagePoint::new(0.06, 265.0),
+    @griddiagnose.VoltagePoint::new(0.07, 230.0),
+  ]
+  let report = @griddiagnose.diagnose_power_quality(
+    [@griddiagnose.VoltageSeries::new("M1", 230.0, samples)],
+    minimum_duration_sec=0.02,
+  )
+  assert_eq(report.events.length(), 2)
+  assert_eq(report.events[0].kind, "voltage_sag")
+  assert_eq(report.events[1].kind, "voltage_swell")
+  assert_true(report.events[0].duration_sec >= 0.019999)
+}
+
+///|
+test "telemetry diagnosis detects stale, frozen, clock, and topology issues" {
+  let samples = [
+    @griddiagnose.TelemetryPoint::new(100.0, 12.0),
+    @griddiagnose.TelemetryPoint::new(50.0, 12.0),
+    @griddiagnose.TelemetryPoint::new(10.0, 12.0),
+  ]
+  let report = @griddiagnose.diagnose_telemetry(
+    [@griddiagnose.TelemetrySeries::new("M1", samples)],
+    [@griddiagnose.TopologyLinkObservation::new("M1", "J1", "J2")],
+    500.0,
+    stuck_window_sec=50.0,
+  )
+  let mut stale = false
+  let mut stuck = false
+  let mut clock = false
+  let mut mismatch = false
+  for finding in report.findings {
+    if finding.kind == "stale_series" {
+      stale = true
+    }
+    if finding.kind == "stuck_series" {
+      stuck = true
+    }
+    if finding.kind == "clock_anomaly" {
+      clock = true
+    }
+    if finding.kind == "topology_mismatch" {
+      mismatch = true
+    }
+  }
+  assert_true(stale && stuck && clock && mismatch)
+}
+
+///|
+test "multiple independent faults are decomposed into hypotheses" {
+  let report = @griddiagnose.infer_multiple_faults(
+    sample_network(),
+    [
+      obs("M1", @griddiagnose.Outage, 100.0),
+      obs("M2", @griddiagnose.Energized, 100.0),
+      obs("M3", @griddiagnose.Energized, 100.0),
+      obs("M4", @griddiagnose.Outage, 100.0),
+      obs("M5", @griddiagnose.Outage, 100.0),
+      obs("M6", @griddiagnose.Outage, 100.0),
+    ],
+    100.0,
+  )
+  assert_eq(report.faults.length(), 2)
+  assert_true(
+    report.faults[0].candidate.edge_id != report.faults[1].candidate.edge_id,
+  )
+  assert_eq(report.residual_outage_meter_ids.length(), 0)
+}
+
+///|
+test "unified diagnostic input produces one combined report" {
+  let source =
+    #|{
+    #|  "analysis_time": 100,
+    #|  "phase_readings": [
+    #|    {"node_id":"M1","timestamp":99,"a_voltage":230,"b_voltage":230,"c_voltage":0}
+    #|  ],
+    #|  "voltage_series": [
+    #|    {
+    #|      "node_id":"M1",
+    #|      "nominal_voltage":230,
+    #|      "samples":[
+    #|        {"timestamp":0,"voltage":230},
+    #|        {"timestamp":0.01,"voltage":180},
+    #|        {"timestamp":0.02,"voltage":175},
+    #|        {"timestamp":0.03,"voltage":230}
+    #|      ]
+    #|    }
+    #|  ]
+    #|}
+  let input = @griddiagnose.parse_diagnostic_input(source)
+  let report = @griddiagnose.run_diagnostic(input)
+  assert_eq(report.version, "0.2.0")
+  assert_true(report.critical_count >= 1)
+  assert_eq(report.phase.findings[0].kind, "phase_loss")
+  assert_eq(report.power_quality.events[0].kind, "voltage_sag")
 }

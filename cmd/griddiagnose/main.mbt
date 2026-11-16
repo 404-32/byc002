@@ -1,5 +1,6 @@
 ///|
 enum Command {
+  Diagnose
   Analyze
   Verify
 }
@@ -56,6 +57,7 @@ fn parse_cli(args : Array[String]) -> Result[CliOptions, CliParseError] {
     return Err(MissingCommand)
   }
   let command = match args[offset] {
+    "diagnose" => Diagnose
     "analyze" => Analyze
     "verify" => Verify
     other => return Err(UnknownCommand(other))
@@ -117,15 +119,17 @@ fn parse_cli(args : Array[String]) -> Result[CliOptions, CliParseError] {
 ///|
 fn usage() -> String {
   (
-    #|GridLatch - topology-aware low-voltage outage localization
+    #|GridDiagnose - multi-model low-voltage distribution diagnostics
     #|
     #|Usage:
-    #|  gridlatch analyze INPUT.json [--json] [--half-life SECONDS] [--prior WEIGHT]
-    #|  gridlatch verify  INPUT.json [--edge EDGE_ID] [--json]
+    #|  griddiagnose diagnose INPUT.json [--json]
+    #|  griddiagnose analyze INPUT.json [--json] [--half-life SECONDS] [--prior WEIGHT]
+    #|  griddiagnose verify  INPUT.json [--edge EDGE_ID] [--json]
     #|
     #|Examples:
-    #|  gridlatch analyze examples/branch_fault.json
-    #|  gridlatch verify examples/restore_case.json --edge E17 --json
+    #|  griddiagnose diagnose examples/griddiagnose_multimodel.json
+    #|  griddiagnose analyze examples/branch_fault.json
+    #|  griddiagnose verify examples/restore_case.json --edge E17 --json
   )
 }
 
@@ -152,7 +156,7 @@ fn analyze_text(
     Some(value) => value
     None => return "No fault candidates were generated."
   }
-  let mut output = "GridLatch fault localization\n"
+  let mut output = "GridDiagnose outage fault localization\n"
   output += "Analysis time: " + result.analysis_time.to_string() + " s\n"
   output += "Observations used: " +
     result.used_observation_count.to_string() +
@@ -193,7 +197,7 @@ fn analyze_text(
 
 ///|
 fn restore_text(report : @core.RestoreReport) -> String {
-  let mut output = "GridLatch restoration verification\n"
+  let mut output = "GridDiagnose restoration verification\n"
   output += "Fault edge: " + report.fault_edge_id + "\n"
   output += "Status: " + report.status.to_string() + "\n"
   output += "Expected affected: " +
@@ -207,6 +211,73 @@ fn restore_text(report : @core.RestoreReport) -> String {
   if report.unexpected_outage_node_ids.length() > 0 {
     output += "Unexpected outage outside the repaired section: "
     output += join_ids(report.unexpected_outage_node_ids) + "\n"
+  }
+  output
+}
+
+///|
+fn diagnostic_text(report : @core.DiagnosticReport) -> String {
+  let mut output = "GridDiagnose combined diagnostic report\n"
+  output += "Analysis time: " + report.analysis_time.to_string() + " s\n"
+  output += "Critical findings: " + report.critical_count.to_string() + "\n"
+  output += "Warnings: " + report.warning_count.to_string() + "\n\n"
+  match report.topology {
+    Some(topology) => {
+      output += "Topology: " + topology.status + "\n"
+      output += "  nodes=" + topology.node_count.to_string()
+      output += " edges=" + topology.edge_count.to_string()
+      output += " components=" + topology.connected_components.to_string()
+      output += " cycles=" + topology.cycle_rank.to_string() + "\n"
+    }
+    None => output += "Topology: not supplied\n"
+  }
+  match report.outage {
+    Some(outage) => {
+      output += "\nOutage hypotheses: " +
+        outage.faults.length().to_string() +
+        "\n"
+      for hypothesis in outage.faults {
+        let candidate = hypothesis.candidate
+        output += "  " + hypothesis.rank.to_string() + ". "
+        output += candidate.edge_id + " [" + candidate.section + "] "
+        output += "stage confidence " + percent(candidate.confidence) + "\n"
+        output += "     affected: "
+        output += join_ids(candidate.affected_meter_ids) + "\n"
+      }
+      if outage.residual_outage_meter_ids.length() > 0 {
+        output += "  unexplained: "
+        output += join_ids(outage.residual_outage_meter_ids) + "\n"
+      }
+    }
+    None => output += "\nOutage hypotheses: not run\n"
+  }
+  output += "\nPhase findings: " +
+    report.phase.findings.length().to_string() +
+    "\n"
+  for finding in report.phase.findings {
+    output += "  [" + finding.severity + "] " + finding.node_id + " "
+    output += finding.kind + ": " + finding.summary + "\n"
+  }
+  output += "\nPower-quality events: " +
+    report.power_quality.events.length().to_string() +
+    "\n"
+  for event in report.power_quality.events {
+    output += "  [" + event.severity + "] " + event.node_id + " "
+    output += event.kind + " for " + event.duration_sec.to_string() + " s"
+    output += ", deviation " + event.deviation_percent.to_string() + "%\n"
+  }
+  output += "\nTelemetry findings: " +
+    report.telemetry.findings.length().to_string() +
+    "\n"
+  for finding in report.telemetry.findings {
+    output += "  [" + finding.severity + "] " + finding.node_id + " "
+    output += finding.kind + ": " + finding.summary + "\n"
+  }
+  if report.warnings.length() > 0 {
+    output += "\nWarnings:\n"
+    for warning in report.warnings {
+      output += "  - " + warning + "\n"
+    }
   }
   output
 }
@@ -248,11 +319,22 @@ fn execute(options : CliOptions) -> Result[String, String] {
     @fs.IOError::IOError(message) =>
       return Err("cannot read '" + options.path + "': " + message)
   }
-  let document = @core.parse_input(source) catch {
-    error => return Err(error.describe())
-  }
   match options.command {
+    Diagnose => {
+      let input = @core.parse_diagnostic_input(source) catch {
+        error => return Err(error.describe())
+      }
+      let report = @core.run_diagnostic(input)
+      if options.json_output {
+        Ok(@core.diagnostic_json_string(report))
+      } else {
+        Ok(diagnostic_text(report))
+      }
+    }
     Analyze => {
+      let document = @core.parse_input(source) catch {
+        error => return Err(error.describe())
+      }
       let result = @core.infer_faults(
         document.network,
         document.observations,
@@ -268,6 +350,9 @@ fn execute(options : CliOptions) -> Result[String, String] {
       }
     }
     Verify => {
+      let document = @core.parse_input(source) catch {
+        error => return Err(error.describe())
+      }
       let edge_id = match options.edge_id {
         Some(value) => value
         None =>
@@ -310,7 +395,7 @@ fn main {
   let options = match parse_cli(args) {
     Ok(value) => value
     Err(error) => {
-      eprintln("gridlatch: " + cli_error_text(error))
+      eprintln("griddiagnose: " + cli_error_text(error))
       eprintln(usage())
       @env.exit(2)
       return
@@ -319,7 +404,7 @@ fn main {
   match execute(options) {
     Ok(output) => println(output)
     Err(message) => {
-      eprintln("gridlatch: " + message)
+      eprintln("griddiagnose: " + message)
       @env.exit(2)
     }
   }

@@ -1,5 +1,5 @@
 import {
-  "404-32/gridlatch" @core,
+  "404-32/griddiagnose" @core,
   "moonbitlang/core/env",
   "moonbitlang/core/string",
   "moonbitlang/x/fs",

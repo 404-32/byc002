@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "404-32/gridlatch"
+package "404-32/griddiagnose"
 
 import {
   "moonbitlang/core/json",
@@ -8,7 +8,19 @@ import {
 // Values
 pub fn all_meter_ids(Network) -> Array[String]
 
+pub fn assess_topology(Network, unknown_edge_ids? : Array[String]) -> TopologyAssessment
+
 pub fn build_tree(Network) -> Result[Tree, TopologyError]
+
+pub fn diagnose_phase(Array[PhaseReading], nominal_voltage? : Double) -> PhaseReport
+
+pub fn diagnose_power_quality(Array[VoltageSeries], minimum_duration_sec? : Double) -> PowerQualityReport
+
+pub fn diagnose_telemetry(Array[TelemetrySeries], Array[TopologyLinkObservation], Double, stale_after_sec? : Double, stuck_window_sec? : Double, constant_tolerance? : Double) -> TelemetryReport
+
+pub fn diagnostic_json_string(DiagnosticReport) -> String
+
+pub fn diagnostic_to_json(DiagnosticReport) -> @json.Json
 
 pub fn downstream_mask(Tree, Int32) -> Array[Bool]
 
@@ -18,9 +30,13 @@ pub fn fault_node_for_edge(Network, Tree, String) -> Int32?
 
 pub fn infer_faults(Network, Array[Observation], Double, policy? : InferencePolicy) -> InferenceResult raise AnalysisError
 
+pub fn infer_multiple_faults(Network, Array[Observation], Double, max_faults? : Int32, minimum_confidence? : Double) -> MultiFaultReport raise AnalysisError
+
 pub fn network_to_json(Network) -> @json.Json
 
 pub fn observations_to_json(Array[Observation]) -> @json.Json
+
+pub fn parse_diagnostic_input(String) -> DiagnosticInput raise AnalysisError
 
 pub fn parse_input(String) -> InputDocument raise AnalysisError
 
@@ -31,6 +47,8 @@ pub fn restore_to_json(RestoreReport) -> @json.Json
 pub fn result_json_string(InferenceResult) -> String
 
 pub fn result_to_json(InferenceResult) -> @json.Json
+
+pub fn run_diagnostic(DiagnosticInput) -> DiagnosticReport
 
 pub fn verify_restoration(Network, String, Array[Observation], Double) -> RestoreReport raise AnalysisError
 
@@ -57,6 +75,30 @@ pub struct Candidate {
   blind_node_ids : Array[String]
 }
 
+pub struct DiagnosticInput {
+  analysis_time : Double
+  network : Network?
+  outage_observations : Array[Observation]
+  phase_readings : Array[PhaseReading]
+  voltage_series : Array[VoltageSeries]
+  telemetry_series : Array[TelemetrySeries]
+  topology_links : Array[TopologyLinkObservation]
+  unknown_topology_edge_ids : Array[String]
+}
+
+pub struct DiagnosticReport {
+  version : String
+  analysis_time : Double
+  topology : TopologyAssessment?
+  outage : MultiFaultReport?
+  phase : PhaseReport
+  power_quality : PowerQualityReport
+  telemetry : TelemetryReport
+  warnings : Array[String]
+  critical_count : Int32
+  warning_count : Int32
+}
+
 pub struct Edge {
   id : String
   from_id : String
@@ -64,6 +106,12 @@ pub struct Edge {
   section : String
 }
 pub fn Edge::new(String, String, String, section? : String) -> Self
+
+pub struct FaultHypothesis {
+  rank : Int32
+  candidate : Candidate
+  newly_explained_meter_ids : Array[String]
+}
 
 pub struct InferencePolicy {
   half_life_sec : Double
@@ -87,6 +135,13 @@ pub struct InputDocument {
   observations : Array[Observation]
   analysis_time : Double
   confirmed_fault_edge_id : String?
+}
+
+pub struct MultiFaultReport {
+  faults : Array[FaultHypothesis]
+  residual_outage_meter_ids : Array[String]
+  iterations : Int32
+  warnings : Array[String]
 }
 
 pub struct Network {
@@ -119,6 +174,45 @@ pub struct Observation {
 }
 pub fn Observation::new(String, PowerState, Double, Double) -> Self
 
+pub struct PhaseFinding {
+  node_id : String
+  kind : String
+  severity : String
+  metric : Double
+  affected_phases : Array[String]
+  summary : String
+}
+
+pub struct PhaseReading {
+  node_id : String
+  timestamp : Double
+  a_voltage : Double
+  b_voltage : Double
+  c_voltage : Double
+}
+pub fn PhaseReading::new(String, Double, Double, Double, Double) -> Self
+
+pub struct PhaseReport {
+  findings : Array[PhaseFinding]
+  warnings : Array[String]
+}
+
+pub struct PowerQualityEvent {
+  node_id : String
+  kind : String
+  severity : String
+  start_time : Double
+  end_time : Double
+  duration_sec : Double
+  extreme_voltage : Double
+  deviation_percent : Double
+}
+
+pub struct PowerQualityReport {
+  events : Array[PowerQualityEvent]
+  warnings : Array[String]
+}
+
 pub(all) enum PowerState {
   Energized
   Outage
@@ -144,6 +238,42 @@ pub(all) enum RestoreState {
 }
 pub fn RestoreState::to_string(Self) -> String
 
+pub struct TelemetryFinding {
+  node_id : String
+  kind : String
+  severity : String
+  summary : String
+  metric : Double
+}
+
+pub struct TelemetryPoint {
+  timestamp : Double
+  value : Double
+}
+pub fn TelemetryPoint::new(Double, Double) -> Self
+
+pub struct TelemetryReport {
+  findings : Array[TelemetryFinding]
+  warnings : Array[String]
+}
+
+pub struct TelemetrySeries {
+  node_id : String
+  samples : Array[TelemetryPoint]
+}
+pub fn TelemetrySeries::new(String, Array[TelemetryPoint]) -> Self
+
+pub struct TopologyAssessment {
+  status : String
+  node_count : Int32
+  edge_count : Int32
+  connected_components : Int32
+  cycle_rank : Int32
+  unknown_edge_ids : Array[String]
+  isolated_node_ids : Array[String]
+  warnings : Array[String]
+}
+
 pub enum TopologyError {
   EmptyNetwork
   RootNotFound(String)
@@ -155,6 +285,13 @@ pub enum TopologyError {
 }
 pub fn TopologyError::describe(Self) -> String
 
+pub struct TopologyLinkObservation {
+  node_id : String
+  declared_parent_id : String
+  observed_parent_id : String
+}
+pub fn TopologyLinkObservation::new(String, String, String) -> Self
+
 pub struct Tree {
   root : Int32
   order : Array[Int32]
@@ -165,6 +302,19 @@ pub struct Tree {
 pub fn Tree::node_count(Self) -> Int32
 pub fn Tree::parent(Self, Int32) -> Int32
 pub fn Tree::root(Self) -> Int32
+
+pub struct VoltagePoint {
+  timestamp : Double
+  voltage : Double
+}
+pub fn VoltagePoint::new(Double, Double) -> Self
+
+pub struct VoltageSeries {
+  node_id : String
+  nominal_voltage : Double
+  samples : Array[VoltagePoint]
+}
+pub fn VoltageSeries::new(String, Double, Array[VoltagePoint]) -> Self
 
 // Type aliases
 
