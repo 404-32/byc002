@@ -1,0 +1,162 @@
+{
+  "version": "0.2.0",
+  "analysis_time": 500,
+  "critical_count": 6,
+  "warning_count": 4,
+  "warnings": [],
+  "phase": {
+    "findings": [
+      {
+        "node_id": "M21",
+        "kind": "phase_loss",
+        "severity": "critical",
+        "metric": 2,
+        "affected_phases": [
+          "C"
+        ],
+        "summary": "one or more phase voltages are missing"
+      },
+      {
+        "node_id": "M31",
+        "kind": "voltage_unbalance",
+        "severity": "critical",
+        "metric": 14.580265095729013,
+        "affected_phases": [
+          "A",
+          "B",
+          "C"
+        ],
+        "summary": "three-phase voltage unbalance exceeds 10%"
+      }
+    ],
+    "warnings": []
+  },
+  "power_quality": {
+    "events": [
+      {
+        "node_id": "M33",
+        "kind": "voltage_sag",
+        "severity": "critical",
+        "start_time": 490.01,
+        "end_time": 490.02,
+        "duration_sec": 0.01999999999998181,
+        "extreme_voltage": 174,
+        "deviation_percent": 24.347826086956527
+      },
+      {
+        "node_id": "M33",
+        "kind": "voltage_swell",
+        "severity": "warning",
+        "start_time": 490.04,
+        "end_time": 490.05,
+        "duration_sec": 0.01999999999998181,
+        "extreme_voltage": 267,
+        "deviation_percent": 16.086956521739125
+      }
+    ],
+    "warnings": []
+  },
+  "telemetry": {
+    "findings": [
+      {
+        "node_id": "M22",
+        "kind": "clock_anomaly",
+        "severity": "warning",
+        "summary": "timestamps are duplicated or not strictly increasing",
+        "metric": 1
+      },
+      {
+        "node_id": "M22",
+        "kind": "stuck_series",
+        "severity": "warning",
+        "summary": "telemetry value remains constant beyond the stuck threshold",
+        "metric": 120
+      },
+      {
+        "node_id": "M22",
+        "kind": "topology_mismatch",
+        "severity": "critical",
+        "summary": "observed upstream relation differs from the registered topology",
+        "metric": 1
+      }
+    ],
+    "warnings": []
+  },
+  "topology": {
+    "status": "partial",
+    "node_count": 9,
+    "edge_count": 8,
+    "connected_components": 1,
+    "cycle_rank": 0,
+    "unknown_edge_ids": [
+      "X-NEW-DEVICE"
+    ],
+    "isolated_node_ids": [],
+    "warnings": [
+      "topology is partial; 1 relationship(s) are unregistered"
+    ]
+  },
+  "outage": {
+    "faults": [
+      {
+        "rank": 1,
+        "candidate": {
+          "edge_id": "E2",
+          "fault_node_id": "J3",
+          "section": "J1-J3 电缆",
+          "raw_score": 1.3726749793257402,
+          "confidence": 0.49854747480039957,
+          "affected_meter_ids": [
+            "M31",
+            "M32",
+            "M33"
+          ],
+          "supporting_node_ids": [
+            "M22",
+            "M31",
+            "M32",
+            "M33"
+          ],
+          "contradicting_node_ids": [
+            "M21"
+          ],
+          "blind_node_ids": []
+        },
+        "newly_explained_meter_ids": [
+          "M31",
+          "M32",
+          "M33"
+        ]
+      },
+      {
+        "rank": 2,
+        "candidate": {
+          "edge_id": "E3",
+          "fault_node_id": "M21",
+          "section": "M21 入户线",
+          "raw_score": 1.7697207927487413,
+          "confidence": 0.8016393636162891,
+          "affected_meter_ids": [
+            "M21"
+          ],
+          "supporting_node_ids": [
+            "M21",
+            "M22"
+          ],
+          "contradicting_node_ids": [],
+          "blind_node_ids": [
+            "M31",
+            "M32",
+            "M33"
+          ]
+        },
+        "newly_explained_meter_ids": [
+          "M21"
+        ]
+      }
+    ],
+    "residual_outage_meter_ids": [],
+    "iterations": 2,
+    "warnings": []
+  }
+}

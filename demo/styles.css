@@ -210,6 +210,25 @@ button { font: inherit; }
 .restore-status { padding: 15px; border-radius: 12px; border: 1px solid rgba(255,191,91,0.3); background: rgba(255,191,91,0.07); margin-top: 18px; }
 .restore-status strong { display: block; color: var(--amber); font-size: 16px; margin-bottom: 5px; }
 .restore-status span { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.finding-list { display: grid; gap: 8px; }
+.finding {
+  display: grid;
+  grid-template-columns: 8px 1fr;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+}
+.finding i {
+  width: 7px; height: 7px; margin-top: 4px; border-radius: 50%;
+  background: var(--blue);
+}
+.finding.critical i { background: var(--red); box-shadow: 0 0 7px rgba(255,97,120,.65); }
+.finding.warning i { background: var(--amber); box-shadow: 0 0 7px rgba(255,191,91,.55); }
+.finding.ok i { background: var(--green); }
+.finding strong { display: block; font-size: 11px; line-height: 1.45; }
+.finding span { display: block; color: var(--muted); font-size: 10px; line-height: 1.5; margin-top: 3px; }
 .evidence-panel { border-top: 1px solid var(--line); margin-top: 18px; }
 .evidence-list { max-height: 260px; overflow-y: auto; display: grid; gap: 6px; padding-right: 4px; }
 .evidence {

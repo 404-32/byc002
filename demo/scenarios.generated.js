@@ -1,4 +1,305 @@
-window.GRIDLATCH_SCENARIOS = [
+window.GRIDDIAGNOSE_SCENARIOS = [
+  {
+    "id": "combined",
+    "eyebrow": "多模型联合诊断",
+    "name": "台区综合异常",
+    "description": "同一份快照同时识别多故障、缺相、不平衡、电压暂降/暂升、量测异常和拓扑不一致。",
+    "kind": "combined",
+    "network": {
+      "root": "T1",
+      "nodes": [
+        {
+          "id": "T1",
+          "label": "配变 T1",
+          "kind": "source"
+        },
+        {
+          "id": "J1",
+          "label": "母线 J1",
+          "kind": "junction"
+        },
+        {
+          "id": "J2",
+          "label": "支路 J2",
+          "kind": "junction"
+        },
+        {
+          "id": "J3",
+          "label": "支路 J3",
+          "kind": "junction"
+        },
+        {
+          "id": "M21",
+          "label": "用户 M21",
+          "kind": "meter"
+        },
+        {
+          "id": "M22",
+          "label": "用户 M22",
+          "kind": "meter"
+        },
+        {
+          "id": "M31",
+          "label": "用户 M31",
+          "kind": "meter"
+        },
+        {
+          "id": "M32",
+          "label": "用户 M32",
+          "kind": "meter"
+        },
+        {
+          "id": "M33",
+          "label": "用户 M33",
+          "kind": "meter"
+        }
+      ],
+      "edges": [
+        {
+          "id": "E0",
+          "from": "T1",
+          "to": "J1",
+          "section": "配变首段馈线"
+        },
+        {
+          "id": "E1",
+          "from": "J1",
+          "to": "J2",
+          "section": "J1-J2 电缆"
+        },
+        {
+          "id": "E2",
+          "from": "J1",
+          "to": "J3",
+          "section": "J1-J3 电缆"
+        },
+        {
+          "id": "E3",
+          "from": "J2",
+          "to": "M21",
+          "section": "M21 入户线"
+        },
+        {
+          "id": "E4",
+          "from": "J2",
+          "to": "M22",
+          "section": "M22 入户线"
+        },
+        {
+          "id": "E5",
+          "from": "J3",
+          "to": "M31",
+          "section": "M31 入户线"
+        },
+        {
+          "id": "E6",
+          "from": "J3",
+          "to": "M32",
+          "section": "M32 入户线"
+        },
+        {
+          "id": "E7",
+          "from": "J3",
+          "to": "M33",
+          "section": "M33 入户线"
+        }
+      ]
+    },
+    "observations": [
+      {
+        "node_id": "M21",
+        "state": "outage",
+        "confidence": 0.99,
+        "observed_at": 495
+      },
+      {
+        "node_id": "M22",
+        "state": "energized",
+        "confidence": 0.96,
+        "observed_at": 495
+      },
+      {
+        "node_id": "M31",
+        "state": "outage",
+        "confidence": 0.98,
+        "observed_at": 494
+      },
+      {
+        "node_id": "M32",
+        "state": "outage",
+        "confidence": 0.97,
+        "observed_at": 494
+      },
+      {
+        "node_id": "M33",
+        "state": "outage",
+        "confidence": 0.96,
+        "observed_at": 493
+      }
+    ],
+    "diagnostic": {
+      "version": "0.2.0",
+      "analysis_time": 500,
+      "critical_count": 6,
+      "warning_count": 4,
+      "warnings": [],
+      "phase": {
+        "findings": [
+          {
+            "node_id": "M21",
+            "kind": "phase_loss",
+            "severity": "critical",
+            "metric": 2,
+            "affected_phases": [
+              "C"
+            ],
+            "summary": "one or more phase voltages are missing"
+          },
+          {
+            "node_id": "M31",
+            "kind": "voltage_unbalance",
+            "severity": "critical",
+            "metric": 14.580265095729013,
+            "affected_phases": [
+              "A",
+              "B",
+              "C"
+            ],
+            "summary": "three-phase voltage unbalance exceeds 10%"
+          }
+        ],
+        "warnings": []
+      },
+      "power_quality": {
+        "events": [
+          {
+            "node_id": "M33",
+            "kind": "voltage_sag",
+            "severity": "critical",
+            "start_time": 490.01,
+            "end_time": 490.02,
+            "duration_sec": 0.01999999999998181,
+            "extreme_voltage": 174,
+            "deviation_percent": 24.347826086956527
+          },
+          {
+            "node_id": "M33",
+            "kind": "voltage_swell",
+            "severity": "warning",
+            "start_time": 490.04,
+            "end_time": 490.05,
+            "duration_sec": 0.01999999999998181,
+            "extreme_voltage": 267,
+            "deviation_percent": 16.086956521739125
+          }
+        ],
+        "warnings": []
+      },
+      "telemetry": {
+        "findings": [
+          {
+            "node_id": "M22",
+            "kind": "clock_anomaly",
+            "severity": "warning",
+            "summary": "timestamps are duplicated or not strictly increasing",
+            "metric": 1
+          },
+          {
+            "node_id": "M22",
+            "kind": "stuck_series",
+            "severity": "warning",
+            "summary": "telemetry value remains constant beyond the stuck threshold",
+            "metric": 120
+          },
+          {
+            "node_id": "M22",
+            "kind": "topology_mismatch",
+            "severity": "critical",
+            "summary": "observed upstream relation differs from the registered topology",
+            "metric": 1
+          }
+        ],
+        "warnings": []
+      },
+      "topology": {
+        "status": "partial",
+        "node_count": 9,
+        "edge_count": 8,
+        "connected_components": 1,
+        "cycle_rank": 0,
+        "unknown_edge_ids": [
+          "X-NEW-DEVICE"
+        ],
+        "isolated_node_ids": [],
+        "warnings": [
+          "topology is partial; 1 relationship(s) are unregistered"
+        ]
+      },
+      "outage": {
+        "faults": [
+          {
+            "rank": 1,
+            "candidate": {
+              "edge_id": "E2",
+              "fault_node_id": "J3",
+              "section": "J1-J3 电缆",
+              "raw_score": 1.3726749793257402,
+              "confidence": 0.49854747480039957,
+              "affected_meter_ids": [
+                "M31",
+                "M32",
+                "M33"
+              ],
+              "supporting_node_ids": [
+                "M22",
+                "M31",
+                "M32",
+                "M33"
+              ],
+              "contradicting_node_ids": [
+                "M21"
+              ],
+              "blind_node_ids": []
+            },
+            "newly_explained_meter_ids": [
+              "M31",
+              "M32",
+              "M33"
+            ]
+          },
+          {
+            "rank": 2,
+            "candidate": {
+              "edge_id": "E3",
+              "fault_node_id": "M21",
+              "section": "M21 入户线",
+              "raw_score": 1.7697207927487413,
+              "confidence": 0.8016393636162891,
+              "affected_meter_ids": [
+                "M21"
+              ],
+              "supporting_node_ids": [
+                "M21",
+                "M22"
+              ],
+              "contradicting_node_ids": [],
+              "blind_node_ids": [
+                "M31",
+                "M32",
+                "M33"
+              ]
+            },
+            "newly_explained_meter_ids": [
+              "M21"
+            ]
+          }
+        ],
+        "residual_outage_meter_ids": [],
+        "iterations": 2,
+        "warnings": []
+      }
+    }
+  },
   {
     "id": "branch",
     "eyebrow": "缺失告警场景",

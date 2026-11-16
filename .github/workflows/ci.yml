@@ -37,8 +37,10 @@ jobs:
         run: moon update
       - name: Check native
         run: moon check --target native --deny-warn
-      - name: Run example
-        run: moon run cmd/gridlatch --target native -- analyze examples/branch_fault.json
+      - name: Run outage example
+        run: moon run cmd/griddiagnose --target native -- analyze examples/branch_fault.json
+      - name: Run combined diagnostic example
+        run: moon run cmd/griddiagnose --target native -- diagnose examples/griddiagnose_multimodel.json --json
 
   benchmark:
     name: Deterministic benchmark
@@ -49,15 +51,23 @@ jobs:
       - name: Update registry
         run: moon update
       - name: Build JavaScript CLI
-        run: moon build cmd/gridlatch --target js --release
+        run: moon build cmd/griddiagnose --target js --release
       - name: Run 18-case benchmark
         run: >-
           python scripts/evaluate.py
-          --bin _build/js/release/build/cmd/gridlatch/gridlatch.js
+          --bin _build/js/release/build/cmd/griddiagnose/griddiagnose.js
           --cases 18
           --out benchmark/ci-results.json
+      - name: Run multi-model benchmark
+        run: >-
+          python scripts/evaluate_multimodel.py
+          --bin _build/js/release/build/cmd/griddiagnose/griddiagnose.js
+          --cases-per-model 6
+          --out benchmark/ci-multimodel-results.json
       - name: Upload benchmark report
         uses: actions/upload-artifact@v4
         with:
-          name: gridlatch-benchmark
-          path: benchmark/ci-results.json
+          name: griddiagnose-benchmark
+          path: |
+            benchmark/ci-results.json
+            benchmark/ci-multimodel-results.json

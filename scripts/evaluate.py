@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run GridLatch against deterministic fault scenarios and summarize metrics."""
+"""Run the GridDiagnose outage module against deterministic scenarios."""
 
 from __future__ import annotations
 
@@ -135,9 +135,9 @@ def main() -> None:
             name: sum(1 for i in range(count) if difficulties[i % 3] == name)
             for name in difficulties
         },
-        "gridlatch_top1_accuracy": exact / count if count else 0.0,
-        "gridlatch_top3_recall": top3 / count if count else 0.0,
-        "gridlatch_mean_affected_meter_jaccard": (
+        "outage_top1_accuracy": exact / count if count else 0.0,
+        "outage_top3_recall": top3 / count if count else 0.0,
+        "outage_mean_affected_meter_jaccard": (
             statistics.fmean(affected_scores) if affected_scores else 0.0
         ),
         "nearest_outage_edge_baseline_top1_accuracy": (

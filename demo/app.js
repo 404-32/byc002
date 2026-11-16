@@ -1,5 +1,5 @@
 (() => {
-  const scenarios = window.GRIDLATCH_SCENARIOS || [];
+  const scenarios = window.GRIDDIAGNOSE_SCENARIOS || [];
   const state = {
     scenario: null,
     selectedCandidate: 0,
@@ -85,7 +85,7 @@
   }
 
   function candidateState() {
-    if (state.scenario.kind === "analysis") {
+    if (state.scenario.kind === "analysis" && state.scenario.analysis) {
       return state.scenario.analysis.candidates[state.selectedCandidate] || null;
     }
     return null;
@@ -190,7 +190,68 @@
   }
 
   function renderInspector() {
-    if (state.scenario.kind === "analysis") {
+    if (state.scenario.kind === "combined") {
+      const diagnostic = state.scenario.diagnostic;
+      const outages = diagnostic.outage?.faults || [];
+      const issues = [];
+      if (diagnostic.topology) {
+        issues.push({
+          severity: diagnostic.topology.status === "radial" ? "ok" : "warning",
+          title: `拓扑状态：${diagnostic.topology.status}`,
+          detail: `${diagnostic.topology.connected_components} 个连通分量，${diagnostic.topology.cycle_rank} 个独立环路`,
+        });
+      }
+      for (const fault of outages) {
+        issues.push({
+          severity: "critical",
+          title: `故障假设 ${fault.candidate.edge_id} · ${fault.candidate.section}`,
+          detail: `影响 ${fault.candidate.affected_meter_ids.length} 户，阶段置信度 ${(fault.candidate.confidence * 100).toFixed(1)}%`,
+        });
+      }
+      for (const finding of diagnostic.phase.findings) {
+        issues.push({
+          severity: finding.severity,
+          title: `三相诊断 · ${finding.node_id} · ${finding.kind}`,
+          detail: finding.summary,
+        });
+      }
+      for (const event of diagnostic.power_quality.events) {
+        issues.push({
+          severity: event.severity,
+          title: `电能质量 · ${event.node_id} · ${event.kind}`,
+          detail: `持续 ${event.duration_sec.toFixed(3)} s，偏离 ${event.deviation_percent.toFixed(1)}%`,
+        });
+      }
+      for (const finding of diagnostic.telemetry.findings) {
+        issues.push({
+          severity: finding.severity,
+          title: `可信度诊断 · ${finding.node_id} · ${finding.kind}`,
+          detail: finding.summary,
+        });
+      }
+      $("#result-panel").innerHTML = `
+        <div class="result-hero">
+          <div class="result-kicker">COMBINED DIAGNOSIS</div>
+          <h2>${issues.length} 个诊断结论</h2>
+          <div class="result-section">四类模型共享同一拓扑、时间窗和证据报告协议</div>
+          <div class="metrics">
+            <div class="metric"><b>${outages.length}</b><span>故障假设</span></div>
+            <div class="metric"><b>${diagnostic.phase.findings.length}</b><span>三相异常</span></div>
+            <div class="metric"><b>${diagnostic.power_quality.events.length}</b><span>电压事件</span></div>
+            <div class="metric"><b>${diagnostic.telemetry.findings.length}</b><span>可信度异常</span></div>
+          </div>
+          <div class="restore-status">
+            <strong>${diagnostic.critical_count} 项严重 · ${diagnostic.warning_count} 项警告</strong>
+            <span>输出保留每条证据的类别、对象、置信度和适用范围，不把不同诊断模型折叠成单一分数。</span>
+          </div>
+        </div>
+        <div class="panel-title">诊断结论</div>
+        <div class="finding-list">${issues.map((issue) => `
+          <div class="finding ${issue.severity}">
+            <i></i>
+            <div><strong>${escapeXml(issue.title)}</strong><span>${escapeXml(issue.detail)}</span></div>
+          </div>`).join("")}</div>`;
+    } else if (state.scenario.kind === "analysis") {
       const candidate = candidateState();
       const analysis = state.scenario.analysis;
       const confidence = Math.max(0, Math.min(100, candidate.confidence * 100));
