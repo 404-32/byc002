@@ -221,6 +221,17 @@ fn diagnostic_text(report : @core.DiagnosticReport) -> String {
   output += "Analysis time: " + report.analysis_time.to_string() + " s\n"
   output += "Critical findings: " + report.critical_count.to_string() + "\n"
   output += "Warnings: " + report.warning_count.to_string() + "\n\n"
+  output += "Primary diagnosis: " + report.arbitration.primary_class
+  output += " (" + percent(report.arbitration.overall_confidence) + ")\n"
+  for cause in report.arbitration.causes {
+    output += "  [" + cause.class + "] "
+    output += percent(cause.confidence) + " -> "
+    output += join_ids(cause.subject_ids) + "\n"
+  }
+  for conflict in report.arbitration.conflicts {
+    output += "  conflict: " + conflict + "\n"
+  }
+  output += "\n"
   match report.topology {
     Some(topology) => {
       output += "Topology: " + topology.status + "\n"

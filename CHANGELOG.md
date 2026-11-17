@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 - 2026-11-17
+
+- Added cross-model causal arbitration for supply, measurement, topology, and
+  mixed incidents.
+- Added object-overlap conflict detection between supply findings and suspect
+  telemetry series.
+- Added primary-cause confidence, supporting models, evidence, conflicts, and
+  recommended actions to the combined report.
+- Added 12 arbitration regression cases.
+
 ## 0.2.0 - 2026-11-16
 
 - Broadened the project into GridDiagnose, a multi-model distribution-grid

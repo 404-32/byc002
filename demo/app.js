@@ -229,11 +229,23 @@
           detail: finding.summary,
         });
       }
+      const primaryLabels = {
+        supply_fault: "供电故障为主因",
+        measurement_issue: "量测失真为主因",
+        topology_issue: "拓扑登记问题为主因",
+        mixed: "供电、量测与拓扑问题并存",
+        no_incident: "未发现明确异常",
+      };
+      const causeLabels = {
+        supply_fault: "供电故障",
+        measurement_issue: "量测问题",
+        topology_issue: "拓扑问题",
+      };
       $("#result-panel").innerHTML = `
         <div class="result-hero">
-          <div class="result-kicker">COMBINED DIAGNOSIS</div>
-          <h2>${issues.length} 个诊断结论</h2>
-          <div class="result-section">四类模型共享同一拓扑、时间窗和证据报告协议</div>
+          <div class="result-kicker">CAUSAL ARBITRATION</div>
+          <h2>${primaryLabels[diagnostic.arbitration.primary_class] || diagnostic.arbitration.primary_class}</h2>
+          <div class="result-section">跨模型核对设备、分支、时间窗和可信度后再确定主因</div>
           <div class="metrics">
             <div class="metric"><b>${outages.length}</b><span>故障假设</span></div>
             <div class="metric"><b>${diagnostic.phase.findings.length}</b><span>三相异常</span></div>
@@ -241,11 +253,17 @@
             <div class="metric"><b>${diagnostic.telemetry.findings.length}</b><span>可信度异常</span></div>
           </div>
           <div class="restore-status">
-            <strong>${diagnostic.critical_count} 项严重 · ${diagnostic.warning_count} 项警告</strong>
-            <span>输出保留每条证据的类别、对象、置信度和适用范围，不把不同诊断模型折叠成单一分数。</span>
+            <strong>综合置信度 ${(diagnostic.arbitration.overall_confidence * 100).toFixed(0)}%</strong>
+            <span>${diagnostic.arbitration.conflicts.length ? escapeXml(diagnostic.arbitration.conflicts.join("；")) : "当前未发现跨模型证据冲突。"}</span>
           </div>
         </div>
-        <div class="panel-title">诊断结论</div>
+        <div class="panel-title">根因分类</div>
+        <div class="finding-list">${diagnostic.arbitration.causes.map((cause) => `
+          <div class="finding ${cause.class === "supply_fault" ? "critical" : "warning"}">
+            <i></i>
+            <div><strong>${causeLabels[cause.class] || cause.class} · ${(cause.confidence * 100).toFixed(0)}%</strong><span>${escapeXml(cause.subject_ids.join(", "))}</span></div>
+          </div>`).join("")}</div>
+        <div class="panel-title">模型证据</div>
         <div class="finding-list">${issues.map((issue) => `
           <div class="finding ${issue.severity}">
             <i></i>

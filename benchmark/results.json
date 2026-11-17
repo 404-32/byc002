@@ -14,8 +14,8 @@
     "mixed": 0.9166666666666666,
     "severe": 0.8333333333333334
   },
-  "cli_latency_ms_median": 88.97425000031944,
-  "cli_latency_ms_p95": 100.69299500319175,
+  "cli_latency_ms_median": 76.30474999314174,
+  "cli_latency_ms_p95": 89.21745999250561,
   "failures": [],
   "predictions": [
     {

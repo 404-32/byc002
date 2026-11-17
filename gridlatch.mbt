@@ -6,5 +6,5 @@
 ///|
 /// Public package version. Keep this synchronized with `moon.mod`.
 pub fn version() -> String {
-  "0.2.0"
+  "0.3.0"
 }

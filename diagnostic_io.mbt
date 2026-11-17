@@ -175,6 +175,32 @@ fn telemetry_finding_json(finding : TelemetryFinding) -> Json {
 }
 
 ///|
+fn cause_hypothesis_json(cause : CauseHypothesis) -> Json {
+  Json::object(
+    Map([
+      ("class", Json::string(cause.class)),
+      ("confidence", Json::number(cause.confidence)),
+      ("subject_ids", strings_json(cause.subject_ids)),
+      ("supporting_models", strings_json(cause.supporting_models)),
+      ("evidence", strings_json(cause.evidence)),
+      ("recommended_action", Json::string(cause.recommended_action)),
+    ]),
+  )
+}
+
+///|
+fn arbitration_json(arbitration : CausalArbitration) -> Json {
+  Json::object(
+    Map([
+      ("primary_class", Json::string(arbitration.primary_class)),
+      ("overall_confidence", Json::number(arbitration.overall_confidence)),
+      ("causes", Json::array(arbitration.causes.map(cause_hypothesis_json))),
+      ("conflicts", strings_json(arbitration.conflicts)),
+    ]),
+  )
+}
+
+///|
 fn topology_json(topology : TopologyAssessment) -> Json {
   Json::object(
     Map([
@@ -268,6 +294,7 @@ pub fn diagnostic_to_json(report : DiagnosticReport) -> Json {
         ]),
       ),
     ),
+    ("arbitration", arbitration_json(report.arbitration)),
   ])
   match report.topology {
     Some(value) => object.set("topology", topology_json(value))

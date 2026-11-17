@@ -180,6 +180,44 @@ def telemetry_case(index: int) -> tuple[dict, callable]:
     return case, check
 
 
+def arbitration_case(index: int) -> tuple[dict, callable]:
+    kind = ("supply_fault", "measurement_issue", "topology_issue", "mixed")[
+        index % 4
+    ]
+    case = {"analysis_time": 500}
+    if kind in ("supply_fault", "mixed"):
+        case["phase_readings"] = [
+            {
+                "node_id": "M1",
+                "timestamp": 499,
+                "a_voltage": 230,
+                "b_voltage": 230,
+                "c_voltage": 0,
+            }
+        ]
+    if kind in ("measurement_issue", "mixed"):
+        case["telemetry_series"] = [
+            {
+                "node_id": "M2",
+                "samples": [
+                    {"timestamp": 100, "value": 1.0},
+                    {"timestamp": 200, "value": 1.0},
+                ],
+            }
+        ]
+    if kind in ("topology_issue", "mixed"):
+        case["network"] = base_network()
+        case["unknown_topology_edge_ids"] = ["X-NEW"]
+        case["topology_links"] = [
+            {"node_id": "M22", "declared_parent": "J2", "observed_parent": "J3"}
+        ]
+
+    def check(output: dict) -> bool:
+        return output.get("arbitration", {}).get("primary_class") == kind
+
+    return case, check
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--bin", type=Path, required=True)
@@ -195,6 +233,7 @@ def main() -> None:
         ("phase", phase_case),
         ("power_quality", power_quality_case),
         ("telemetry_integrity", telemetry_case),
+        ("causal_arbitration", arbitration_case),
     ]
     results = {}
     failures = []

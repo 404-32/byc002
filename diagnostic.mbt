@@ -19,6 +19,7 @@ pub struct DiagnosticReport {
   phase : PhaseReport
   power_quality : PowerQualityReport
   telemetry : TelemetryReport
+  arbitration : CausalArbitration
   warnings : Array[String]
   critical_count : Int32
   warning_count : Int32
@@ -108,6 +109,9 @@ pub fn run_diagnostic(input : DiagnosticInput) -> DiagnosticReport {
     input.topology_links,
     input.analysis_time,
   )
+  let arbitration = arbitrate_causes(
+    topology, outage, phase, power_quality, telemetry,
+  )
   for warning in phase.warnings {
     warnings.push(warning)
   }
@@ -145,6 +149,7 @@ pub fn run_diagnostic(input : DiagnosticInput) -> DiagnosticReport {
     phase,
     power_quality,
     telemetry,
+    arbitration,
     warnings,
     critical_count,
     warning_count,

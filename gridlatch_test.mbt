@@ -39,7 +39,7 @@ fn obs(
 
 ///|
 test "public version is exposed" {
-  assert_eq(@griddiagnose.version(), "0.2.0")
+  assert_eq(@griddiagnose.version(), "0.3.0")
 }
 
 ///|
@@ -444,8 +444,113 @@ test "unified diagnostic input produces one combined report" {
     #|}
   let input = @griddiagnose.parse_diagnostic_input(source)
   let report = @griddiagnose.run_diagnostic(input)
-  assert_eq(report.version, "0.2.0")
+  assert_eq(report.version, "0.3.0")
   assert_true(report.critical_count >= 1)
   assert_eq(report.phase.findings[0].kind, "phase_loss")
   assert_eq(report.power_quality.events[0].kind, "voltage_sag")
+  assert_eq(report.arbitration.primary_class, "supply_fault")
+}
+
+///|
+test "arbitration separates supply faults from measurement faults" {
+  let supply = @griddiagnose.arbitrate_causes(
+    None,
+    None,
+    @griddiagnose.diagnose_phase([
+      @griddiagnose.PhaseReading::new("M1", 100.0, 230.0, 230.0, 0.0),
+    ]),
+    @griddiagnose.diagnose_power_quality([]),
+    @griddiagnose.diagnose_telemetry([], [], 100.0),
+  )
+  assert_eq(supply.primary_class, "supply_fault")
+
+  let measurement = @griddiagnose.arbitrate_causes(
+    None,
+    None,
+    @griddiagnose.diagnose_phase([]),
+    @griddiagnose.diagnose_power_quality([]),
+    @griddiagnose.diagnose_telemetry(
+      [
+        @griddiagnose.TelemetrySeries::new("M1", [
+          @griddiagnose.TelemetryPoint::new(0.0, 1.0),
+          @griddiagnose.TelemetryPoint::new(100.0, 1.0),
+        ]),
+      ],
+      [],
+      1000.0,
+      stuck_window_sec=50.0,
+    ),
+  )
+  assert_eq(measurement.primary_class, "measurement_issue")
+}
+
+///|
+test "co-located supply and telemetry anomalies reduce to measurement issue" {
+  let phase = @griddiagnose.diagnose_phase([
+    @griddiagnose.PhaseReading::new("M1", 100.0, 230.0, 0.0, 0.0),
+  ])
+  let telemetry = @griddiagnose.diagnose_telemetry(
+    [
+      @griddiagnose.TelemetrySeries::new("M1", [
+        @griddiagnose.TelemetryPoint::new(0.0, 1.0),
+        @griddiagnose.TelemetryPoint::new(100.0, 1.0),
+      ]),
+    ],
+    [],
+    1000.0,
+    stuck_window_sec=50.0,
+  )
+  let result = @griddiagnose.arbitrate_causes(
+    None,
+    None,
+    phase,
+    @griddiagnose.diagnose_power_quality([]),
+    telemetry,
+  )
+  assert_eq(result.primary_class, "measurement_issue")
+  assert_true(result.conflicts.length() > 0)
+}
+
+///|
+test "combined report exposes all three root-cause classes" {
+  let source =
+    #|{
+    #|  "analysis_time": 500,
+    #|  "network": {
+    #|    "root":"T1",
+    #|    "nodes":[
+    #|      {"id":"T1","kind":"source"},
+    #|      {"id":"J1","kind":"junction"},
+    #|      {"id":"M1","kind":"meter"},
+    #|      {"id":"M2","kind":"meter"}
+    #|    ],
+    #|    "edges":[
+    #|      {"id":"E0","from":"T1","to":"J1","section":"feeder"},
+    #|      {"id":"E1","from":"J1","to":"M1","section":"service M1"},
+    #|      {"id":"E2","from":"J1","to":"M2","section":"service M2"}
+    #|    ]
+    #|  },
+    #|  "unknown_topology_edge_ids":["X-NEW"],
+    #|  "observations":[
+    #|    {"node_id":"M1","state":"outage","confidence":0.99},
+    #|    {"node_id":"M2","state":"energized","confidence":0.99}
+    #|  ],
+    #|  "phase_readings":[
+    #|    {"node_id":"M1","timestamp":499,"a_voltage":230,"b_voltage":230,"c_voltage":0}
+    #|  ],
+    #|  "telemetry_series":[
+    #|    {"node_id":"M2","samples":[
+    #|      {"timestamp":0,"value":1.0},
+    #|      {"timestamp":100,"value":1.0}
+    #|    ]}
+    #|  ],
+    #|  "topology_links":[
+    #|    {"node_id":"M2","declared_parent":"J1","observed_parent":"T1"}
+    #|  ]
+    #|}
+  let report = @griddiagnose.run_diagnostic(
+    @griddiagnose.parse_diagnostic_input(source),
+  )
+  assert_eq(report.arbitration.primary_class, "mixed")
+  assert_eq(report.arbitration.causes.length(), 3)
 }

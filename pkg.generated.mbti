@@ -8,6 +8,8 @@ import {
 // Values
 pub fn all_meter_ids(Network) -> Array[String]
 
+pub fn arbitrate_causes(TopologyAssessment?, MultiFaultReport?, PhaseReport, PowerQualityReport, TelemetryReport) -> CausalArbitration
+
 pub fn assess_topology(Network, unknown_edge_ids? : Array[String]) -> TopologyAssessment
 
 pub fn build_tree(Network) -> Result[Tree, TopologyError]
@@ -75,6 +77,22 @@ pub struct Candidate {
   blind_node_ids : Array[String]
 }
 
+pub struct CausalArbitration {
+  primary_class : String
+  overall_confidence : Double
+  causes : Array[CauseHypothesis]
+  conflicts : Array[String]
+}
+
+pub struct CauseHypothesis {
+  class : String
+  confidence : Double
+  subject_ids : Array[String]
+  supporting_models : Array[String]
+  evidence : Array[String]
+  recommended_action : String
+}
+
 pub struct DiagnosticInput {
   analysis_time : Double
   network : Network?
@@ -94,6 +112,7 @@ pub struct DiagnosticReport {
   phase : PhaseReport
   power_quality : PowerQualityReport
   telemetry : TelemetryReport
+  arbitration : CausalArbitration
   warnings : Array[String]
   critical_count : Int32
   warning_count : Int32

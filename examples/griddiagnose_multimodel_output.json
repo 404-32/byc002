@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "analysis_time": 500,
   "critical_count": 6,
   "warning_count": 4,
@@ -81,6 +81,74 @@
       }
     ],
     "warnings": []
+  },
+  "arbitration": {
+    "primary_class": "mixed",
+    "overall_confidence": 0.75,
+    "causes": [
+      {
+        "class": "supply_fault",
+        "confidence": 0.75,
+        "subject_ids": [
+          "J3",
+          "M31",
+          "M32",
+          "M33",
+          "M21"
+        ],
+        "supporting_models": [
+          "outage",
+          "phase",
+          "power_quality"
+        ],
+        "evidence": [
+          "outage hypothesis E2 explains 3 meter(s)",
+          "outage hypothesis E3 explains 1 meter(s)",
+          "phase model reports phase_loss at M21",
+          "phase model reports voltage_unbalance at M31",
+          "voltage model reports voltage_sag at M33",
+          "voltage model reports voltage_swell at M33"
+        ],
+        "recommended_action": "Dispatch electrical inspection and verify isolation and supply restoration on the affected branches."
+      },
+      {
+        "class": "measurement_issue",
+        "confidence": 0.44,
+        "subject_ids": [
+          "M22"
+        ],
+        "supporting_models": [
+          "telemetry"
+        ],
+        "evidence": [
+          "clock_anomaly at M22",
+          "stuck_series at M22"
+        ],
+        "recommended_action": "Validate the meter clock, frozen register, sensor source, and communication channel before using its measurements for repair decisions."
+      },
+      {
+        "class": "topology_issue",
+        "confidence": 0.48,
+        "subject_ids": [
+          "M22",
+          "network",
+          "X-NEW-DEVICE"
+        ],
+        "supporting_models": [
+          "topology",
+          "telemetry"
+        ],
+        "evidence": [
+          "declared parent differs at M22",
+          "topology classified as partial",
+          "unregistered topology object X-NEW-DEVICE"
+        ],
+        "recommended_action": "Reconcile the registered topology with field switching records before relying on boundary localization."
+      }
+    ],
+    "conflicts": [
+      "outage candidates rely on a topology with registration uncertainty"
+    ]
   },
   "topology": {
     "status": "partial",
