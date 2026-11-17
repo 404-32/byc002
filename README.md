@@ -1,6 +1,6 @@
 # GridDiagnose
 
-Current release: `0.2.0`
+Current release: `0.3.0`
 
 GridDiagnose is a MoonBit-native diagnostic engine for low-voltage distribution
 networks. One shared evidence and topology layer supports four different
@@ -44,7 +44,7 @@ The legacy GridLatch model compares proposed open edges with observed meter
 states. It handles missing communication evidence, confidence decay, source
 outage candidates, and restoration checks.
 
-Version `0.2.0` adds greedy multi-fault decomposition: each accepted hypothesis
+Version `0.2.0` added greedy multi-fault decomposition: each accepted hypothesis
 must explain at least one currently unexplained outage, then its affected
 subtree is masked before the next hypothesis is evaluated.
 
@@ -168,6 +168,36 @@ independently.
 The older outage-only contract remains available at
 [`schema/gridlatch-input.schema.json`](schema/gridlatch-input.schema.json).
 
+## Cross-model causal arbitration
+
+The `diagnose` command does not stop at concatenating independent reports. It
+cross-checks object IDs across models and classifies the incident into:
+
+- `supply_fault`;
+- `measurement_issue`;
+- `topology_issue`;
+- `mixed`;
+- `no_incident`.
+
+The arbitration uses relationships that single-threshold checks cannot express:
+
+- supply findings supported by outage, phase, or voltage evidence are grouped
+  into one electrical-supply hypothesis;
+- a supply finding co-located with a frozen, stale, or clock-invalid series is
+  downgraded to a measurement hypothesis when no independent outage confirms
+  it;
+- declared-vs-observed parent mismatch and unregistered topology objects create
+  a topology hypothesis;
+- outage results produced on a partial topology retain an explicit topology
+  caveat;
+- when distinct physical, measurement, and registration problems coexist, the
+  primary class is `mixed` and each cause remains separately actionable.
+
+The report includes cause confidence, subject IDs, supporting models, evidence,
+conflicts, and a recommended action. This is the project's core independent
+contribution: it turns multiple detectors into an explainable root-cause
+decision.
+
 ## Combined report
 
 The `diagnose` command returns separate sections rather than combining
@@ -178,6 +208,12 @@ GridDiagnose combined diagnostic report
 Analysis time: 500 s
 Critical findings: 6
 Warnings: 3
+
+Primary diagnosis: mixed (75%)
+  [supply_fault] 75% -> J3, M31, M32, M33, M21
+  [measurement_issue] 44% -> M22
+  [topology_issue] 48% -> M22, network, X-NEW-DEVICE
+  conflict: outage candidates rely on a topology with registration uncertainty
 
 Topology: partial
   nodes=9 edges=8 components=1 cycles=0
@@ -218,7 +254,7 @@ The legacy outage benchmark contains 36 reproducible scenarios:
 | Mixed-scenario Top-1 | 91.7% |
 | Severe-scenario Top-1 | 83.3% |
 
-The multi-model benchmark contains 48 deterministic cases, 12 per model:
+The multi-model benchmark contains 60 deterministic cases, 12 per model:
 
 | Model | Passed | Accuracy |
 |---|---:|---:|
@@ -226,6 +262,7 @@ The multi-model benchmark contains 48 deterministic cases, 12 per model:
 | Phase diagnosis | 12/12 | 100% |
 | Power quality | 12/12 | 100% |
 | Telemetry integrity | 12/12 | 100% |
+| Causal arbitration | 12/12 | 100% |
 
 These are synthetic benchmark suites with controlled ground truth. They
 demonstrate behavior and regression safety, not field accuracy on a specific

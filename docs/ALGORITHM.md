@@ -178,3 +178,30 @@ The integrity model compares the latest sample with `analysis_time`, checks
 strict timestamp ordering, and finds constant-value runs longer than the stuck
 window. Declared and observed parent IDs are compared without changing the
 topology graph.
+
+## Cross-model causal arbitration
+
+The arbitration layer assigns each finding a subject class:
+
+```text
+supply:
+    outage fault nodes, affected meters, phase readings, voltage events
+measurement:
+    stale/frozen/clock/missing-series subjects
+topology:
+    mismatch nodes, unknown topology objects, isolated nodes, non-radial graph
+```
+
+It constructs a cause for each non-empty class. Confidence grows with the number
+of supporting findings and with object overlap. The principal decision rule is:
+
+- supply only -> `supply_fault`;
+- measurement only -> `measurement_issue`;
+- topology only -> `topology_issue`;
+- supply plus measurement overlap with no independent outage -> prefer
+  `measurement_issue`;
+- distinct supply, measurement, and topology causes -> `mixed`.
+
+Conflicts are retained in the report. For example, an outage hypothesis on a
+partially known topology includes the topology caveat instead of presenting a
+false precision.

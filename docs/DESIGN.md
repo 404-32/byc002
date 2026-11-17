@@ -112,6 +112,32 @@ Optional sections are omitted if not supplied. If fault localization is not
 structurally valid, its error becomes a report warning while the other models
 continue.
 
+## Causal arbitration
+
+Independent detections are not treated as a final diagnosis. `arbitrate_causes`
+reconciles them using object identity, branch context, and cross-model support.
+
+It builds three subject sets:
+
+- outage, phase, and power-quality subjects support a supply hypothesis;
+- frozen, stale, clock, and missing-series subjects support a measurement
+  hypothesis;
+- topology mismatch, unregistered objects, isolated nodes, and non-radial
+  topology support a topology hypothesis.
+
+The arbitration emits each supported cause with its own confidence and
+evidence. A positive overlap between a supply reading and a suspect
+measurement series is recorded as a conflict. If no independent outage supports
+a single phase/quality reading on a suspect series, the measurement hypothesis
+becomes primary.
+
+When multiple distinct cause classes remain supported, the primary class is
+`mixed`. This preserves independent project depth: a supply fault and a
+topology-registration error are not collapsed into one threshold alarm.
+
+Each cause includes a recommended action, allowing a consumer to request field
+inspection, sensor repair, or topology reconciliation separately.
+
 ## Extensibility
 
 New diagnostic models should consume the existing graph/time-series contracts

@@ -1,7 +1,7 @@
 # Evaluation
 
 GridDiagnose has two benchmark suites: a 36-case outage ranking benchmark and a
-48-case multi-model regression suite.
+60-case multi-model regression suite.
 
 ## Legacy outage benchmark
 
@@ -65,7 +65,7 @@ microbenchmark performance.
 
 ## Multi-model regression suite
 
-`scripts/evaluate_multimodel.py` creates 48 deterministic cases:
+`scripts/evaluate_multimodel.py` creates 60 deterministic cases:
 
 - 12 two-fault outage scenarios;
 - 12 phase scenarios covering normal, phase loss, unbalance, undervoltage, and
@@ -73,6 +73,8 @@ microbenchmark performance.
 - 12 power-quality scenarios covering normal, sag, swell, and mixed events;
 - 12 telemetry scenarios covering normal, stale, frozen, clock, topology
   mismatch, and combined anomalies.
+- 12 causal-arbitration scenarios covering supply-only, measurement-only,
+  topology-only, and mixed incidents.
 
 Each case is passed through the real `griddiagnose diagnose --json` CLI. A case
 passes only when the expected finding class is present and unrelated event
@@ -84,6 +86,7 @@ classes are absent where the scenario specifies a normal input.
 | Phase | 12/12 | 100% |
 | Power quality | 12/12 | 100% |
 | Telemetry integrity | 12/12 | 100% |
+| Causal arbitration | 12/12 | 100% |
 
 Reproduce:
 

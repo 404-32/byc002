@@ -34,6 +34,22 @@ timestamp normalization, severity, confidence, affected objects, and evidence.
 
 GridLatch remains available as a compatible outage-specific module.
 
+## Independent contribution: causal arbitration
+
+The project does not merely run four threshold detectors. `arbitrate_causes`
+cross-checks the same node, branch, and evidence window across models:
+
+- concordant outage, phase, and voltage evidence becomes a supply-fault cause;
+- a phase/quality anomaly on a frozen, stale, or clock-invalid series is
+  downgraded when no independent outage supports it;
+- a declared/observed parent mismatch or unregistered object creates a
+  topology-registration cause;
+- distinct simultaneous causes produce a `mixed` diagnosis with separate
+  actions rather than a single unexplained score.
+
+The output reports primary class, overall confidence, per-cause confidence,
+subjects, supporting models, conflicts, evidence, and recommended actions.
+
 ## Broad deployment scenarios
 
 - utility low-voltage station-area diagnosis;
@@ -57,11 +73,11 @@ capability is domain-specific evidence orchestration:
 
 ## Validation
 
-- 19 MoonBit tests pass on `wasm-gc` and `js`.
+- 22 MoonBit tests pass on `wasm-gc` and `js`.
 - CI also performs a Native smoke test.
 - The legacy outage benchmark contains 36 cases: 91.7% Top-1 accuracy, 94.4%
   Top-3 recall, and 92.6% mean affected-meter Jaccard.
-- The multi-model suite contains 48 deterministic cases, 12 per model, and all
+- The multi-model suite contains 60 deterministic cases, 12 per model, and all
   expected classes pass.
 - GitHub Actions runs formatting, checks, tests, release metadata validation,
   and both benchmark suites.
