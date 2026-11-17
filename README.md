@@ -1,6 +1,6 @@
 # GridDiagnose
 
-Current release: `0.3.0`
+Current release: `0.4.0`
 
 GridDiagnose is a MoonBit-native diagnostic engine for low-voltage distribution
 networks. One shared evidence and topology layer supports four different
@@ -198,6 +198,11 @@ conflicts, and a recommended action. This is the project's core independent
 contribution: it turns multiple detectors into an explainable root-cause
 decision.
 
+Scores are sums of signed feature contributions normalized with a stable
+softmax. The JSON report includes the complete feature-weight trace and the
+margin between the top two causes, allowing the decision to be audited rather
+than trusted as an opaque label.
+
 ## Combined report
 
 The `diagnose` command returns separate sections rather than combining
@@ -209,10 +214,11 @@ Analysis time: 500 s
 Critical findings: 6
 Warnings: 3
 
-Primary diagnosis: mixed (75%)
-  [supply_fault] 75% -> J3, M31, M32, M33, M21
-  [measurement_issue] 44% -> M22
-  [topology_issue] 48% -> M22, network, X-NEW-DEVICE
+Primary diagnosis: supply_fault (89.8%)
+Decision margin: 81.5%
+  [supply_fault] 89.8% -> J3, M31, M32, M33, M21
+  [topology_issue] 8.3% -> M22, network, X-NEW-DEVICE
+  [measurement_issue] 1.9% -> M22
   conflict: outage candidates rely on a topology with registration uncertainty
 
 Topology: partial

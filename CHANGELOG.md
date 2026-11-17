@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 - 2026-11-17
+
+- Replaced direct class confidence assignment with a signed cross-model
+  evidence matrix and stable softmax normalization.
+- Added decision margin, per-feature contribution traces, and explicit
+  contradiction weights.
+- Added spatial-support and suspect-telemetry penalties to improve separation of
+  supply, measurement, and topology causes.
+
 ## 0.3.0 - 2026-11-17
 
 - Added cross-model causal arbitration for supply, measurement, topology, and

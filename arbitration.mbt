@@ -1,7 +1,8 @@
 ///|
 pub struct CauseHypothesis {
   class : String
-  confidence : Double
+  raw_score : Double
+  mut confidence : Double
   subject_ids : Array[String]
   supporting_models : Array[String]
   evidence : Array[String]
@@ -9,10 +10,20 @@ pub struct CauseHypothesis {
 }
 
 ///|
+pub struct EvidenceContribution {
+  cause_class : String
+  feature : String
+  weight : Double
+  detail : String
+}
+
+///|
 pub struct CausalArbitration {
   primary_class : String
   overall_confidence : Double
+  decision_margin : Double
   causes : Array[CauseHypothesis]
+  contributions : Array[EvidenceContribution]
   conflicts : Array[String]
 }
 
@@ -22,17 +33,6 @@ fn add_unique(values : Array[String], value : String) -> Unit {
     values.push(value)
   }
   ()
-}
-
-///|
-fn capped_confidence(value : Double) -> Double {
-  if value < 0.0 {
-    0.0
-  } else if value > 1.0 {
-    1.0
-  } else {
-    value
-  }
 }
 
 ///|
@@ -47,8 +47,45 @@ fn count_overlap(left : Array[String], right : Array[String]) -> Int32 {
 }
 
 ///|
-/// Reconcile diagnostic findings into supply, measurement, and topology causes.
-/// The arbitration uses object overlap rather than severity alone.
+fn capped_weight(value : Double, maximum : Double) -> Double {
+  if value < 0.0 {
+    0.0
+  } else if value > maximum {
+    maximum
+  } else {
+    value
+  }
+}
+
+///|
+fn add_contribution(
+  contributions : Array[EvidenceContribution],
+  cause_class : String,
+  feature : String,
+  weight : Double,
+  detail : String,
+) -> Unit {
+  contributions.push({ cause_class, feature, weight, detail, })
+}
+
+///|
+fn sum_contributions(
+  contributions : Array[EvidenceContribution],
+  cause_class : String,
+) -> Double {
+  let mut value = 0.0
+  for contribution in contributions {
+    if contribution.cause_class == cause_class {
+      value += contribution.weight
+    }
+  }
+  value
+}
+
+///|
+/// Reconcile diagnostic findings by scoring three competing physical
+/// hypotheses. Evidence compatibility and object overlap determine the score;
+/// no single detector can assign the final primary cause by itself.
 pub fn arbitrate_causes(
   topology : TopologyAssessment?,
   outage : MultiFaultReport?,
@@ -62,12 +99,15 @@ pub fn arbitrate_causes(
   let supply_evidence : Array[String] = []
   let measurement_evidence : Array[String] = []
   let topology_evidence : Array[String] = []
+  let contributions : Array[EvidenceContribution] = []
   let conflicts : Array[String] = []
   let mut outage_count = 0
+  let mut outage_confidence_sum = 0.0
   match outage {
     Some(report) => {
       outage_count = report.faults.length()
       for hypothesis in report.faults {
+        outage_confidence_sum += hypothesis.candidate.confidence
         add_unique(supply_subjects, hypothesis.candidate.fault_node_id)
         for meter_id in hypothesis.candidate.affected_meter_ids {
           add_unique(supply_subjects, meter_id)
@@ -85,15 +125,25 @@ pub fn arbitrate_causes(
           report.residual_outage_meter_ids.length().to_string() +
           " outage meter(s) remain unexplained",
         )
+        add_contribution(
+          contributions, "supply_fault", "residual_outage", -0.7, "some outage evidence is not explained by accepted hypotheses",
+        )
+        add_contribution(
+          contributions, "topology_issue", "residual_outage", 0.6, "unexplained outage can indicate a model or topology mismatch",
+        )
       }
     }
     None => ()
   }
+  let mut phase_loss_count = 0
   for finding in phase.findings {
     add_unique(supply_subjects, finding.node_id)
     supply_evidence.push(
       "phase model reports " + finding.kind + " at " + finding.node_id,
     )
+    if finding.kind == "phase_loss" {
+      phase_loss_count += 1
+    }
   }
   for event in power_quality.events {
     add_unique(supply_subjects, event.node_id)
@@ -103,6 +153,7 @@ pub fn arbitrate_causes(
   }
   let mut topology_mismatch_count = 0
   let mut telemetry_quality_count = 0
+  let mut telemetry_severe_count = 0
   for finding in telemetry.findings {
     if finding.kind == "topology_mismatch" {
       topology_mismatch_count += 1
@@ -110,38 +161,169 @@ pub fn arbitrate_causes(
       topology_evidence.push("declared parent differs at " + finding.node_id)
     } else {
       telemetry_quality_count += 1
+      if finding.severity == "critical" {
+        telemetry_severe_count += 1
+      }
       add_unique(measurement_subjects, finding.node_id)
       measurement_evidence.push(finding.kind + " at " + finding.node_id)
     }
   }
+  let mut topology_uncertain = false
+  let mut isolated_or_unknown_count = 0
   match topology {
     Some(value) => {
       if value.status != "radial" {
+        topology_uncertain = true
         add_unique(topology_subjects, "network")
         topology_evidence.push("topology classified as " + value.status)
+        add_contribution(
+          contributions,
+          "topology_issue",
+          "topology_status",
+          if value.status == "disconnected" {
+            1.2
+          } else {
+            0.8
+          },
+          "topology is not a complete radial baseline",
+        )
       }
       for edge_id in value.unknown_edge_ids {
+        isolated_or_unknown_count += 1
         add_unique(topology_subjects, edge_id)
         topology_evidence.push("unregistered topology object " + edge_id)
       }
       for node_id in value.isolated_node_ids {
+        isolated_or_unknown_count += 1
         add_unique(topology_subjects, node_id)
         topology_evidence.push("isolated meter node " + node_id)
       }
     }
     None => ()
   }
+
+  if outage_count > 0 {
+    add_contribution(
+      contributions,
+      "supply_fault",
+      "outage_hypotheses",
+      1.8 + capped_weight(outage_count.to_double() * 0.2, 0.6),
+      outage_count.to_string() +
+      " outage hypothesis(es) explain observed clients",
+    )
+    add_contribution(
+      contributions,
+      "supply_fault",
+      "outage_stage_confidence",
+      capped_weight(outage_confidence_sum, 0.8),
+      "accepted stages have aggregate stage confidence",
+    )
+  }
+  if phase.findings.length() > 0 {
+    add_contribution(
+      contributions,
+      "supply_fault",
+      "phase_findings",
+      0.9 + capped_weight(phase.findings.length().to_double() * 0.12, 0.4),
+      phase.findings.length().to_string() + " phase finding(s)",
+    )
+  }
+  if phase_loss_count > 0 {
+    add_contribution(
+      contributions,
+      "supply_fault",
+      "phase_loss",
+      0.5 * phase_loss_count.to_double(),
+      "missing phase voltage is direct supply-side evidence",
+    )
+  }
+  if power_quality.events.length() > 0 {
+    add_contribution(
+      contributions,
+      "supply_fault",
+      "voltage_events",
+      0.5 + capped_weight(power_quality.events.length().to_double() * 0.12, 0.4),
+      power_quality.events.length().to_string() + " voltage event(s)",
+    )
+  }
+  if supply_subjects.length() >= 3 {
+    add_contribution(
+      contributions, "supply_fault", "spatial_support", 0.4, "supply evidence spans multiple affected objects",
+    )
+  }
+  if telemetry_quality_count > 0 {
+    add_contribution(
+      contributions,
+      "measurement_issue",
+      "integrity_findings",
+      1.5 + capped_weight(telemetry_quality_count.to_double() * 0.2, 0.6),
+      telemetry_quality_count.to_string() + " telemetry-quality finding(s)",
+    )
+  }
+  if telemetry_severe_count > 0 {
+    add_contribution(
+      contributions,
+      "measurement_issue",
+      "severe_integrity",
+      0.4 * telemetry_severe_count.to_double(),
+      "critical telemetry-integrity findings require validation",
+    )
+  }
+  let measurement_overlap = count_overlap(measurement_subjects, supply_subjects)
+  if measurement_overlap > 0 {
+    add_contribution(
+      contributions,
+      "measurement_issue",
+      "supply_overlap",
+      0.6 * measurement_overlap.to_double(),
+      "supply readings share a subject with suspect telemetry",
+    )
+    add_contribution(
+      contributions,
+      "supply_fault",
+      "measurement_overlap",
+      -0.5 * measurement_overlap.to_double(),
+      "supply evidence depends on suspect telemetry",
+    )
+    conflicts.push(
+      measurement_overlap.to_string() +
+      " supply finding(s) overlap suspected measurement faults",
+    )
+  }
+  if topology_mismatch_count > 0 {
+    add_contribution(
+      contributions,
+      "topology_issue",
+      "parent_mismatch",
+      1.4 + capped_weight(topology_mismatch_count.to_double() * 0.2, 0.6),
+      topology_mismatch_count.to_string() +
+      " declared/observed parent mismatch(es)",
+    )
+  }
+  if isolated_or_unknown_count > 0 {
+    add_contribution(
+      contributions,
+      "topology_issue",
+      "unknown_relationships",
+      0.4 * isolated_or_unknown_count.to_double(),
+      "unregistered or isolated topology objects are present",
+    )
+  }
+  if outage_count > 0 && topology_uncertain {
+    add_contribution(
+      contributions, "topology_issue", "outage_under_uncertainty", 0.6, "outage candidates depend on an uncertain topology",
+    )
+    conflicts.push(
+      "outage candidates rely on a topology with registration uncertainty",
+    )
+  }
+
   let causes : Array[CauseHypothesis] = []
   if supply_subjects.length() > 0 {
-    let confidence = capped_confidence(
-      0.35 +
-      outage_count.to_double() * 0.10 +
-      phase.findings.length().to_double() * 0.06 +
-      power_quality.events.length().to_double() * 0.04,
-    )
     causes.push({
       class: "supply_fault",
-      confidence,
+      raw_score: sum_contributions(contributions, "supply_fault"),
+      confidence: 0.0,
       subject_ids: supply_subjects,
       supporting_models: ["outage", "phase", "power_quality"],
       evidence: supply_evidence,
@@ -149,77 +331,78 @@ pub fn arbitrate_causes(
     })
   }
   if measurement_subjects.length() > 0 {
-    let overlap = count_overlap(measurement_subjects, supply_subjects)
-    let confidence = capped_confidence(
-      0.32 +
-      telemetry_quality_count.to_double() * 0.06 +
-      overlap.to_double() * 0.10,
-    )
     causes.push({
       class: "measurement_issue",
-      confidence,
+      raw_score: sum_contributions(contributions, "measurement_issue"),
+      confidence: 0.0,
       subject_ids: measurement_subjects,
       supporting_models: ["telemetry"],
       evidence: measurement_evidence,
       recommended_action: "Validate the meter clock, frozen register, sensor source, and communication channel before using its measurements for repair decisions.",
     })
-    if overlap > 0 {
-      conflicts.push(
-        overlap.to_string() +
-        " supply finding(s) overlap suspected measurement faults",
-      )
-    }
   }
   if topology_subjects.length() > 0 {
-    let no_outage_bonus = if outage_count == 0 { 0.10 } else { 0.0 }
-    let confidence = capped_confidence(
-      0.38 + topology_mismatch_count.to_double() * 0.10 + no_outage_bonus,
-    )
     causes.push({
       class: "topology_issue",
-      confidence,
+      raw_score: sum_contributions(contributions, "topology_issue"),
+      confidence: 0.0,
       subject_ids: topology_subjects,
       supporting_models: ["topology", "telemetry"],
       evidence: topology_evidence,
       recommended_action: "Reconcile the registered topology with field switching records before relying on boundary localization.",
     })
-    if outage_count > 0 {
-      conflicts.push(
-        "outage candidates rely on a topology with registration uncertainty",
-      )
-    }
   }
-  let has_supply = causes.any(fn(cause) { cause.class == "supply_fault" })
-  let has_measurement = causes.any(fn(cause) {
-    cause.class == "measurement_issue"
-  })
-  let has_topology = causes.any(fn(cause) { cause.class == "topology_issue" })
-  let supply_overlap = count_overlap(measurement_subjects, supply_subjects)
-  let supply_model_count = outage_count +
-    phase.findings.length() +
-    power_quality.events.length()
-  let primary_class = if has_supply && has_measurement && has_topology {
-    "mixed"
-  } else if has_supply && has_measurement {
-    if supply_overlap > 0 && supply_model_count == 1 && outage_count == 0 {
-      "measurement_issue"
+  causes.sort_by(fn(left, right) {
+    if left.raw_score > right.raw_score {
+      -1
+    } else if left.raw_score < right.raw_score {
+      1
     } else {
-      "mixed"
+      left.class.compare(right.class)
     }
-  } else if has_supply {
-    "supply_fault"
-  } else if has_topology {
-    "topology_issue"
-  } else if has_measurement {
-    "measurement_issue"
-  } else {
-    "no_incident"
+  })
+  let mut max_score = 0.0
+  if causes.length() > 0 {
+    max_score = causes[0].raw_score
   }
-  let mut overall_confidence = 0.0
+  let mut normalizer = 0.0
   for cause in causes {
-    if cause.confidence > overall_confidence {
-      overall_confidence = cause.confidence
+    normalizer += @math.exp(cause.raw_score - max_score)
+  }
+  for cause in causes {
+    cause.confidence = if normalizer > 0.0 {
+      @math.exp(cause.raw_score - max_score) / normalizer
+    } else {
+      0.0
     }
   }
-  { primary_class, overall_confidence, causes, conflicts, }
+  let mut primary_class = "no_incident"
+  let mut overall_confidence = 1.0
+  let mut decision_margin = 1.0
+  if causes.length() > 0 {
+    primary_class = causes[0].class
+    overall_confidence = causes[0].confidence
+    if causes.length() > 1 {
+      decision_margin = causes[0].confidence - causes[1].confidence
+    } else {
+      decision_margin = causes[0].confidence
+    }
+    let high_support = causes
+      .filter(fn(cause) { cause.confidence >= 0.15 })
+      .length()
+    if high_support >= 2 && causes[0].confidence < 0.68 {
+      primary_class = "mixed"
+    }
+    if primary_class == "mixed" {
+      overall_confidence = 1.0 - decision_margin
+    }
+  }
+  {
+    primary_class,
+    overall_confidence,
+    decision_margin,
+    causes,
+    contributions,
+    conflicts,
+  }
 }

@@ -49,6 +49,11 @@ cross-checks the same node, branch, and evidence window across models:
 
 The output reports primary class, overall confidence, per-cause confidence,
 subjects, supporting models, conflicts, evidence, and recommended actions.
+Each supporting or contradictory feature has a signed weight. The three causes
+are normalized with a stable softmax, and the report exposes the top-two
+decision margin plus the complete contribution trace. This makes the combined
+decision reproducible and reviewable instead of depending on an opaque label
+ordering.
 
 ## Broad deployment scenarios
 

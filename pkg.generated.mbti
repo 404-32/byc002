@@ -80,13 +80,16 @@ pub struct Candidate {
 pub struct CausalArbitration {
   primary_class : String
   overall_confidence : Double
+  decision_margin : Double
   causes : Array[CauseHypothesis]
+  contributions : Array[EvidenceContribution]
   conflicts : Array[String]
 }
 
 pub struct CauseHypothesis {
   class : String
-  confidence : Double
+  raw_score : Double
+  mut confidence : Double
   subject_ids : Array[String]
   supporting_models : Array[String]
   evidence : Array[String]
@@ -125,6 +128,13 @@ pub struct Edge {
   section : String
 }
 pub fn Edge::new(String, String, String, section? : String) -> Self
+
+pub struct EvidenceContribution {
+  cause_class : String
+  feature : String
+  weight : Double
+  detail : String
+}
 
 pub struct FaultHypothesis {
   rank : Int32

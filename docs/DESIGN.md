@@ -131,6 +131,11 @@ measurement series is recorded as a conflict. If no independent outage supports
 a single phase/quality reading on a suspect series, the measurement hypothesis
 becomes primary.
 
+Each compatibility or contradiction feature contributes a signed log-odds
+weight. The three cause scores are normalized with a stable softmax, so the
+report can expose probability and decision margin while retaining every
+individual contribution. The feature trace is part of the public JSON output.
+
 When multiple distinct cause classes remain supported, the primary class is
 `mixed`. This preserves independent project depth: a supply fault and a
 topology-registration error are not collapsed into one threshold alarm.

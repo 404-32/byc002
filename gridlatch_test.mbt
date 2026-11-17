@@ -39,7 +39,7 @@ fn obs(
 
 ///|
 test "public version is exposed" {
-  assert_eq(@griddiagnose.version(), "0.3.0")
+  assert_eq(@griddiagnose.version(), "0.4.0")
 }
 
 ///|
@@ -444,7 +444,7 @@ test "unified diagnostic input produces one combined report" {
     #|}
   let input = @griddiagnose.parse_diagnostic_input(source)
   let report = @griddiagnose.run_diagnostic(input)
-  assert_eq(report.version, "0.3.0")
+  assert_eq(report.version, "0.4.0")
   assert_true(report.critical_count >= 1)
   assert_eq(report.phase.findings[0].kind, "phase_loss")
   assert_eq(report.power_quality.events[0].kind, "voltage_sag")
@@ -509,6 +509,8 @@ test "co-located supply and telemetry anomalies reduce to measurement issue" {
   )
   assert_eq(result.primary_class, "measurement_issue")
   assert_true(result.conflicts.length() > 0)
+  assert_true(result.contributions.length() > 0)
+  assert_true(result.decision_margin > 0.0)
 }
 
 ///|

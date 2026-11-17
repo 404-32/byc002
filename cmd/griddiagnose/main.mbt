@@ -223,6 +223,9 @@ fn diagnostic_text(report : @core.DiagnosticReport) -> String {
   output += "Warnings: " + report.warning_count.to_string() + "\n\n"
   output += "Primary diagnosis: " + report.arbitration.primary_class
   output += " (" + percent(report.arbitration.overall_confidence) + ")\n"
+  output += "Decision margin: " +
+    percent(report.arbitration.decision_margin) +
+    "\n"
   for cause in report.arbitration.causes {
     output += "  [" + cause.class + "] "
     output += percent(cause.confidence) + " -> "
@@ -230,6 +233,11 @@ fn diagnostic_text(report : @core.DiagnosticReport) -> String {
   }
   for conflict in report.arbitration.conflicts {
     output += "  conflict: " + conflict + "\n"
+  }
+  output += "Evidence scoring:\n"
+  for contribution in report.arbitration.contributions {
+    output += "  " + contribution.cause_class + "/" + contribution.feature
+    output += " = " + contribution.weight.to_string() + "\n"
   }
   output += "\n"
   match report.topology {

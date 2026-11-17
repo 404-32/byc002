@@ -179,6 +179,7 @@ fn cause_hypothesis_json(cause : CauseHypothesis) -> Json {
   Json::object(
     Map([
       ("class", Json::string(cause.class)),
+      ("raw_score", Json::number(cause.raw_score)),
       ("confidence", Json::number(cause.confidence)),
       ("subject_ids", strings_json(cause.subject_ids)),
       ("supporting_models", strings_json(cause.supporting_models)),
@@ -189,12 +190,29 @@ fn cause_hypothesis_json(cause : CauseHypothesis) -> Json {
 }
 
 ///|
+fn evidence_contribution_json(contribution : EvidenceContribution) -> Json {
+  Json::object(
+    Map([
+      ("cause_class", Json::string(contribution.cause_class)),
+      ("feature", Json::string(contribution.feature)),
+      ("weight", Json::number(contribution.weight)),
+      ("detail", Json::string(contribution.detail)),
+    ]),
+  )
+}
+
+///|
 fn arbitration_json(arbitration : CausalArbitration) -> Json {
   Json::object(
     Map([
       ("primary_class", Json::string(arbitration.primary_class)),
       ("overall_confidence", Json::number(arbitration.overall_confidence)),
+      ("decision_margin", Json::number(arbitration.decision_margin)),
       ("causes", Json::array(arbitration.causes.map(cause_hypothesis_json))),
+      (
+        "contributions",
+        Json::array(arbitration.contributions.map(evidence_contribution_json)),
+      ),
       ("conflicts", strings_json(arbitration.conflicts)),
     ]),
   )
