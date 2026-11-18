@@ -1,6 +1,6 @@
 # GridDiagnose
 
-Current release: `0.4.0`
+Current release: `0.5.0`
 
 GridDiagnose is a MoonBit-native diagnostic engine for low-voltage distribution
 networks. One shared evidence and topology layer supports four different
@@ -246,6 +246,16 @@ Telemetry findings: 3
 
 A committed machine-readable result is available in
 [`examples/griddiagnose_multimodel_output.json`](examples/griddiagnose_multimodel_output.json).
+
+The key confusion case is covered by three contrast inputs:
+
+- real phase loss with two sensors and zero phase current;
+- stuck-sensor reading with live phase current and frozen telemetry;
+- one zero-voltage report with no independent current or second sensor.
+
+They produce `supply_fault`, `measurement_issue`, and `undetermined`
+respectively. See
+[`docs/CONTRAST_CASES.md`](docs/CONTRAST_CASES.md).
 
 ## Evaluation
 

@@ -138,7 +138,7 @@ window.GRIDDIAGNOSE_SCENARIOS = [
       }
     ],
     "diagnostic": {
-      "version": "0.4.0",
+      "version": "0.5.0",
       "analysis_time": 500,
       "critical_count": 6,
       "warning_count": 4,
@@ -359,7 +359,13 @@ window.GRIDDIAGNOSE_SCENARIOS = [
         ],
         "conflicts": [
           "outage candidates rely on a topology with registration uncertainty"
-        ]
+        ],
+        "independent_evidence_sources": [
+          "independent_outage_state",
+          "telemetry_temporal_health",
+          "observed_parent_relation"
+        ],
+        "undetermined_reasons": []
       },
       "topology": {
         "status": "partial",

@@ -1,0 +1,25 @@
+{
+  "analysis_time": 1000,
+  "phase_readings": [
+    {
+      "node_id": "M1",
+      "timestamp": 499,
+      "a_voltage": 230,
+      "b_voltage": 229,
+      "c_voltage": 0,
+      "a_current": 4.8,
+      "b_current": 4.7,
+      "c_current": 4.8
+    }
+  ],
+  "telemetry_series": [
+    {
+      "node_id": "M1",
+      "samples": [
+        {"timestamp": 200, "value": 0},
+        {"timestamp": 300, "value": 0},
+        {"timestamp": 400, "value": 0}
+      ]
+    }
+  ]
+}

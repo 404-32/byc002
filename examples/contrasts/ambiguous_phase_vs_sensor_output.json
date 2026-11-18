@@ -1,0 +1,130 @@
+{
+  "version": "0.5.0",
+  "analysis_time": 1000,
+  "critical_count": 1,
+  "warning_count": 2,
+  "warnings": [
+    "no voltage series were supplied"
+  ],
+  "phase": {
+    "findings": [
+      {
+        "node_id": "M1",
+        "kind": "phase_loss",
+        "severity": "critical",
+        "metric": 2,
+        "affected_phases": [
+          "C"
+        ],
+        "summary": "one or more phase voltages are missing"
+      }
+    ],
+    "warnings": []
+  },
+  "power_quality": {
+    "events": [],
+    "warnings": [
+      "no voltage series were supplied"
+    ]
+  },
+  "telemetry": {
+    "findings": [
+      {
+        "node_id": "M1",
+        "kind": "stale_series",
+        "severity": "warning",
+        "summary": "latest telemetry sample is older than the stale threshold",
+        "metric": 600
+      },
+      {
+        "node_id": "M1",
+        "kind": "stuck_series",
+        "severity": "warning",
+        "summary": "telemetry value remains constant beyond the stuck threshold",
+        "metric": 200
+      }
+    ],
+    "warnings": []
+  },
+  "arbitration": {
+    "primary_class": "undetermined",
+    "overall_confidence": 0.5,
+    "decision_margin": 0,
+    "causes": [
+      {
+        "class": "measurement_issue",
+        "raw_score": 2.5,
+        "confidence": 0.8145725807070178,
+        "subject_ids": [
+          "M1"
+        ],
+        "supporting_models": [
+          "telemetry"
+        ],
+        "evidence": [
+          "stale_series at M1",
+          "stuck_series at M1"
+        ],
+        "recommended_action": "Validate the meter clock, frozen register, sensor source, and communication channel before using its measurements for repair decisions."
+      },
+      {
+        "class": "supply_fault",
+        "raw_score": 1.02,
+        "confidence": 0.18542741929298226,
+        "subject_ids": [
+          "M1"
+        ],
+        "supporting_models": [
+          "outage",
+          "phase",
+          "power_quality"
+        ],
+        "evidence": [
+          "phase model reports phase_loss at M1"
+        ],
+        "recommended_action": "Dispatch electrical inspection and verify isolation and supply restoration on the affected branches."
+      }
+    ],
+    "contributions": [
+      {
+        "cause_class": "supply_fault",
+        "feature": "phase_findings",
+        "weight": 1.02,
+        "detail": "1 phase finding(s)"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "phase_loss",
+        "weight": 0.5,
+        "detail": "missing phase voltage is direct supply-side evidence"
+      },
+      {
+        "cause_class": "measurement_issue",
+        "feature": "integrity_findings",
+        "weight": 1.9,
+        "detail": "2 telemetry-quality finding(s)"
+      },
+      {
+        "cause_class": "measurement_issue",
+        "feature": "supply_overlap",
+        "weight": 0.6,
+        "detail": "supply readings share a subject with suspect telemetry"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "measurement_overlap",
+        "weight": -0.5,
+        "detail": "supply evidence depends on suspect telemetry"
+      }
+    ],
+    "conflicts": [
+      "1 supply finding(s) overlap suspected measurement faults"
+    ],
+    "independent_evidence_sources": [
+      "telemetry_temporal_health"
+    ],
+    "undetermined_reasons": [
+      "single missing-phase reading also has suspect measurement health; supply and sensor fault remain observationally equivalent"
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "analysis_time": 500,
+  "phase_readings": [
+    {
+      "node_id": "M1",
+      "timestamp": 499,
+      "a_voltage": 230,
+      "b_voltage": 229,
+      "c_voltage": 0,
+      "a_current": 4.8,
+      "b_current": 4.7,
+      "c_current": 0.0
+    },
+    {
+      "node_id": "M2",
+      "timestamp": 499,
+      "a_voltage": 229,
+      "b_voltage": 230,
+      "c_voltage": 0,
+      "a_current": 4.9,
+      "b_current": 4.8,
+      "c_current": 0.0
+    }
+  ]
+}

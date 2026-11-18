@@ -5,6 +5,9 @@ pub struct PhaseReading {
   a_voltage : Double
   b_voltage : Double
   c_voltage : Double
+  a_current : Double
+  b_current : Double
+  c_current : Double
 }
 
 ///|
@@ -14,8 +17,32 @@ pub fn PhaseReading::new(
   a_voltage : Double,
   b_voltage : Double,
   c_voltage : Double,
+  a_current? : Double,
+  b_current? : Double,
+  c_current? : Double,
 ) -> PhaseReading {
-  { node_id, timestamp, a_voltage, b_voltage, c_voltage, }
+  let a_current = match a_current {
+    Some(value) => value
+    None => -1.0
+  }
+  let b_current = match b_current {
+    Some(value) => value
+    None => -1.0
+  }
+  let c_current = match c_current {
+    Some(value) => value
+    None => -1.0
+  }
+  {
+    node_id,
+    timestamp,
+    a_voltage,
+    b_voltage,
+    c_voltage,
+    a_current,
+    b_current,
+    c_current,
+  }
 }
 
 ///|

@@ -224,6 +224,22 @@ two causes. The principal decision rule is:
   `measurement_issue`;
 - distinct causes remain highly supported without a clear margin -> `mixed`.
 
+### Independent evidence is required for phase loss
+
+A zero voltage value alone is not evidence of a real phase loss because a stuck
+sensor can generate the same value. The arbitration checks independent channels:
+
+- another node reporting the same phase loss;
+- missing-phase current near zero while other phases remain loaded;
+- missing-phase voltage at zero while the corresponding phase current stays
+  live, which contradicts a supply-side explanation;
+- outage observations in the corresponding electrical region.
+
+When one missing-phase reading and frozen telemetry coexist without a second
+voltage source or current evidence, the primary class is `undetermined`. The
+report lists the evidence source and the exact missing discriminator. It does
+not force a high-confidence supply or sensor label.
+
 Conflicts are retained in the report. For example, an outage hypothesis on a
 partially known topology includes the topology caveat instead of presenting a
 false precision.

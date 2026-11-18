@@ -1,0 +1,64 @@
+# Contrast cases: phase loss versus stuck sensor
+
+These three examples start from a similar visible symptom: phase C voltage is
+reported as zero. They differ in independent evidence and produce different
+diagnoses.
+
+## 1. Real phase loss
+
+Input: [`real_phase_loss.json`](../examples/contrasts/real_phase_loss.json)
+
+Evidence:
+
+- two independent readings report phase C missing;
+- phase C current is approximately zero at both nodes;
+- phases A and B carry normal current.
+
+Output: `supply_fault`.
+
+The current/voltage consistency and multi-sensor agreement are independent of
+the zero voltage label itself.
+
+## 2. Stuck sensor with live phase current
+
+Input: [`stuck_sensor.json`](../examples/contrasts/stuck_sensor.json)
+
+Evidence:
+
+- one reading reports phase C voltage at zero;
+- phase C current remains at a normal live value;
+- the associated telemetry series is frozen.
+
+Output: `measurement_issue`.
+
+The live phase current contradicts the missing-voltage interpretation. The
+frozen series is supporting evidence, not the only basis for the decision.
+
+## 3. Observationally ambiguous input
+
+Input:
+[`ambiguous_phase_vs_sensor.json`](../examples/contrasts/ambiguous_phase_vs_sensor.json)
+
+Evidence:
+
+- one reading reports phase C voltage at zero;
+- no phase currents or second voltage sensor are supplied;
+- the same meter has frozen telemetry.
+
+Output: `undetermined`.
+
+With only one voltage source, a real phase loss and a sensor reporting zero are
+observationally equivalent. The engine reports that a second voltage source,
+phase current, or field measurement is required. It does not use a softmax
+score to claim physical certainty.
+
+## Reproduce
+
+```bash
+moon build cmd/griddiagnose --target js --release
+moon run cmd/griddiagnose --target js -- diagnose examples/contrasts/real_phase_loss.json
+moon run cmd/griddiagnose --target js -- diagnose examples/contrasts/stuck_sensor.json
+moon run cmd/griddiagnose --target js -- diagnose examples/contrasts/ambiguous_phase_vs_sensor.json
+```
+
+The corresponding JSON outputs are committed next to the inputs.

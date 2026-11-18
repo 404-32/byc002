@@ -18,6 +18,9 @@ pub struct EvidenceContribution {
 }
 
 ///|
+type PhaseReadingList = Array[PhaseReading]
+
+///|
 pub struct CausalArbitration {
   primary_class : String
   overall_confidence : Double
@@ -25,6 +28,8 @@ pub struct CausalArbitration {
   causes : Array[CauseHypothesis]
   contributions : Array[EvidenceContribution]
   conflicts : Array[String]
+  independent_evidence_sources : Array[String]
+  undetermined_reasons : Array[String]
 }
 
 ///|
@@ -83,6 +88,74 @@ fn sum_contributions(
 }
 
 ///|
+fn latest_phase_reading(
+  readings : Array[PhaseReading],
+  node_id : String,
+) -> PhaseReading? {
+  let mut found : PhaseReading? = None
+  for reading in readings {
+    if reading.node_id == node_id {
+      found = match found {
+        Some(previous) if previous.timestamp > reading.timestamp =>
+          Some(previous)
+        _ => Some(reading)
+      }
+    }
+  }
+  found
+}
+
+///|
+fn current_for_phase(reading : PhaseReading, phase : String) -> Double {
+  match phase {
+    "A" => reading.a_current
+    "B" => reading.b_current
+    "C" => reading.c_current
+    _ => -1.0
+  }
+}
+
+///|
+fn phase_current_verdict(
+  reading : PhaseReading,
+  affected_phases : Array[String],
+) -> Int32 {
+  let mut active_sum = 0.0
+  let mut active_count = 0
+  for phase in ["A", "B", "C"] {
+    if !affected_phases.contains(phase) {
+      let current = current_for_phase(reading, phase)
+      if current >= 0.0 {
+        active_sum += current
+        active_count += 1
+      }
+    }
+  }
+  if active_count == 0 {
+    return 0
+  }
+  let active_mean = active_sum / active_count.to_double()
+  let mut has_missing_current = false
+  let mut supports = true
+  for phase in affected_phases {
+    let current = current_for_phase(reading, phase)
+    if current >= 0.0 {
+      has_missing_current = true
+      if current > 0.15 * active_mean {
+        supports = false
+      }
+    }
+  }
+  if !has_missing_current {
+    0
+  } else if supports {
+    1
+  } else {
+    -1
+  }
+}
+
+///|
 /// Reconcile diagnostic findings by scoring three competing physical
 /// hypotheses. Evidence compatibility and object overlap determine the score;
 /// no single detector can assign the final primary cause by itself.
@@ -92,6 +165,7 @@ pub fn arbitrate_causes(
   phase : PhaseReport,
   power_quality : PowerQualityReport,
   telemetry : TelemetryReport,
+  phase_readings : PhaseReadingList,
 ) -> CausalArbitration {
   let supply_subjects : Array[String] = []
   let measurement_subjects : Array[String] = []
@@ -101,6 +175,9 @@ pub fn arbitrate_causes(
   let topology_evidence : Array[String] = []
   let contributions : Array[EvidenceContribution] = []
   let conflicts : Array[String] = []
+  let independent_evidence_sources : Array[String] = []
+  let undetermined_reasons : Array[String] = []
+  let readings = phase_readings
   let mut outage_count = 0
   let mut outage_confidence_sum = 0.0
   match outage {
@@ -136,6 +213,7 @@ pub fn arbitrate_causes(
     None => ()
   }
   let mut phase_loss_count = 0
+  let phase_loss_subjects : Array[String] = []
   for finding in phase.findings {
     add_unique(supply_subjects, finding.node_id)
     supply_evidence.push(
@@ -143,6 +221,7 @@ pub fn arbitrate_causes(
     )
     if finding.kind == "phase_loss" {
       phase_loss_count += 1
+      add_unique(phase_loss_subjects, finding.node_id)
     }
   }
   for event in power_quality.events {
@@ -200,6 +279,73 @@ pub fn arbitrate_causes(
       }
     }
     None => ()
+  }
+
+  let mut current_support_count = 0
+  let mut current_conflict_count = 0
+  for finding in phase.findings {
+    if finding.kind == "phase_loss" {
+      match latest_phase_reading(readings, finding.node_id) {
+        Some(reading) => {
+          let verdict = phase_current_verdict(reading, finding.affected_phases)
+          if verdict > 0 {
+            current_support_count += 1
+            add_unique(
+              independent_evidence_sources, "phase_current_consistency",
+            )
+            add_contribution(
+              contributions, "supply_fault", "phase_current_consistency", 1.1, "missing-phase voltage agrees with near-zero phase current",
+            )
+          } else if verdict < 0 {
+            current_conflict_count += 1
+            add_unique(
+              independent_evidence_sources, "phase_current_contradiction",
+            )
+            add_contribution(
+              contributions, "measurement_issue", "phase_current_contradiction",
+              1.2, "zero reported voltage conflicts with live phase current",
+            )
+            add_contribution(
+              contributions, "supply_fault", "phase_current_contradiction", -0.6,
+              "supply hypothesis is contradicted by live phase current",
+            )
+            conflicts.push(
+              "phase voltage and phase current disagree at " + finding.node_id,
+            )
+          }
+        }
+        None => ()
+      }
+    }
+  }
+  if phase_loss_subjects.length() >= 2 {
+    add_unique(independent_evidence_sources, "multi_sensor_phase_loss")
+    add_contribution(
+      contributions, "supply_fault", "multi_sensor_phase_loss", 1.0, "independent sensors report phase loss",
+    )
+  }
+  if outage_count > 0 {
+    add_unique(independent_evidence_sources, "independent_outage_state")
+  }
+  if telemetry_quality_count > 0 {
+    add_unique(independent_evidence_sources, "telemetry_temporal_health")
+  }
+  if topology_mismatch_count > 0 {
+    add_unique(independent_evidence_sources, "observed_parent_relation")
+  }
+  let phase_measurement_overlap = count_overlap(
+    phase_loss_subjects, measurement_subjects,
+  )
+  let ambiguous_phase = phase_loss_count > 0 &&
+    current_support_count == 0 &&
+    current_conflict_count == 0 &&
+    phase_loss_subjects.length() < 2 &&
+    outage_count == 0 &&
+    phase_measurement_overlap > 0
+  if ambiguous_phase {
+    undetermined_reasons.push(
+      "single missing-phase reading also has suspect measurement health; supply and sensor fault remain observationally equivalent",
+    )
   }
 
   if outage_count > 0 {
@@ -397,6 +543,11 @@ pub fn arbitrate_causes(
       overall_confidence = 1.0 - decision_margin
     }
   }
+  if ambiguous_phase {
+    primary_class = "undetermined"
+    overall_confidence = 0.5
+    decision_margin = 0.0
+  }
   {
     primary_class,
     overall_confidence,
@@ -404,5 +555,7 @@ pub fn arbitrate_causes(
     causes,
     contributions,
     conflicts,
+    independent_evidence_sources,
+    undetermined_reasons,
   }
 }

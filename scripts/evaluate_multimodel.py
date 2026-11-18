@@ -181,11 +181,17 @@ def telemetry_case(index: int) -> tuple[dict, callable]:
 
 
 def arbitration_case(index: int) -> tuple[dict, callable]:
-    kind = ("supply_fault", "measurement_issue", "topology_issue", "mixed")[
-        index % 4
-    ]
+    kind = (
+        "supply_fault",
+        "measurement_issue",
+        "topology_issue",
+        "mixed",
+        "real_phase_loss",
+        "stuck_sensor",
+        "ambiguous",
+    )[index % 7]
     case = {"analysis_time": 500}
-    if kind in ("supply_fault", "mixed"):
+    if kind in ("supply_fault", "mixed", "stuck_sensor", "ambiguous"):
         case["phase_readings"] = [
             {
                 "node_id": "M1",
@@ -195,10 +201,37 @@ def arbitration_case(index: int) -> tuple[dict, callable]:
                 "c_voltage": 0,
             }
         ]
-    if kind in ("measurement_issue", "mixed"):
-        case["telemetry_series"] = [
+    if kind == "real_phase_loss":
+        case["phase_readings"] = [
+            {
+                "node_id": "M1",
+                "timestamp": 499,
+                "a_voltage": 230,
+                "b_voltage": 229,
+                "c_voltage": 0,
+                "a_current": 4.8,
+                "b_current": 4.7,
+                "c_current": 0,
+            },
             {
                 "node_id": "M2",
+                "timestamp": 499,
+                "a_voltage": 229,
+                "b_voltage": 230,
+                "c_voltage": 0,
+                "a_current": 4.9,
+                "b_current": 4.8,
+                "c_current": 0,
+            },
+        ]
+    if kind == "stuck_sensor":
+        case["phase_readings"][0].update(
+            {"a_current": 4.8, "b_current": 4.7, "c_current": 4.8}
+        )
+    if kind in ("measurement_issue", "mixed", "stuck_sensor", "ambiguous"):
+        case["telemetry_series"] = [
+            {
+                "node_id": "M2" if kind == "mixed" else "M1",
                 "samples": [
                     {"timestamp": 100, "value": 1.0},
                     {"timestamp": 200, "value": 1.0},
@@ -213,7 +246,12 @@ def arbitration_case(index: int) -> tuple[dict, callable]:
         ]
 
     def check(output: dict) -> bool:
-        return output.get("arbitration", {}).get("primary_class") == kind
+        expected = {
+            "real_phase_loss": "supply_fault",
+            "stuck_sensor": "measurement_issue",
+            "ambiguous": "undetermined",
+        }.get(kind, kind)
+        return output.get("arbitration", {}).get("primary_class") == expected
 
     return case, check
 

@@ -73,7 +73,10 @@
           "timestamp": {"type": "number"},
           "a_voltage": {"type": "number", "minimum": 0},
           "b_voltage": {"type": "number", "minimum": 0},
-          "c_voltage": {"type": "number", "minimum": 0}
+          "c_voltage": {"type": "number", "minimum": 0},
+          "a_current": {"type": "number", "minimum": 0},
+          "b_current": {"type": "number", "minimum": 0},
+          "c_current": {"type": "number", "minimum": 0}
         }
       }
     },

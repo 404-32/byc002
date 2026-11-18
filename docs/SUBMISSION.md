@@ -55,6 +55,14 @@ decision margin plus the complete contribution trace. This makes the combined
 decision reproducible and reviewable instead of depending on an opaque label
 ordering.
 
+Independent evidence currently includes phase-current consistency,
+multi-sensor phase-loss corroboration, outage-state consistency, telemetry
+temporal health, and declared/observed topology relations. If a single
+zero-voltage reading is accompanied by frozen telemetry but no independent
+current or second voltage sensor, the result is explicitly `undetermined`.
+Three committed contrast fixtures demonstrate real phase loss, stuck-sensor
+behavior, and the ambiguous boundary with different outputs.
+
 ## Broad deployment scenarios
 
 - utility low-voltage station-area diagnosis;
@@ -78,7 +86,7 @@ capability is domain-specific evidence orchestration:
 
 ## Validation
 
-- 22 MoonBit tests pass on `wasm-gc` and `js`.
+- 24 MoonBit tests pass on `wasm-gc` and `js`.
 - CI also performs a Native smoke test.
 - The legacy outage benchmark contains 36 cases: 91.7% Top-1 accuracy, 94.4%
   Top-3 recall, and 92.6% mean affected-meter Jaccard.

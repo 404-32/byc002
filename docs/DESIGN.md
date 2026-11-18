@@ -143,6 +143,13 @@ topology-registration error are not collapsed into one threshold alarm.
 Each cause includes a recommended action, allowing a consumer to request field
 inspection, sensor repair, or topology reconciliation separately.
 
+Phase arbitration adds independent physical channels. Multiple sensors on the
+same phase, phase-current/voltage consistency, outage state, telemetry temporal
+health, and topology relation are recorded separately. A single zero-voltage
+report plus a frozen series, without a second voltage sensor or phase current,
+is intentionally emitted as `undetermined` rather than assigned a softmax
+winner.
+
 ## Extensibility
 
 New diagnostic models should consume the existing graph/time-series contracts

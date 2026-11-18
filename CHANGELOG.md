@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 - 2026-11-18
+
+- Added phase-current consistency as independent evidence for real phase loss.
+- Added multi-sensor phase-loss corroboration.
+- Added an explicit `undetermined` result when a zero-voltage reading and
+  frozen telemetry are observationally equivalent.
+- Added real-phase-loss, stuck-sensor, and ambiguous contrast fixtures with
+  committed input/output pairs.
+- Added arbitration evidence-source and undetermined-boundary fields to JSON.
+
 ## 0.4.0 - 2026-11-17
 
 - Replaced direct class confidence assignment with a signed cross-model

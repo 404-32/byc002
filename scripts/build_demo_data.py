@@ -37,6 +37,9 @@ def main() -> None:
     feeder_path = ROOT / "examples/feeder_loss.json"
     restore_path = ROOT / "examples/restore_case.json"
     combined_path = ROOT / "examples/griddiagnose_multimodel.json"
+    real_phase_path = ROOT / "examples/contrasts/real_phase_loss.json"
+    stuck_sensor_path = ROOT / "examples/contrasts/stuck_sensor.json"
+    ambiguous_path = ROOT / "examples/contrasts/ambiguous_phase_vs_sensor.json"
 
     branch_input = json.loads(branch_path.read_text(encoding="utf-8"))
     feeder_input = json.loads(feeder_path.read_text(encoding="utf-8"))
@@ -47,6 +50,15 @@ def main() -> None:
     feeder_output = run_cli(args.node, args.bin, "analyze", str(feeder_path))
     restore_output = run_cli(args.node, args.bin, "verify", str(restore_path))
     combined_output = run_cli(args.node, args.bin, "diagnose", str(combined_path))
+    contrast_outputs = {
+        real_phase_path: run_cli(args.node, args.bin, "diagnose", str(real_phase_path)),
+        stuck_sensor_path: run_cli(
+            args.node, args.bin, "diagnose", str(stuck_sensor_path)
+        ),
+        ambiguous_path: run_cli(
+            args.node, args.bin, "diagnose", str(ambiguous_path)
+        ),
+    }
 
     scenarios = [
         {
@@ -110,6 +122,13 @@ def main() -> None:
     print(f"wrote {out} with {len(scenarios)} scenarios")
     print(f"wrote {example_out}")
     print(f"wrote {combined_out}")
+    for path, output in contrast_outputs.items():
+        output_path = path.with_name(f"{path.stem}_output.json")
+        output_path.write_text(
+            json.dumps(output, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(f"wrote {output_path}")
 
 
 if __name__ == "__main__":

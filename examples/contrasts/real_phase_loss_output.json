@@ -1,0 +1,111 @@
+{
+  "version": "0.5.0",
+  "analysis_time": 500,
+  "critical_count": 2,
+  "warning_count": 0,
+  "warnings": [
+    "no voltage series were supplied",
+    "no telemetry or topology-relation evidence was supplied"
+  ],
+  "phase": {
+    "findings": [
+      {
+        "node_id": "M1",
+        "kind": "phase_loss",
+        "severity": "critical",
+        "metric": 2,
+        "affected_phases": [
+          "C"
+        ],
+        "summary": "one or more phase voltages are missing"
+      },
+      {
+        "node_id": "M2",
+        "kind": "phase_loss",
+        "severity": "critical",
+        "metric": 2,
+        "affected_phases": [
+          "C"
+        ],
+        "summary": "one or more phase voltages are missing"
+      }
+    ],
+    "warnings": []
+  },
+  "power_quality": {
+    "events": [],
+    "warnings": [
+      "no voltage series were supplied"
+    ]
+  },
+  "telemetry": {
+    "findings": [],
+    "warnings": [
+      "no telemetry or topology-relation evidence was supplied"
+    ]
+  },
+  "arbitration": {
+    "primary_class": "supply_fault",
+    "overall_confidence": 1,
+    "decision_margin": 1,
+    "causes": [
+      {
+        "class": "supply_fault",
+        "raw_score": 5.34,
+        "confidence": 1,
+        "subject_ids": [
+          "M1",
+          "M2"
+        ],
+        "supporting_models": [
+          "outage",
+          "phase",
+          "power_quality"
+        ],
+        "evidence": [
+          "phase model reports phase_loss at M1",
+          "phase model reports phase_loss at M2"
+        ],
+        "recommended_action": "Dispatch electrical inspection and verify isolation and supply restoration on the affected branches."
+      }
+    ],
+    "contributions": [
+      {
+        "cause_class": "supply_fault",
+        "feature": "phase_current_consistency",
+        "weight": 1.1,
+        "detail": "missing-phase voltage agrees with near-zero phase current"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "phase_current_consistency",
+        "weight": 1.1,
+        "detail": "missing-phase voltage agrees with near-zero phase current"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "multi_sensor_phase_loss",
+        "weight": 1,
+        "detail": "independent sensors report phase loss"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "phase_findings",
+        "weight": 1.1400000000000001,
+        "detail": "2 phase finding(s)"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "phase_loss",
+        "weight": 1,
+        "detail": "missing phase voltage is direct supply-side evidence"
+      }
+    ],
+    "conflicts": [],
+    "independent_evidence_sources": [
+      "phase_current_consistency",
+      "multi_sensor_phase_loss"
+    ],
+    "undetermined_reasons": []
+  }
+}

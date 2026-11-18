@@ -60,6 +60,9 @@ fn parse_phase_reading(value : Json) -> PhaseReading raise AnalysisError {
     required_number(object, "a_voltage"),
     required_number(object, "b_voltage"),
     required_number(object, "c_voltage"),
+    a_current=optional_number(object, "a_current", -1.0),
+    b_current=optional_number(object, "b_current", -1.0),
+    c_current=optional_number(object, "c_current", -1.0),
   )
 }
 
@@ -214,6 +217,11 @@ fn arbitration_json(arbitration : CausalArbitration) -> Json {
         Json::array(arbitration.contributions.map(evidence_contribution_json)),
       ),
       ("conflicts", strings_json(arbitration.conflicts)),
+      (
+        "independent_evidence_sources",
+        strings_json(arbitration.independent_evidence_sources),
+      ),
+      ("undetermined_reasons", strings_json(arbitration.undetermined_reasons)),
     ]),
   )
 }

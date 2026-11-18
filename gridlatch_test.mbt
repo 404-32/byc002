@@ -39,7 +39,7 @@ fn obs(
 
 ///|
 test "public version is exposed" {
-  assert_eq(@griddiagnose.version(), "0.4.0")
+  assert_eq(@griddiagnose.version(), "0.5.0")
 }
 
 ///|
@@ -444,7 +444,7 @@ test "unified diagnostic input produces one combined report" {
     #|}
   let input = @griddiagnose.parse_diagnostic_input(source)
   let report = @griddiagnose.run_diagnostic(input)
-  assert_eq(report.version, "0.4.0")
+  assert_eq(report.version, "0.5.0")
   assert_true(report.critical_count >= 1)
   assert_eq(report.phase.findings[0].kind, "phase_loss")
   assert_eq(report.power_quality.events[0].kind, "voltage_sag")
@@ -461,6 +461,7 @@ test "arbitration separates supply faults from measurement faults" {
     ]),
     @griddiagnose.diagnose_power_quality([]),
     @griddiagnose.diagnose_telemetry([], [], 100.0),
+    [],
   )
   assert_eq(supply.primary_class, "supply_fault")
 
@@ -480,15 +481,17 @@ test "arbitration separates supply faults from measurement faults" {
       1000.0,
       stuck_window_sec=50.0,
     ),
+    [],
   )
   assert_eq(measurement.primary_class, "measurement_issue")
 }
 
 ///|
-test "co-located supply and telemetry anomalies reduce to measurement issue" {
-  let phase = @griddiagnose.diagnose_phase([
-    @griddiagnose.PhaseReading::new("M1", 100.0, 230.0, 0.0, 0.0),
-  ])
+test "co-located phase and telemetry anomalies without corroboration are undetermined" {
+  let phase_reading = @griddiagnose.PhaseReading::new(
+    "M1", 100.0, 230.0, 0.0, 0.0,
+  )
+  let phase = @griddiagnose.diagnose_phase([phase_reading])
   let telemetry = @griddiagnose.diagnose_telemetry(
     [
       @griddiagnose.TelemetrySeries::new("M1", [
@@ -506,11 +509,12 @@ test "co-located supply and telemetry anomalies reduce to measurement issue" {
     phase,
     @griddiagnose.diagnose_power_quality([]),
     telemetry,
+    [phase_reading],
   )
-  assert_eq(result.primary_class, "measurement_issue")
-  assert_true(result.conflicts.length() > 0)
+  assert_eq(result.primary_class, "undetermined")
+  assert_true(result.undetermined_reasons.length() > 0)
   assert_true(result.contributions.length() > 0)
-  assert_true(result.decision_margin > 0.0)
+  assert_true(result.decision_margin == 0.0)
 }
 
 ///|
@@ -555,4 +559,122 @@ test "combined report exposes all three root-cause classes" {
   )
   assert_eq(report.arbitration.primary_class, "mixed")
   assert_eq(report.arbitration.causes.length(), 3)
+}
+
+///|
+test "phase current and spatial evidence distinguish supply from sensor fault" {
+  let real_phase = @griddiagnose.arbitrate_causes(
+    None,
+    None,
+    @griddiagnose.diagnose_phase([
+      @griddiagnose.PhaseReading::new(
+        "M1",
+        100.0,
+        230.0,
+        229.0,
+        0.0,
+        a_current=4.8,
+        b_current=4.7,
+        c_current=0.0,
+      ),
+      @griddiagnose.PhaseReading::new(
+        "M2",
+        100.0,
+        229.0,
+        230.0,
+        0.0,
+        a_current=4.9,
+        b_current=4.8,
+        c_current=0.0,
+      ),
+    ]),
+    @griddiagnose.diagnose_power_quality([]),
+    @griddiagnose.diagnose_telemetry([], [], 100.0),
+    [
+      @griddiagnose.PhaseReading::new(
+        "M1",
+        100.0,
+        230.0,
+        229.0,
+        0.0,
+        a_current=4.8,
+        b_current=4.7,
+        c_current=0.0,
+      ),
+      @griddiagnose.PhaseReading::new(
+        "M2",
+        100.0,
+        229.0,
+        230.0,
+        0.0,
+        a_current=4.9,
+        b_current=4.8,
+        c_current=0.0,
+      ),
+    ],
+  )
+  assert_eq(real_phase.primary_class, "supply_fault")
+  assert_true(
+    real_phase.independent_evidence_sources.contains(
+      "phase_current_consistency",
+    ),
+  )
+
+  let sensor_phase = @griddiagnose.PhaseReading::new(
+    "M1",
+    100.0,
+    230.0,
+    229.0,
+    0.0,
+    a_current=4.8,
+    b_current=4.7,
+    c_current=4.8,
+  )
+  let sensor = @griddiagnose.arbitrate_causes(
+    None,
+    None,
+    @griddiagnose.diagnose_phase([sensor_phase]),
+    @griddiagnose.diagnose_power_quality([]),
+    @griddiagnose.diagnose_telemetry(
+      [
+        @griddiagnose.TelemetrySeries::new("M1", [
+          @griddiagnose.TelemetryPoint::new(0.0, 0.0),
+          @griddiagnose.TelemetryPoint::new(100.0, 0.0),
+        ]),
+      ],
+      [],
+      1000.0,
+      stuck_window_sec=50.0,
+    ),
+    [sensor_phase],
+  )
+  assert_eq(sensor.primary_class, "measurement_issue")
+  assert_true(
+    sensor.independent_evidence_sources.contains("phase_current_contradiction"),
+  )
+}
+
+///|
+test "single zero phase without independent evidence is undetermined" {
+  let reading = @griddiagnose.PhaseReading::new("M1", 100.0, 230.0, 229.0, 0.0)
+  let result = @griddiagnose.arbitrate_causes(
+    None,
+    None,
+    @griddiagnose.diagnose_phase([reading]),
+    @griddiagnose.diagnose_power_quality([]),
+    @griddiagnose.diagnose_telemetry(
+      [
+        @griddiagnose.TelemetrySeries::new("M1", [
+          @griddiagnose.TelemetryPoint::new(0.0, 0.0),
+          @griddiagnose.TelemetryPoint::new(100.0, 0.0),
+        ]),
+      ],
+      [],
+      1000.0,
+      stuck_window_sec=50.0,
+    ),
+    [reading],
+  )
+  assert_eq(result.primary_class, "undetermined")
+  assert_true(result.undetermined_reasons.length() > 0)
 }

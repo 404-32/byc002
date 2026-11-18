@@ -11,7 +11,7 @@
 
 name = "404-32/griddiagnose"
 
-version = "0.4.0"
+version = "0.5.0"
 
 readme = "README.md"
 

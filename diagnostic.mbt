@@ -110,7 +110,12 @@ pub fn run_diagnostic(input : DiagnosticInput) -> DiagnosticReport {
     input.analysis_time,
   )
   let arbitration = arbitrate_causes(
-    topology, outage, phase, power_quality, telemetry,
+    topology,
+    outage,
+    phase,
+    power_quality,
+    telemetry,
+    input.phase_readings,
   )
   for warning in phase.warnings {
     warnings.push(warning)
