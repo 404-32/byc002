@@ -170,9 +170,11 @@ pub fn arbitrate_causes(
   let supply_subjects : Array[String] = []
   let measurement_subjects : Array[String] = []
   let topology_subjects : Array[String] = []
+  let model_subjects : Array[String] = []
   let supply_evidence : Array[String] = []
   let measurement_evidence : Array[String] = []
   let topology_evidence : Array[String] = []
+  let model_evidence : Array[String] = []
   let contributions : Array[EvidenceContribution] = []
   let conflicts : Array[String] = []
   let independent_evidence_sources : Array[String] = []
@@ -253,19 +255,25 @@ pub fn arbitrate_causes(
     Some(value) => {
       if value.status != "radial" {
         topology_uncertain = true
-        add_unique(topology_subjects, "network")
-        topology_evidence.push("topology classified as " + value.status)
-        add_contribution(
-          contributions,
-          "topology_issue",
-          "topology_status",
-          if value.status == "disconnected" {
-            1.2
-          } else {
-            0.8
-          },
-          "topology is not a complete radial baseline",
-        )
+        if value.status == "weakly_meshed" ||
+          value.status == "disconnected" ||
+          value.status == "empty" {
+          add_unique(model_subjects, "network")
+          model_evidence.push(
+            "outage diagnostic requires a rooted tree; topology=" + value.status,
+          )
+          add_contribution(
+            contributions,
+            "model_inapplicable",
+            "topology_model",
+            if value.status == "disconnected" {
+              1.3
+            } else {
+              0.9
+            },
+            "outage boundary model is not applicable to this topology",
+          )
+        }
       }
       for edge_id in value.unknown_edge_ids {
         isolated_or_unknown_count += 1
@@ -345,6 +353,62 @@ pub fn arbitrate_causes(
   if ambiguous_phase {
     undetermined_reasons.push(
       "single missing-phase reading also has suspect measurement health; supply and sensor fault remain observationally equivalent",
+    )
+  }
+
+  let sustained_voltage_subjects : Array[String] = []
+  let flat_voltage_subjects : Array[String] = []
+  let mut variable_voltage_count = 0
+  for event in power_quality.events {
+    if event.duration_sec >= 1.0 {
+      add_unique(sustained_voltage_subjects, event.node_id)
+      if event.variation_percent >= 0.05 {
+        variable_voltage_count += 1
+      } else {
+        add_unique(flat_voltage_subjects, event.node_id)
+      }
+    }
+  }
+  if sustained_voltage_subjects.length() >= 2 {
+    add_unique(independent_evidence_sources, "multi_sensor_sustained_voltage")
+    add_contribution(
+      contributions, "supply_fault", "multi_sensor_sustained_voltage", 0.9, "independent sensors observe a sustained voltage excursion",
+    )
+  }
+  if variable_voltage_count > 0 {
+    add_unique(independent_evidence_sources, "voltage_trajectory_variation")
+    add_contribution(
+      contributions, "supply_fault", "voltage_trajectory_variation", 0.7, "sustained voltage changes over time instead of being bit-identical",
+    )
+  }
+  let flat_measurement_overlap = count_overlap(
+    flat_voltage_subjects, measurement_subjects,
+  )
+  if flat_measurement_overlap > 0 {
+    add_unique(independent_evidence_sources, "flat_voltage_overlap")
+    add_contribution(
+      contributions,
+      "measurement_issue",
+      "flat_voltage_overlap",
+      0.9 * flat_measurement_overlap.to_double(),
+      "flat sustained voltage overlaps a suspect frozen series",
+    )
+    add_contribution(
+      contributions,
+      "supply_fault",
+      "flat_voltage_overlap",
+      -0.5 * flat_measurement_overlap.to_double(),
+      "sustained voltage could be a stuck value",
+    )
+  }
+  let ambiguous_voltage = flat_voltage_subjects.length() > 0 &&
+    variable_voltage_count == 0 &&
+    sustained_voltage_subjects.length() < 2 &&
+    outage_count == 0 &&
+    telemetry_quality_count == 0
+  if ambiguous_voltage {
+    undetermined_reasons.push(
+      "single flat sustained voltage has no spatial, temporal-variation, outage, or telemetry-health corroboration",
     )
   }
 
@@ -498,6 +562,17 @@ pub fn arbitrate_causes(
       recommended_action: "Reconcile the registered topology with field switching records before relying on boundary localization.",
     })
   }
+  if model_subjects.length() > 0 {
+    causes.push({
+      class: "model_inapplicable",
+      raw_score: sum_contributions(contributions, "model_inapplicable"),
+      confidence: 0.0,
+      subject_ids: model_subjects,
+      supporting_models: ["topology"],
+      evidence: model_evidence,
+      recommended_action: "Do not force the radial outage model; select a meshed/partial-topology model or correct the topological representation.",
+    })
+  }
   causes.sort_by(fn(left, right) {
     if left.raw_score > right.raw_score {
       -1
@@ -543,7 +618,7 @@ pub fn arbitrate_causes(
       overall_confidence = 1.0 - decision_margin
     }
   }
-  if ambiguous_phase {
+  if ambiguous_phase || ambiguous_voltage {
     primary_class = "undetermined"
     overall_confidence = 0.5
     decision_margin = 0.0

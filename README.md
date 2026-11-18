@@ -176,7 +176,9 @@ cross-checks object IDs across models and classifies the incident into:
 - `supply_fault`;
 - `measurement_issue`;
 - `topology_issue`;
+- `model_inapplicable`;
 - `mixed`;
+- `undetermined`;
 - `no_incident`.
 
 The arbitration uses relationships that single-threshold checks cannot express:
@@ -188,10 +190,15 @@ The arbitration uses relationships that single-threshold checks cannot express:
   it;
 - declared-vs-observed parent mismatch and unregistered topology objects create
   a topology hypothesis;
+- a structurally unsupported model, such as a weakly meshed graph passed to the
+  radial outage locator, creates `model_inapplicable` rather than incorrectly
+  claiming a topology-registration error;
 - outage results produced on a partial topology retain an explicit topology
   caveat;
 - when distinct physical, measurement, and registration problems coexist, the
   primary class is `mixed` and each cause remains separately actionable.
+- when real phase loss and a stuck zero reading are observationally equivalent,
+  the engine emits `undetermined` and names the missing discriminator.
 
 The report includes cause confidence, subject IDs, supporting models, evidence,
 conflicts, and a recommended action. This is the project's core independent
@@ -257,6 +264,14 @@ They produce `supply_fault`, `measurement_issue`, and `undetermined`
 respectively. See
 [`docs/CONTRAST_CASES.md`](docs/CONTRAST_CASES.md).
 
+Two further contrast groups cover sustained undervoltage and topology:
+
+- corroborated sustained undervoltage -> `supply_fault`;
+- flat undervoltage with frozen telemetry -> `measurement_issue`;
+- single flat undervoltage with no independent evidence -> `undetermined`;
+- radial network with a wrong parent relation -> `topology_issue`;
+- weakly meshed network with no registration mismatch -> `model_inapplicable`.
+
 ## Evaluation
 
 The legacy outage benchmark contains 36 reproducible scenarios:
@@ -270,7 +285,7 @@ The legacy outage benchmark contains 36 reproducible scenarios:
 | Mixed-scenario Top-1 | 91.7% |
 | Severe-scenario Top-1 | 83.3% |
 
-The multi-model benchmark contains 60 deterministic cases, 12 per model:
+The multi-model benchmark contains 72 deterministic cases, 12 per model:
 
 | Model | Passed | Accuracy |
 |---|---:|---:|
@@ -279,6 +294,7 @@ The multi-model benchmark contains 60 deterministic cases, 12 per model:
 | Power quality | 12/12 | 100% |
 | Telemetry integrity | 12/12 | 100% |
 | Causal arbitration | 12/12 | 100% |
+| Contrast cases | 12/12 | 100% |
 
 These are synthetic benchmark suites with controlled ground truth. They
 demonstrate behavior and regression safety, not field accuracy on a specific

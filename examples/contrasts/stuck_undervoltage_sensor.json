@@ -1,0 +1,26 @@
+{
+  "analysis_time": 520,
+  "voltage_series": [
+    {
+      "node_id": "M1",
+      "nominal_voltage": 230,
+      "samples": [
+        {"timestamp": 500, "voltage": 180},
+        {"timestamp": 505, "voltage": 180},
+        {"timestamp": 510, "voltage": 180},
+        {"timestamp": 515, "voltage": 180},
+        {"timestamp": 520, "voltage": 180}
+      ]
+    }
+  ],
+  "telemetry_series": [
+    {
+      "node_id": "M1",
+      "samples": [
+        {"timestamp": 200, "value": 180},
+        {"timestamp": 300, "value": 180},
+        {"timestamp": 400, "value": 180}
+      ]
+    }
+  ]
+}

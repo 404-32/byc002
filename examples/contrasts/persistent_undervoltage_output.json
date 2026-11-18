@@ -1,0 +1,105 @@
+{
+  "version": "0.5.0",
+  "analysis_time": 520,
+  "critical_count": 2,
+  "warning_count": 0,
+  "warnings": [
+    "no phase readings were supplied",
+    "no telemetry or topology-relation evidence was supplied"
+  ],
+  "phase": {
+    "findings": [],
+    "warnings": [
+      "no phase readings were supplied"
+    ]
+  },
+  "power_quality": {
+    "events": [
+      {
+        "node_id": "M1",
+        "kind": "voltage_sag",
+        "severity": "critical",
+        "start_time": 500,
+        "end_time": 520,
+        "duration_sec": 25,
+        "extreme_voltage": 174,
+        "deviation_percent": 24.347826086956527,
+        "minimum_voltage": 174,
+        "maximum_voltage": 178,
+        "variation_percent": 1.7391304347826086
+      },
+      {
+        "node_id": "M2",
+        "kind": "voltage_sag",
+        "severity": "critical",
+        "start_time": 500,
+        "end_time": 520,
+        "duration_sec": 25,
+        "extreme_voltage": 177,
+        "deviation_percent": 23.043478260869566,
+        "minimum_voltage": 177,
+        "maximum_voltage": 181,
+        "variation_percent": 1.7391304347826086
+      }
+    ],
+    "warnings": []
+  },
+  "telemetry": {
+    "findings": [],
+    "warnings": [
+      "no telemetry or topology-relation evidence was supplied"
+    ]
+  },
+  "arbitration": {
+    "primary_class": "supply_fault",
+    "overall_confidence": 1,
+    "decision_margin": 1,
+    "causes": [
+      {
+        "class": "supply_fault",
+        "raw_score": 2.34,
+        "confidence": 1,
+        "subject_ids": [
+          "M1",
+          "M2"
+        ],
+        "supporting_models": [
+          "outage",
+          "phase",
+          "power_quality"
+        ],
+        "evidence": [
+          "voltage model reports voltage_sag at M1",
+          "voltage model reports voltage_sag at M2"
+        ],
+        "recommended_action": "Dispatch electrical inspection and verify isolation and supply restoration on the affected branches."
+      }
+    ],
+    "contributions": [
+      {
+        "cause_class": "supply_fault",
+        "feature": "multi_sensor_sustained_voltage",
+        "weight": 0.9,
+        "detail": "independent sensors observe a sustained voltage excursion"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "voltage_trajectory_variation",
+        "weight": 0.7,
+        "detail": "sustained voltage changes over time instead of being bit-identical"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "voltage_events",
+        "weight": 0.74,
+        "detail": "2 voltage event(s)"
+      }
+    ],
+    "conflicts": [],
+    "independent_evidence_sources": [
+      "multi_sensor_sustained_voltage",
+      "voltage_trajectory_variation"
+    ],
+    "undetermined_reasons": []
+  }
+}

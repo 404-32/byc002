@@ -62,3 +62,50 @@ moon run cmd/griddiagnose --target js -- diagnose examples/contrasts/ambiguous_p
 ```
 
 The corresponding JSON outputs are committed next to the inputs.
+
+## 4. Sustained undervoltage with independent corroboration
+
+Input:
+[`persistent_undervoltage.json`](../examples/contrasts/persistent_undervoltage.json)
+
+Two independent voltage series remain below 90% nominal for a sustained period
+and vary slightly over time. Output: `supply_fault`.
+
+The independent spatial source and the non-identical voltage trajectory prevent
+the event from being treated as a frozen sensor value.
+
+## 5. Sustained undervoltage coincident with a frozen series
+
+Input:
+[`stuck_undervoltage_sensor.json`](../examples/contrasts/stuck_undervoltage_sensor.json)
+
+One voltage series is exactly unchanged while telemetry health reports a frozen
+series. Output: `measurement_issue`.
+
+## 6. Sustained undervoltage without sufficient independent evidence
+
+Input:
+[`ambiguous_undervoltage.json`](../examples/contrasts/ambiguous_undervoltage.json)
+
+One constant low-voltage series is present without a second sensor, variation,
+outage state, or telemetry-health observation. Output: `undetermined`.
+
+## 7. Topology registration error
+
+Input:
+[`topology_registration_error.json`](../examples/contrasts/topology_registration_error.json)
+
+The network itself is radial, but the observed parent differs from the declared
+parent. Output: `topology_issue`.
+
+## 8. Model not applicable
+
+Input:
+[`model_inapplicable.json`](../examples/contrasts/model_inapplicable.json)
+
+The network is weakly meshed, while the outage-section model requires a rooted
+tree. There is no observed parent mismatch. Output: `model_inapplicable`, not
+`topology_issue`.
+
+This separates a limitation of the selected diagnostic model from an error in
+the topology registration.

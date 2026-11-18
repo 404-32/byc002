@@ -1,0 +1,77 @@
+{
+  "version": "0.5.0",
+  "analysis_time": 520,
+  "critical_count": 1,
+  "warning_count": 0,
+  "warnings": [
+    "no phase readings were supplied",
+    "no telemetry or topology-relation evidence was supplied"
+  ],
+  "phase": {
+    "findings": [],
+    "warnings": [
+      "no phase readings were supplied"
+    ]
+  },
+  "power_quality": {
+    "events": [
+      {
+        "node_id": "M1",
+        "kind": "voltage_sag",
+        "severity": "critical",
+        "start_time": 500,
+        "end_time": 520,
+        "duration_sec": 25,
+        "extreme_voltage": 180,
+        "deviation_percent": 21.739130434782606,
+        "minimum_voltage": 180,
+        "maximum_voltage": 180,
+        "variation_percent": 0
+      }
+    ],
+    "warnings": []
+  },
+  "telemetry": {
+    "findings": [],
+    "warnings": [
+      "no telemetry or topology-relation evidence was supplied"
+    ]
+  },
+  "arbitration": {
+    "primary_class": "undetermined",
+    "overall_confidence": 0.5,
+    "decision_margin": 0,
+    "causes": [
+      {
+        "class": "supply_fault",
+        "raw_score": 0.62,
+        "confidence": 1,
+        "subject_ids": [
+          "M1"
+        ],
+        "supporting_models": [
+          "outage",
+          "phase",
+          "power_quality"
+        ],
+        "evidence": [
+          "voltage model reports voltage_sag at M1"
+        ],
+        "recommended_action": "Dispatch electrical inspection and verify isolation and supply restoration on the affected branches."
+      }
+    ],
+    "contributions": [
+      {
+        "cause_class": "supply_fault",
+        "feature": "voltage_events",
+        "weight": 0.62,
+        "detail": "1 voltage event(s)"
+      }
+    ],
+    "conflicts": [],
+    "independent_evidence_sources": [],
+    "undetermined_reasons": [
+      "single flat sustained voltage has no spatial, temporal-variation, outage, or telemetry-health corroboration"
+    ]
+  }
+}

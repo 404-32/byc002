@@ -180,7 +180,10 @@ window.GRIDDIAGNOSE_SCENARIOS = [
             "end_time": 490.02,
             "duration_sec": 0.01999999999998181,
             "extreme_voltage": 174,
-            "deviation_percent": 24.347826086956527
+            "deviation_percent": 24.347826086956527,
+            "minimum_voltage": 174,
+            "maximum_voltage": 181,
+            "variation_percent": 3.0434782608695654
           },
           {
             "node_id": "M33",
@@ -190,7 +193,10 @@ window.GRIDDIAGNOSE_SCENARIOS = [
             "end_time": 490.05,
             "duration_sec": 0.01999999999998181,
             "extreme_voltage": 267,
-            "deviation_percent": 16.086956521739125
+            "deviation_percent": 16.086956521739125,
+            "minimum_voltage": 261,
+            "maximum_voltage": 267,
+            "variation_percent": 2.608695652173913
           }
         ],
         "warnings": []
@@ -223,13 +229,13 @@ window.GRIDDIAGNOSE_SCENARIOS = [
       },
       "arbitration": {
         "primary_class": "supply_fault",
-        "overall_confidence": 0.8983100430718999,
-        "decision_margin": 0.8151709298022543,
+        "overall_confidence": 0.9414099577100388,
+        "decision_margin": 0.9022608078810709,
         "causes": [
           {
             "class": "supply_fault",
             "raw_score": 5.780000000000001,
-            "confidence": 0.8983100430718999,
+            "confidence": 0.9414099577100388,
             "subject_ids": [
               "J3",
               "M31",
@@ -254,11 +260,10 @@ window.GRIDDIAGNOSE_SCENARIOS = [
           },
           {
             "class": "topology_issue",
-            "raw_score": 3.4,
-            "confidence": 0.08313911326964557,
+            "raw_score": 2.6,
+            "confidence": 0.03914914982896785,
             "subject_ids": [
               "M22",
-              "network",
               "X-NEW-DEVICE"
             ],
             "supporting_models": [
@@ -267,7 +272,6 @@ window.GRIDDIAGNOSE_SCENARIOS = [
             ],
             "evidence": [
               "declared parent differs at M22",
-              "topology classified as partial",
               "unregistered topology object X-NEW-DEVICE"
             ],
             "recommended_action": "Reconcile the registered topology with field switching records before relying on boundary localization."
@@ -275,7 +279,7 @@ window.GRIDDIAGNOSE_SCENARIOS = [
           {
             "class": "measurement_issue",
             "raw_score": 1.9,
-            "confidence": 0.018550843658454465,
+            "confidence": 0.019440892460993404,
             "subject_ids": [
               "M22"
             ],
@@ -290,12 +294,6 @@ window.GRIDDIAGNOSE_SCENARIOS = [
           }
         ],
         "contributions": [
-          {
-            "cause_class": "topology_issue",
-            "feature": "topology_status",
-            "weight": 0.8,
-            "detail": "topology is not a complete radial baseline"
-          },
           {
             "cause_class": "supply_fault",
             "feature": "outage_hypotheses",

@@ -1,0 +1,80 @@
+{
+  "version": "0.5.0",
+  "analysis_time": 500,
+  "critical_count": 1,
+  "warning_count": 0,
+  "warnings": [
+    "no phase readings were supplied",
+    "no voltage series were supplied"
+  ],
+  "phase": {
+    "findings": [],
+    "warnings": [
+      "no phase readings were supplied"
+    ]
+  },
+  "power_quality": {
+    "events": [],
+    "warnings": [
+      "no voltage series were supplied"
+    ]
+  },
+  "telemetry": {
+    "findings": [
+      {
+        "node_id": "M1",
+        "kind": "topology_mismatch",
+        "severity": "critical",
+        "summary": "observed upstream relation differs from the registered topology",
+        "metric": 1
+      }
+    ],
+    "warnings": []
+  },
+  "arbitration": {
+    "primary_class": "topology_issue",
+    "overall_confidence": 1,
+    "decision_margin": 1,
+    "causes": [
+      {
+        "class": "topology_issue",
+        "raw_score": 1.5999999999999999,
+        "confidence": 1,
+        "subject_ids": [
+          "M1"
+        ],
+        "supporting_models": [
+          "topology",
+          "telemetry"
+        ],
+        "evidence": [
+          "declared parent differs at M1"
+        ],
+        "recommended_action": "Reconcile the registered topology with field switching records before relying on boundary localization."
+      }
+    ],
+    "contributions": [
+      {
+        "cause_class": "topology_issue",
+        "feature": "parent_mismatch",
+        "weight": 1.5999999999999999,
+        "detail": "1 declared/observed parent mismatch(es)"
+      }
+    ],
+    "conflicts": [],
+    "independent_evidence_sources": [
+      "observed_parent_relation"
+    ],
+    "undetermined_reasons": []
+  },
+  "topology": {
+    "status": "radial",
+    "node_count": 5,
+    "edge_count": 4,
+    "connected_components": 1,
+    "cycle_rank": 0,
+    "unknown_edge_ids": [],
+    "isolated_node_ids": [],
+    "warnings": []
+  }
+}

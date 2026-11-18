@@ -65,7 +65,7 @@ microbenchmark performance.
 
 ## Multi-model regression suite
 
-`scripts/evaluate_multimodel.py` creates 60 deterministic cases:
+`scripts/evaluate_multimodel.py` creates 72 deterministic cases:
 
 - 12 two-fault outage scenarios;
 - 12 phase scenarios covering normal, phase loss, unbalance, undervoltage, and
@@ -75,6 +75,9 @@ microbenchmark performance.
   mismatch, and combined anomalies.
 - 12 causal-arbitration scenarios covering supply-only, measurement-only,
   topology-only, and mixed incidents.
+- 12 contrast scenarios covering phase loss, stuck phase sensors, ambiguous
+  readings, sustained undervoltage, topology registration errors, and model
+  inapplicability.
 
 Each case is passed through the real `griddiagnose diagnose --json` CLI. A case
 passes only when the expected finding class is present and unrelated event
@@ -87,6 +90,7 @@ classes are absent where the scenario specifies a normal input.
 | Power quality | 12/12 | 100% |
 | Telemetry integrity | 12/12 | 100% |
 | Causal arbitration | 12/12 | 100% |
+| Contrast cases | 12/12 | 100% |
 
 Reproduce:
 

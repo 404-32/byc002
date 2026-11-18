@@ -256,6 +256,28 @@ def arbitration_case(index: int) -> tuple[dict, callable]:
     return case, check
 
 
+def contrast_case(index: int) -> tuple[dict, callable]:
+    expectations = [
+        ("real_phase_loss.json", "supply_fault"),
+        ("stuck_sensor.json", "measurement_issue"),
+        ("ambiguous_phase_vs_sensor.json", "undetermined"),
+        ("persistent_undervoltage.json", "supply_fault"),
+        ("stuck_undervoltage_sensor.json", "measurement_issue"),
+        ("ambiguous_undervoltage.json", "undetermined"),
+        ("topology_registration_error.json", "topology_issue"),
+        ("model_inapplicable.json", "model_inapplicable"),
+    ]
+    filename, expected = expectations[index % len(expectations)]
+    case = json.loads(
+        (ROOT / "examples/contrasts" / filename).read_text(encoding="utf-8")
+    )
+
+    def check(output: dict) -> bool:
+        return output.get("arbitration", {}).get("primary_class") == expected
+
+    return case, check
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--bin", type=Path, required=True)
@@ -272,6 +294,7 @@ def main() -> None:
         ("power_quality", power_quality_case),
         ("telemetry_integrity", telemetry_case),
         ("causal_arbitration", arbitration_case),
+        ("contrast_cases", contrast_case),
     ]
     results = {}
     failures = []

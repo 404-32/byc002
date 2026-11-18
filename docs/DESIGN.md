@@ -143,6 +143,17 @@ topology-registration error are not collapsed into one threshold alarm.
 Each cause includes a recommended action, allowing a consumer to request field
 inspection, sensor repair, or topology reconciliation separately.
 
+The engine also separates `topology_issue` from `model_inapplicable`:
+
+- a parent mismatch or unregistered object means the topology data is wrong;
+- a weakly meshed graph without registration mismatch means the radial outage
+  model cannot be applied, not that the topology is necessarily incorrect.
+
+Sustained low voltage is compared against temporal variation, independent
+sensor agreement, outage state, and frozen-series evidence. A single constant
+low-voltage trace without an independent source produces `undetermined` instead
+of forcing a supply or sensor result.
+
 Phase arbitration adds independent physical channels. Multiple sensors on the
 same phase, phase-current/voltage consistency, outage state, telemetry temporal
 health, and topology relation are recorded separately. A single zero-voltage

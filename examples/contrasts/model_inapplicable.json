@@ -1,0 +1,21 @@
+{
+  "analysis_time": 500,
+  "network": {
+    "root": "T1",
+    "nodes": [
+      {"id": "T1", "kind": "source"},
+      {"id": "J1", "kind": "junction"},
+      {"id": "J2", "kind": "junction"},
+      {"id": "M1", "kind": "meter"}
+    ],
+    "edges": [
+      {"id": "E0", "from": "T1", "to": "J1", "section": "feeder"},
+      {"id": "E1", "from": "J1", "to": "J2", "section": "ring-A"},
+      {"id": "E2", "from": "J2", "to": "J1", "section": "ring-B"},
+      {"id": "E3", "from": "J2", "to": "M1", "section": "service M1"}
+    ]
+  },
+  "observations": [
+    {"node_id": "M1", "state": "outage", "confidence": 0.99}
+  ]
+}

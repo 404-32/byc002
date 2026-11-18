@@ -160,6 +160,9 @@ fn power_quality_event_json(event : PowerQualityEvent) -> Json {
       ("duration_sec", Json::number(event.duration_sec)),
       ("extreme_voltage", Json::number(event.extreme_voltage)),
       ("deviation_percent", Json::number(event.deviation_percent)),
+      ("minimum_voltage", Json::number(event.minimum_voltage)),
+      ("maximum_voltage", Json::number(event.maximum_voltage)),
+      ("variation_percent", Json::number(event.variation_percent)),
     ]),
   )
 }

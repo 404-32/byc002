@@ -240,6 +240,31 @@ voltage source or current evidence, the primary class is `undetermined`. The
 report lists the evidence source and the exact missing discriminator. It does
 not force a high-confidence supply or sensor label.
 
+### Sustained undervoltage
+
+For voltage events lasting at least one second, the power-quality report exposes
+minimum, maximum, and variation percentage. A real sustained undervoltage can be
+corroborated by:
+
+- multiple independent sensors observing the same extent;
+- non-identical time evolution rather than a bit-for-bit frozen value;
+- an independent outage state.
+
+A single flat low-voltage trace plus frozen telemetry favors the measurement
+cause. A single flat trace without any telemetry anomaly or independent spatial
+source is `undetermined`.
+
+### Model boundary versus topology registration
+
+`topology_issue` is emitted when evidence says the registered topology is wrong:
+an observed parent differs from the declared parent, an edge is unregistered,
+or a meter is isolated.
+
+`model_inapplicable` is emitted when the topology is structurally valid but not
+supported by the selected model, for example a weakly meshed network with no
+registration mismatch. The downstream model reports what part of the system
+could not be evaluated.
+
 Conflicts are retained in the report. For example, an outage hypothesis on a
 partially known topology includes the topology caveat instead of presenting a
 false precision.

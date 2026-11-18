@@ -1,0 +1,27 @@
+{
+  "analysis_time": 520,
+  "voltage_series": [
+    {
+      "node_id": "M1",
+      "nominal_voltage": 230,
+      "samples": [
+        {"timestamp": 500, "voltage": 176},
+        {"timestamp": 505, "voltage": 174},
+        {"timestamp": 510, "voltage": 178},
+        {"timestamp": 515, "voltage": 175},
+        {"timestamp": 520, "voltage": 177}
+      ]
+    },
+    {
+      "node_id": "M2",
+      "nominal_voltage": 230,
+      "samples": [
+        {"timestamp": 500, "voltage": 179},
+        {"timestamp": 505, "voltage": 177},
+        {"timestamp": 510, "voltage": 181},
+        {"timestamp": 515, "voltage": 178},
+        {"timestamp": 520, "voltage": 180}
+      ]
+    }
+  ]
+}

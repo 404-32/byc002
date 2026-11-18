@@ -63,6 +63,16 @@ current or second voltage sensor, the result is explicitly `undetermined`.
 Three committed contrast fixtures demonstrate real phase loss, stuck-sensor
 behavior, and the ambiguous boundary with different outputs.
 
+The same pattern is applied to sustained undervoltage: independent sensors and
+non-identical temporal evolution support a supply cause; a flat trace with
+frozen telemetry supports measurement failure; a single flat trace without
+corroboration is undetermined.
+
+Model applicability is also explicit. A wrong parent relation is
+`topology_issue`; a weakly meshed graph that cannot use the radial outage model
+is `model_inapplicable`. These classes have separate evidence and recommended
+actions.
+
 ## Broad deployment scenarios
 
 - utility low-voltage station-area diagnosis;
@@ -86,11 +96,11 @@ capability is domain-specific evidence orchestration:
 
 ## Validation
 
-- 24 MoonBit tests pass on `wasm-gc` and `js`.
+- 26 MoonBit tests pass on `wasm-gc` and `js`.
 - CI also performs a Native smoke test.
 - The legacy outage benchmark contains 36 cases: 91.7% Top-1 accuracy, 94.4%
   Top-3 recall, and 92.6% mean affected-meter Jaccard.
-- The multi-model suite contains 60 deterministic cases, 12 per model, and all
+- The multi-model suite contains 72 deterministic cases, 12 per model, and all
   expected classes pass.
 - GitHub Actions runs formatting, checks, tests, release metadata validation,
   and both benchmark suites.

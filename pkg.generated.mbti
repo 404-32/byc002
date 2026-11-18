@@ -240,6 +240,9 @@ pub struct PowerQualityEvent {
   duration_sec : Double
   extreme_voltage : Double
   deviation_percent : Double
+  minimum_voltage : Double
+  maximum_voltage : Double
+  variation_percent : Double
 }
 
 pub struct PowerQualityReport {

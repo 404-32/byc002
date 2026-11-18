@@ -1,0 +1,130 @@
+{
+  "version": "0.5.0",
+  "analysis_time": 520,
+  "critical_count": 1,
+  "warning_count": 1,
+  "warnings": [
+    "no phase readings were supplied"
+  ],
+  "phase": {
+    "findings": [],
+    "warnings": [
+      "no phase readings were supplied"
+    ]
+  },
+  "power_quality": {
+    "events": [
+      {
+        "node_id": "M1",
+        "kind": "voltage_sag",
+        "severity": "critical",
+        "start_time": 500,
+        "end_time": 520,
+        "duration_sec": 25,
+        "extreme_voltage": 180,
+        "deviation_percent": 21.739130434782606,
+        "minimum_voltage": 180,
+        "maximum_voltage": 180,
+        "variation_percent": 0
+      }
+    ],
+    "warnings": []
+  },
+  "telemetry": {
+    "findings": [
+      {
+        "node_id": "M1",
+        "kind": "stuck_series",
+        "severity": "warning",
+        "summary": "telemetry value remains constant beyond the stuck threshold",
+        "metric": 200
+      }
+    ],
+    "warnings": []
+  },
+  "arbitration": {
+    "primary_class": "measurement_issue",
+    "overall_confidence": 0.9728802827982369,
+    "decision_margin": 0.9457605655964739,
+    "causes": [
+      {
+        "class": "measurement_issue",
+        "raw_score": 3.2,
+        "confidence": 0.9728802827982369,
+        "subject_ids": [
+          "M1"
+        ],
+        "supporting_models": [
+          "telemetry"
+        ],
+        "evidence": [
+          "stuck_series at M1"
+        ],
+        "recommended_action": "Validate the meter clock, frozen register, sensor source, and communication channel before using its measurements for repair decisions."
+      },
+      {
+        "class": "supply_fault",
+        "raw_score": -0.38,
+        "confidence": 0.027119717201763035,
+        "subject_ids": [
+          "M1"
+        ],
+        "supporting_models": [
+          "outage",
+          "phase",
+          "power_quality"
+        ],
+        "evidence": [
+          "voltage model reports voltage_sag at M1"
+        ],
+        "recommended_action": "Dispatch electrical inspection and verify isolation and supply restoration on the affected branches."
+      }
+    ],
+    "contributions": [
+      {
+        "cause_class": "measurement_issue",
+        "feature": "flat_voltage_overlap",
+        "weight": 0.9,
+        "detail": "flat sustained voltage overlaps a suspect frozen series"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "flat_voltage_overlap",
+        "weight": -0.5,
+        "detail": "sustained voltage could be a stuck value"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "voltage_events",
+        "weight": 0.62,
+        "detail": "1 voltage event(s)"
+      },
+      {
+        "cause_class": "measurement_issue",
+        "feature": "integrity_findings",
+        "weight": 1.7,
+        "detail": "1 telemetry-quality finding(s)"
+      },
+      {
+        "cause_class": "measurement_issue",
+        "feature": "supply_overlap",
+        "weight": 0.6,
+        "detail": "supply readings share a subject with suspect telemetry"
+      },
+      {
+        "cause_class": "supply_fault",
+        "feature": "measurement_overlap",
+        "weight": -0.5,
+        "detail": "supply evidence depends on suspect telemetry"
+      }
+    ],
+    "conflicts": [
+      "1 supply finding(s) overlap suspected measurement faults"
+    ],
+    "independent_evidence_sources": [
+      "telemetry_temporal_health",
+      "flat_voltage_overlap"
+    ],
+    "undetermined_reasons": []
+  }
+}

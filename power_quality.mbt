@@ -35,6 +35,9 @@ pub struct PowerQualityEvent {
   duration_sec : Double
   extreme_voltage : Double
   deviation_percent : Double
+  minimum_voltage : Double
+  maximum_voltage : Double
+  variation_percent : Double
 }
 
 ///|
@@ -106,6 +109,8 @@ pub fn diagnose_power_quality(
       let start = point.timestamp
       let mut end = point.timestamp
       let mut extreme = point.voltage
+      let mut event_min = point.voltage
+      let mut event_max = point.voltage
       let mut next = index + 1
       while next < points.length() {
         let next_point = points[next]
@@ -118,6 +123,12 @@ pub fn diagnose_power_quality(
           break
         }
         end = next_point.timestamp
+        if next_point.voltage < event_min {
+          event_min = next_point.voltage
+        }
+        if next_point.voltage > event_max {
+          event_max = next_point.voltage
+        }
         if kind == "voltage_sag" && next_point.voltage < extreme {
           extreme = next_point.voltage
         }
@@ -147,6 +158,9 @@ pub fn diagnose_power_quality(
           duration_sec: duration,
           extreme_voltage: extreme,
           deviation_percent: deviation,
+          minimum_voltage: event_min,
+          maximum_voltage: event_max,
+          variation_percent: 100.0 * (event_max - event_min) / nominal,
         })
       }
       index = next

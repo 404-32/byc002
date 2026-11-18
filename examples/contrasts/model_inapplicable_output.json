@@ -1,0 +1,75 @@
+{
+  "version": "0.5.0",
+  "analysis_time": 500,
+  "critical_count": 0,
+  "warning_count": 1,
+  "warnings": [
+    "outage diagnosis skipped: invalid topology: edge count must equal node count - 1",
+    "no phase readings were supplied",
+    "no voltage series were supplied",
+    "no telemetry or topology-relation evidence was supplied"
+  ],
+  "phase": {
+    "findings": [],
+    "warnings": [
+      "no phase readings were supplied"
+    ]
+  },
+  "power_quality": {
+    "events": [],
+    "warnings": [
+      "no voltage series were supplied"
+    ]
+  },
+  "telemetry": {
+    "findings": [],
+    "warnings": [
+      "no telemetry or topology-relation evidence was supplied"
+    ]
+  },
+  "arbitration": {
+    "primary_class": "model_inapplicable",
+    "overall_confidence": 1,
+    "decision_margin": 1,
+    "causes": [
+      {
+        "class": "model_inapplicable",
+        "raw_score": 0.9,
+        "confidence": 1,
+        "subject_ids": [
+          "network"
+        ],
+        "supporting_models": [
+          "topology"
+        ],
+        "evidence": [
+          "outage diagnostic requires a rooted tree; topology=weakly_meshed"
+        ],
+        "recommended_action": "Do not force the radial outage model; select a meshed/partial-topology model or correct the topological representation."
+      }
+    ],
+    "contributions": [
+      {
+        "cause_class": "model_inapplicable",
+        "feature": "topology_model",
+        "weight": 0.9,
+        "detail": "outage boundary model is not applicable to this topology"
+      }
+    ],
+    "conflicts": [],
+    "independent_evidence_sources": [],
+    "undetermined_reasons": []
+  },
+  "topology": {
+    "status": "weakly_meshed",
+    "node_count": 4,
+    "edge_count": 4,
+    "connected_components": 1,
+    "cycle_rank": 1,
+    "unknown_edge_ids": [],
+    "isolated_node_ids": [],
+    "warnings": [
+      "network contains 1 independent cycle(s)"
+    ]
+  }
+}

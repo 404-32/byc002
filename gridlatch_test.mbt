@@ -557,7 +557,7 @@ test "combined report exposes all three root-cause classes" {
   let report = @griddiagnose.run_diagnostic(
     @griddiagnose.parse_diagnostic_input(source),
   )
-  assert_eq(report.arbitration.primary_class, "mixed")
+  assert_eq(report.arbitration.primary_class, "supply_fault")
   assert_eq(report.arbitration.causes.length(), 3)
 }
 
@@ -677,4 +677,129 @@ test "single zero phase without independent evidence is undetermined" {
   )
   assert_eq(result.primary_class, "undetermined")
   assert_true(result.undetermined_reasons.length() > 0)
+}
+
+///|
+test "sustained undervoltage and frozen voltage values remain distinguishable" {
+  let varying = @griddiagnose.diagnose_power_quality([
+    @griddiagnose.VoltageSeries::new("M1", 230.0, [
+      @griddiagnose.VoltagePoint::new(0.0, 176.0),
+      @griddiagnose.VoltagePoint::new(1.0, 174.0),
+      @griddiagnose.VoltagePoint::new(2.0, 178.0),
+    ]),
+    @griddiagnose.VoltageSeries::new("M2", 230.0, [
+      @griddiagnose.VoltagePoint::new(0.0, 179.0),
+      @griddiagnose.VoltagePoint::new(1.0, 177.0),
+      @griddiagnose.VoltagePoint::new(2.0, 181.0),
+    ]),
+  ])
+  let supply = @griddiagnose.arbitrate_causes(
+    None,
+    None,
+    @griddiagnose.diagnose_phase([]),
+    varying,
+    @griddiagnose.diagnose_telemetry([], [], 3.0),
+    [],
+  )
+  assert_eq(supply.primary_class, "supply_fault")
+
+  let flat = @griddiagnose.diagnose_power_quality([
+    @griddiagnose.VoltageSeries::new("M1", 230.0, [
+      @griddiagnose.VoltagePoint::new(0.0, 180.0),
+      @griddiagnose.VoltagePoint::new(1.0, 180.0),
+      @griddiagnose.VoltagePoint::new(2.0, 180.0),
+    ]),
+  ])
+  let sensor = @griddiagnose.arbitrate_causes(
+    None,
+    None,
+    @griddiagnose.diagnose_phase([]),
+    flat,
+    @griddiagnose.diagnose_telemetry(
+      [
+        @griddiagnose.TelemetrySeries::new("M1", [
+          @griddiagnose.TelemetryPoint::new(0.0, 180.0),
+          @griddiagnose.TelemetryPoint::new(1.0, 180.0),
+        ]),
+      ],
+      [],
+      10.0,
+      stuck_window_sec=0.5,
+    ),
+    [],
+  )
+  assert_eq(sensor.primary_class, "measurement_issue")
+
+  let ambiguous = @griddiagnose.arbitrate_causes(
+    None,
+    None,
+    @griddiagnose.diagnose_phase([]),
+    @griddiagnose.diagnose_power_quality([
+      @griddiagnose.VoltageSeries::new("M1", 230.0, [
+        @griddiagnose.VoltagePoint::new(0.0, 180.0),
+        @griddiagnose.VoltagePoint::new(1.0, 180.0),
+        @griddiagnose.VoltagePoint::new(2.0, 180.0),
+      ]),
+    ]),
+    @griddiagnose.diagnose_telemetry([], [], 3.0),
+    [],
+  )
+  assert_eq(ambiguous.primary_class, "undetermined")
+}
+
+///|
+test "model inapplicability is distinct from topology registration error" {
+  let meshed = @griddiagnose.Network::new(
+    "T",
+    [
+      @griddiagnose.Node::new("T", @griddiagnose.Source),
+      @griddiagnose.Node::new("A", @griddiagnose.Junction),
+      @griddiagnose.Node::new("B", @griddiagnose.Junction),
+      @griddiagnose.Node::new("M1", @griddiagnose.Meter),
+    ],
+    [
+      @griddiagnose.Edge::new("E0", "T", "A"),
+      @griddiagnose.Edge::new("E1", "A", "B"),
+      @griddiagnose.Edge::new("E2", "B", "A"),
+      @griddiagnose.Edge::new("E3", "B", "M1"),
+    ],
+  )
+  let topology = @griddiagnose.assess_topology(meshed)
+  let inapplicable = @griddiagnose.arbitrate_causes(
+    Some(topology),
+    None,
+    @griddiagnose.diagnose_phase([]),
+    @griddiagnose.diagnose_power_quality([]),
+    @griddiagnose.diagnose_telemetry([], [], 100.0),
+    [],
+  )
+  assert_eq(inapplicable.primary_class, "model_inapplicable")
+
+  let radial = @griddiagnose.assess_topology(
+    @griddiagnose.Network::new(
+      "T",
+      [
+        @griddiagnose.Node::new("T", @griddiagnose.Source),
+        @griddiagnose.Node::new("J1", @griddiagnose.Junction),
+        @griddiagnose.Node::new("M1", @griddiagnose.Meter),
+      ],
+      [
+        @griddiagnose.Edge::new("E0", "T", "J1"),
+        @griddiagnose.Edge::new("E1", "J1", "M1"),
+      ],
+    ),
+  )
+  let registration = @griddiagnose.arbitrate_causes(
+    Some(radial),
+    None,
+    @griddiagnose.diagnose_phase([]),
+    @griddiagnose.diagnose_power_quality([]),
+    @griddiagnose.diagnose_telemetry(
+      [],
+      [@griddiagnose.TopologyLinkObservation::new("M1", "J1", "T")],
+      100.0,
+    ),
+    [],
+  )
+  assert_eq(registration.primary_class, "topology_issue")
 }

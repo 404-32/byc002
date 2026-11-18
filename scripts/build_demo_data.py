@@ -37,9 +37,6 @@ def main() -> None:
     feeder_path = ROOT / "examples/feeder_loss.json"
     restore_path = ROOT / "examples/restore_case.json"
     combined_path = ROOT / "examples/griddiagnose_multimodel.json"
-    real_phase_path = ROOT / "examples/contrasts/real_phase_loss.json"
-    stuck_sensor_path = ROOT / "examples/contrasts/stuck_sensor.json"
-    ambiguous_path = ROOT / "examples/contrasts/ambiguous_phase_vs_sensor.json"
 
     branch_input = json.loads(branch_path.read_text(encoding="utf-8"))
     feeder_input = json.loads(feeder_path.read_text(encoding="utf-8"))
@@ -50,14 +47,14 @@ def main() -> None:
     feeder_output = run_cli(args.node, args.bin, "analyze", str(feeder_path))
     restore_output = run_cli(args.node, args.bin, "verify", str(restore_path))
     combined_output = run_cli(args.node, args.bin, "diagnose", str(combined_path))
+    contrast_paths = sorted(
+        path
+        for path in (ROOT / "examples/contrasts").glob("*.json")
+        if not path.stem.endswith("_output")
+    )
     contrast_outputs = {
-        real_phase_path: run_cli(args.node, args.bin, "diagnose", str(real_phase_path)),
-        stuck_sensor_path: run_cli(
-            args.node, args.bin, "diagnose", str(stuck_sensor_path)
-        ),
-        ambiguous_path: run_cli(
-            args.node, args.bin, "diagnose", str(ambiguous_path)
-        ),
+        path: run_cli(args.node, args.bin, "diagnose", str(path))
+        for path in contrast_paths
     }
 
     scenarios = [
