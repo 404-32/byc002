@@ -16,6 +16,8 @@
     "events": [
       {
         "node_id": "M1",
+        "source_id": "meter-voltage",
+        "phase": "A",
         "kind": "voltage_sag",
         "severity": "critical",
         "start_time": 500,
@@ -34,9 +36,9 @@
     "findings": [
       {
         "node_id": "M1",
-        "kind": "stuck_series",
+        "kind": "constant_series",
         "severity": "warning",
-        "summary": "telemetry value remains constant beyond the stuck threshold",
+        "summary": "telemetry value is constant; this alone does not prove sensor failure",
         "metric": 200
       }
     ],
@@ -44,13 +46,13 @@
   },
   "arbitration": {
     "primary_class": "measurement_issue",
-    "overall_confidence": 0.9728802827982369,
-    "decision_margin": 0.9457605655964739,
+    "overall_confidence": 0.9876295852598377,
+    "decision_margin": 0.9752591705196753,
     "causes": [
       {
         "class": "measurement_issue",
-        "raw_score": 3.2,
-        "confidence": 0.9728802827982369,
+        "raw_score": 3.6999999999999997,
+        "confidence": 0.9876295852598377,
         "subject_ids": [
           "M1"
         ],
@@ -58,14 +60,14 @@
           "telemetry"
         ],
         "evidence": [
-          "stuck_series at M1"
+          "constant_series at M1"
         ],
         "recommended_action": "Validate the meter clock, frozen register, sensor source, and communication channel before using its measurements for repair decisions."
       },
       {
         "class": "supply_fault",
-        "raw_score": -0.38,
-        "confidence": 0.027119717201763035,
+        "raw_score": -0.68,
+        "confidence": 0.012370414740162428,
         "subject_ids": [
           "M1"
         ],
@@ -83,15 +85,15 @@
     "contributions": [
       {
         "cause_class": "measurement_issue",
-        "feature": "flat_voltage_overlap",
-        "weight": 0.9,
-        "detail": "flat sustained voltage overlaps a suspect frozen series"
+        "feature": "redundant_voltage_conflict",
+        "weight": 1.4,
+        "detail": "one source reports low voltage while an independent source is normal"
       },
       {
         "cause_class": "supply_fault",
-        "feature": "flat_voltage_overlap",
-        "weight": -0.5,
-        "detail": "sustained voltage could be a stuck value"
+        "feature": "redundant_voltage_conflict",
+        "weight": -0.8,
+        "detail": "independent healthy source contradicts the supply excursion"
       },
       {
         "cause_class": "supply_fault",
@@ -119,11 +121,12 @@
       }
     ],
     "conflicts": [
+      "independent voltage sources disagree on sustained voltage",
       "1 supply finding(s) overlap suspected measurement faults"
     ],
     "independent_evidence_sources": [
       "telemetry_temporal_health",
-      "flat_voltage_overlap"
+      "redundant_voltage_conflict"
     ],
     "undetermined_reasons": []
   }

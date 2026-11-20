@@ -161,9 +161,9 @@ pub fn diagnose_telemetry(
     if stuck_found {
       findings.push({
         node_id: item.node_id,
-        kind: "stuck_series",
+        kind: "constant_series",
         severity: "warning",
-        summary: "telemetry value remains constant beyond the stuck threshold",
+        summary: "telemetry value is constant; this alone does not prove sensor failure",
         metric: run_end - run_start,
       })
     }

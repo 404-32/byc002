@@ -79,8 +79,12 @@ the event from being treated as a frozen sensor value.
 Input:
 [`stuck_undervoltage_sensor.json`](../examples/contrasts/stuck_undervoltage_sensor.json)
 
-One voltage series is exactly unchanged while telemetry health reports a frozen
-series. Output: `measurement_issue`.
+One voltage series is exactly unchanged while telemetry health reports a
+constant series, and a redundant voltage source at the same node remains near
+nominal. Output: `measurement_issue`.
+
+The constant-series label alone is not sufficient; the independent normal
+reference creates the physical contradiction.
 
 ## 6. Sustained undervoltage without sufficient independent evidence
 

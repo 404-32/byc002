@@ -17,6 +17,8 @@
     "events": [
       {
         "node_id": "M1",
+        "source_id": "M1:default",
+        "phase": "A",
         "kind": "voltage_sag",
         "severity": "critical",
         "start_time": 500,
@@ -30,6 +32,8 @@
       },
       {
         "node_id": "M2",
+        "source_id": "M2:default",
+        "phase": "A",
         "kind": "voltage_sag",
         "severity": "critical",
         "start_time": 500,
@@ -57,7 +61,7 @@
     "causes": [
       {
         "class": "supply_fault",
-        "raw_score": 2.34,
+        "raw_score": 2.44,
         "confidence": 1,
         "subject_ids": [
           "M1",
@@ -78,14 +82,14 @@
     "contributions": [
       {
         "cause_class": "supply_fault",
-        "feature": "multi_sensor_sustained_voltage",
-        "weight": 0.9,
-        "detail": "independent sensors observe a sustained voltage excursion"
+        "feature": "redundant_voltage_consensus",
+        "weight": 1.2,
+        "detail": "independent voltage sources agree on a sustained excursion"
       },
       {
         "cause_class": "supply_fault",
         "feature": "voltage_trajectory_variation",
-        "weight": 0.7,
+        "weight": 0.5,
         "detail": "sustained voltage changes over time instead of being bit-identical"
       },
       {
@@ -97,7 +101,7 @@
     ],
     "conflicts": [],
     "independent_evidence_sources": [
-      "multi_sensor_sustained_voltage",
+      "redundant_voltage_consensus",
       "voltage_trajectory_variation"
     ],
     "undetermined_reasons": []

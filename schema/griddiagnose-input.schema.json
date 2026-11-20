@@ -88,6 +88,8 @@
         "required": ["node_id", "samples"],
         "properties": {
           "node_id": {"type": "string"},
+          "source_id": {"type": "string"},
+          "phase": {"enum": ["A", "B", "C"]},
           "nominal_voltage": {"type": "number", "exclusiveMinimum": 0},
           "samples": {
             "type": "array",

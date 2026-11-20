@@ -12,6 +12,8 @@ pub fn VoltagePoint::new(timestamp : Double, voltage : Double) -> VoltagePoint {
 ///|
 pub struct VoltageSeries {
   node_id : String
+  source_id : String
+  phase : String
   nominal_voltage : Double
   samples : Array[VoltagePoint]
 }
@@ -21,13 +23,25 @@ pub fn VoltageSeries::new(
   node_id : String,
   nominal_voltage : Double,
   samples : Array[VoltagePoint],
+  source_id? : String,
+  phase? : String,
 ) -> VoltageSeries {
-  { node_id, nominal_voltage, samples, }
+  let source_id = match source_id {
+    Some(value) if value != "" => value
+    _ => node_id + ":default"
+  }
+  let phase = match phase {
+    Some(value) if value != "" => value
+    _ => "A"
+  }
+  { node_id, source_id, phase, nominal_voltage, samples, }
 }
 
 ///|
 pub struct PowerQualityEvent {
   node_id : String
+  source_id : String
+  phase : String
   kind : String
   severity : String
   start_time : Double
@@ -151,6 +165,8 @@ pub fn diagnose_power_quality(
         }
         events.push({
           node_id: item.node_id,
+          source_id: item.source_id,
+          phase: item.phase,
           kind,
           severity,
           start_time: start,

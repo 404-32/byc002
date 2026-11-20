@@ -116,6 +116,7 @@ pub fn run_diagnostic(input : DiagnosticInput) -> DiagnosticReport {
     power_quality,
     telemetry,
     input.phase_readings,
+    voltage_series=input.voltage_series,
   )
   for warning in phase.warnings {
     warnings.push(warning)

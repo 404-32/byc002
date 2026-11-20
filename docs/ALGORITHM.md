@@ -187,7 +187,7 @@ The arbitration layer assigns each finding a subject class:
 supply:
     outage fault nodes, affected meters, phase readings, voltage events
 measurement:
-    stale/frozen/clock/missing-series subjects
+    stale/constant/clock/missing-series subjects
 topology:
     mismatch nodes, unknown topology objects, isolated nodes, non-radial graph
 ```
@@ -203,7 +203,7 @@ supply:
     - supply readings that depend on suspect telemetry
 
 measurement:
-    + stale / frozen / clock findings
+    + stale / constant / clock findings
     + overlap with supply readings
 
 topology:
@@ -250,9 +250,11 @@ corroborated by:
 - non-identical time evolution rather than a bit-for-bit frozen value;
 - an independent outage state.
 
-A single flat low-voltage trace plus frozen telemetry favors the measurement
-cause. A single flat trace without any telemetry anomaly or independent spatial
-source is `undetermined`.
+A single flat low-voltage trace plus frozen telemetry is still insufficient to
+prove a sensor fault. A measurement cause requires an independent normal
+reference at the same node, a live current/voltage contradiction, or another
+physical inconsistency. A single flat trace without such corroboration is
+`undetermined`.
 
 ### Model boundary versus topology registration
 

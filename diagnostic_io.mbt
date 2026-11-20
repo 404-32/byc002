@@ -25,11 +25,25 @@ fn parse_voltage_series(value : Json) -> VoltageSeries raise AnalysisError {
   for sample in optional_array(object, "samples") {
     samples.push(parse_voltage_point(sample))
   }
-  VoltageSeries::new(
-    required_string(object, "node_id"),
-    optional_number(object, "nominal_voltage", 230.0),
-    samples,
-  )
+  let node_id = required_string(object, "node_id")
+  let nominal = optional_number(object, "nominal_voltage", 230.0)
+  let source_id = optional_string(object, "source_id")
+  let phase = optional_string(object, "phase")
+  match (source_id, phase) {
+    (Some(source), Some(phase_value)) =>
+      VoltageSeries::new(
+        node_id,
+        nominal,
+        samples,
+        source_id=source,
+        phase=phase_value,
+      )
+    (Some(source), None) =>
+      VoltageSeries::new(node_id, nominal, samples, source_id=source)
+    (None, Some(phase_value)) =>
+      VoltageSeries::new(node_id, nominal, samples, phase=phase_value)
+    (None, None) => VoltageSeries::new(node_id, nominal, samples)
+  }
 }
 
 ///|
@@ -153,6 +167,8 @@ fn power_quality_event_json(event : PowerQualityEvent) -> Json {
   Json::object(
     Map([
       ("node_id", Json::string(event.node_id)),
+      ("source_id", Json::string(event.source_id)),
+      ("phase", Json::string(event.phase)),
       ("kind", Json::string(event.kind)),
       ("severity", Json::string(event.severity)),
       ("start_time", Json::number(event.start_time)),

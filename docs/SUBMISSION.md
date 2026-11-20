@@ -64,9 +64,10 @@ Three committed contrast fixtures demonstrate real phase loss, stuck-sensor
 behavior, and the ambiguous boundary with different outputs.
 
 The same pattern is applied to sustained undervoltage: independent sensors and
-non-identical temporal evolution support a supply cause; a flat trace with
-frozen telemetry supports measurement failure; a single flat trace without
-corroboration is undetermined.
+non-identical temporal evolution support a supply cause; a flat trace plus an
+independent normal reference supports measurement failure; a single flat trace
+without such corroboration is undetermined. The constant-value label alone never
+establishes a sensor fault.
 
 Model applicability is also explicit. A wrong parent relation is
 `topology_issue`; a weakly meshed graph that cannot use the radial outage model

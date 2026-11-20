@@ -8,7 +8,7 @@ import {
 // Values
 pub fn all_meter_ids(Network) -> Array[String]
 
-pub fn arbitrate_causes(TopologyAssessment?, MultiFaultReport?, PhaseReport, PowerQualityReport, TelemetryReport, Array[PhaseReading]) -> CausalArbitration
+pub fn arbitrate_causes(TopologyAssessment?, MultiFaultReport?, PhaseReport, PowerQualityReport, TelemetryReport, Array[PhaseReading], voltage_series? : Array[VoltageSeries]) -> CausalArbitration
 
 pub fn assess_topology(Network, unknown_edge_ids? : Array[String]) -> TopologyAssessment
 
@@ -233,6 +233,8 @@ pub struct PhaseReport {
 
 pub struct PowerQualityEvent {
   node_id : String
+  source_id : String
+  phase : String
   kind : String
   severity : String
   start_time : Double
@@ -348,10 +350,12 @@ pub fn VoltagePoint::new(Double, Double) -> Self
 
 pub struct VoltageSeries {
   node_id : String
+  source_id : String
+  phase : String
   nominal_voltage : Double
   samples : Array[VoltagePoint]
 }
-pub fn VoltageSeries::new(String, Double, Array[VoltagePoint]) -> Self
+pub fn VoltageSeries::new(String, Double, Array[VoltagePoint], source_id? : String, phase? : String) -> Self
 
 // Type aliases
 

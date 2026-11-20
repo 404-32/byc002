@@ -247,7 +247,7 @@ Power-quality events: 2
 
 Telemetry findings: 3
   [warning] M22 clock_anomaly
-  [warning] M22 stuck_series
+  [warning] M22 constant_series
   [critical] M22 topology_mismatch
 ```
 
@@ -267,7 +267,7 @@ respectively. See
 Two further contrast groups cover sustained undervoltage and topology:
 
 - corroborated sustained undervoltage -> `supply_fault`;
-- flat undervoltage with frozen telemetry -> `measurement_issue`;
+- flat undervoltage plus an independent normal reference -> `measurement_issue`;
 - single flat undervoltage with no independent evidence -> `undetermined`;
 - radial network with a wrong parent relation -> `topology_issue`;
 - weakly meshed network with no registration mismatch -> `model_inapplicable`.

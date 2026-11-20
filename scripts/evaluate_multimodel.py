@@ -161,7 +161,7 @@ def telemetry_case(index: int) -> tuple[dict, callable]:
     if kind in ("stale", "all"):
         expected.add("stale_series")
     if kind in ("stuck", "all"):
-        expected.add("stuck_series")
+        expected.add("constant_series")
     if kind in ("clock", "all"):
         expected.add("clock_anomaly")
     if kind in ("topology", "all"):
@@ -190,7 +190,11 @@ def arbitration_case(index: int) -> tuple[dict, callable]:
         "stuck_sensor",
         "ambiguous",
     )[index % 7]
-    case = {"analysis_time": 500}
+    case = {
+        "analysis_time": 1000
+        if kind in ("measurement_issue", "stuck_sensor", "ambiguous")
+        else 500
+    }
     if kind in ("supply_fault", "mixed", "stuck_sensor", "ambiguous"):
         case["phase_readings"] = [
             {

@@ -387,7 +387,7 @@ test "telemetry diagnosis detects stale, frozen, clock, and topology issues" {
     if finding.kind == "stale_series" {
       stale = true
     }
-    if finding.kind == "stuck_series" {
+    if finding.kind == "constant_series" {
       stuck = true
     }
     if finding.kind == "clock_anomaly" {
@@ -681,7 +681,7 @@ test "single zero phase without independent evidence is undetermined" {
 
 ///|
 test "sustained undervoltage and frozen voltage values remain distinguishable" {
-  let varying = @griddiagnose.diagnose_power_quality([
+  let varying_series = [
     @griddiagnose.VoltageSeries::new("M1", 230.0, [
       @griddiagnose.VoltagePoint::new(0.0, 176.0),
       @griddiagnose.VoltagePoint::new(1.0, 174.0),
@@ -692,7 +692,8 @@ test "sustained undervoltage and frozen voltage values remain distinguishable" {
       @griddiagnose.VoltagePoint::new(1.0, 177.0),
       @griddiagnose.VoltagePoint::new(2.0, 181.0),
     ]),
-  ])
+  ]
+  let varying = @griddiagnose.diagnose_power_quality(varying_series)
   let supply = @griddiagnose.arbitrate_causes(
     None,
     None,
@@ -700,16 +701,33 @@ test "sustained undervoltage and frozen voltage values remain distinguishable" {
     varying,
     @griddiagnose.diagnose_telemetry([], [], 3.0),
     [],
+    voltage_series=varying_series,
   )
   assert_eq(supply.primary_class, "supply_fault")
 
-  let flat = @griddiagnose.diagnose_power_quality([
-    @griddiagnose.VoltageSeries::new("M1", 230.0, [
-      @griddiagnose.VoltagePoint::new(0.0, 180.0),
-      @griddiagnose.VoltagePoint::new(1.0, 180.0),
-      @griddiagnose.VoltagePoint::new(2.0, 180.0),
-    ]),
-  ])
+  let sensor_series = [
+    @griddiagnose.VoltageSeries::new(
+      "M1",
+      230.0,
+      [
+        @griddiagnose.VoltagePoint::new(0.0, 180.0),
+        @griddiagnose.VoltagePoint::new(1.0, 180.0),
+        @griddiagnose.VoltagePoint::new(2.0, 180.0),
+      ],
+      source_id="suspect",
+    ),
+    @griddiagnose.VoltageSeries::new(
+      "M1",
+      230.0,
+      [
+        @griddiagnose.VoltagePoint::new(0.0, 230.0),
+        @griddiagnose.VoltagePoint::new(1.0, 229.0),
+        @griddiagnose.VoltagePoint::new(2.0, 230.0),
+      ],
+      source_id="reference",
+    ),
+  ]
+  let flat = @griddiagnose.diagnose_power_quality(sensor_series)
   let sensor = @griddiagnose.arbitrate_causes(
     None,
     None,
@@ -727,22 +745,25 @@ test "sustained undervoltage and frozen voltage values remain distinguishable" {
       stuck_window_sec=0.5,
     ),
     [],
+    voltage_series=sensor_series,
   )
   assert_eq(sensor.primary_class, "measurement_issue")
 
+  let ambiguous_series = [
+    @griddiagnose.VoltageSeries::new("M1", 230.0, [
+      @griddiagnose.VoltagePoint::new(0.0, 180.0),
+      @griddiagnose.VoltagePoint::new(1.0, 180.0),
+      @griddiagnose.VoltagePoint::new(2.0, 180.0),
+    ]),
+  ]
   let ambiguous = @griddiagnose.arbitrate_causes(
     None,
     None,
     @griddiagnose.diagnose_phase([]),
-    @griddiagnose.diagnose_power_quality([
-      @griddiagnose.VoltageSeries::new("M1", 230.0, [
-        @griddiagnose.VoltagePoint::new(0.0, 180.0),
-        @griddiagnose.VoltagePoint::new(1.0, 180.0),
-        @griddiagnose.VoltagePoint::new(2.0, 180.0),
-      ]),
-    ]),
+    @griddiagnose.diagnose_power_quality(ambiguous_series),
     @griddiagnose.diagnose_telemetry([], [], 3.0),
     [],
+    voltage_series=ambiguous_series,
   )
   assert_eq(ambiguous.primary_class, "undetermined")
 }

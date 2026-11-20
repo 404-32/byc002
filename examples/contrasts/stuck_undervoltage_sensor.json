@@ -3,6 +3,8 @@
   "voltage_series": [
     {
       "node_id": "M1",
+      "source_id": "meter-voltage",
+      "phase": "A",
       "nominal_voltage": 230,
       "samples": [
         {"timestamp": 500, "voltage": 180},
@@ -10,6 +12,17 @@
         {"timestamp": 510, "voltage": 180},
         {"timestamp": 515, "voltage": 180},
         {"timestamp": 520, "voltage": 180}
+      ]
+    },
+    {
+      "node_id": "M1",
+      "source_id": "reference-check",
+      "phase": "A",
+      "nominal_voltage": 230,
+      "samples": [
+        {"timestamp": 500, "voltage": 231},
+        {"timestamp": 510, "voltage": 230},
+        {"timestamp": 520, "voltage": 229}
       ]
     }
   ],

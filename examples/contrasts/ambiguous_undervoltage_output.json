@@ -17,6 +17,8 @@
     "events": [
       {
         "node_id": "M1",
+        "source_id": "M1:default",
+        "phase": "A",
         "kind": "voltage_sag",
         "severity": "critical",
         "start_time": 500,

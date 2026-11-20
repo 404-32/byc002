@@ -174,6 +174,8 @@ window.GRIDDIAGNOSE_SCENARIOS = [
         "events": [
           {
             "node_id": "M33",
+            "source_id": "M33:default",
+            "phase": "A",
             "kind": "voltage_sag",
             "severity": "critical",
             "start_time": 490.01,
@@ -187,6 +189,8 @@ window.GRIDDIAGNOSE_SCENARIOS = [
           },
           {
             "node_id": "M33",
+            "source_id": "M33:default",
+            "phase": "A",
             "kind": "voltage_swell",
             "severity": "warning",
             "start_time": 490.04,
@@ -212,9 +216,9 @@ window.GRIDDIAGNOSE_SCENARIOS = [
           },
           {
             "node_id": "M22",
-            "kind": "stuck_series",
+            "kind": "constant_series",
             "severity": "warning",
-            "summary": "telemetry value remains constant beyond the stuck threshold",
+            "summary": "telemetry value is constant; this alone does not prove sensor failure",
             "metric": 120
           },
           {
@@ -288,7 +292,7 @@ window.GRIDDIAGNOSE_SCENARIOS = [
             ],
             "evidence": [
               "clock_anomaly at M22",
-              "stuck_series at M22"
+              "constant_series at M22"
             ],
             "recommended_action": "Validate the meter clock, frozen register, sensor source, and communication channel before using its measurements for repair decisions."
           }

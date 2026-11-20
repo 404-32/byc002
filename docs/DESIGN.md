@@ -91,7 +91,7 @@ The integrity model reports:
 - no samples;
 - latest sample older than the stale threshold;
 - duplicate or decreasing timestamps;
-- a value frozen for longer than the stuck window;
+- a value constant for longer than the observation window;
 - a declared parent that differs from an observed upstream relation.
 
 The report does not delete suspect evidence. Other diagnostic models still
@@ -149,10 +149,11 @@ The engine also separates `topology_issue` from `model_inapplicable`:
 - a weakly meshed graph without registration mismatch means the radial outage
   model cannot be applied, not that the topology is necessarily incorrect.
 
-Sustained low voltage is compared against temporal variation, independent
-sensor agreement, outage state, and frozen-series evidence. A single constant
-low-voltage trace without an independent source produces `undetermined` instead
-of forcing a supply or sensor result.
+Sustained low voltage is compared against temporal variation, redundant sensor
+agreement, outage state, and independent reference voltage. A constant-series
+label can support a measurement hypothesis only after a physical contradiction
+is present. A single constant low-voltage trace without an independent source
+produces `undetermined`.
 
 Phase arbitration adds independent physical channels. Multiple sensors on the
 same phase, phase-current/voltage consistency, outage state, telemetry temporal
