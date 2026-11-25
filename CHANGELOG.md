@@ -9,6 +9,14 @@
 - Added real-phase-loss, stuck-sensor, and ambiguous contrast fixtures with
   committed input/output pairs.
 - Added arbitration evidence-source and undetermined-boundary fields to JSON.
+- Added redundant voltage-source identifiers and source-level power-quality
+  events to support independent sensor comparison.
+- Changed constant-series observations into non-decisive data-quality alerts;
+  they cannot establish a sensor fault without an independent contradiction.
+- Added sustained-undervoltage contrast cases for real supply variation,
+  redundant-source conflict, and insufficient evidence.
+- Added `model_inapplicable` to separate unsupported physical models from wrong
+  topology registrations.
 
 ## 0.4.0 - 2026-11-17
 

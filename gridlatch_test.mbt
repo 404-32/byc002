@@ -448,7 +448,7 @@ test "unified diagnostic input produces one combined report" {
   assert_true(report.critical_count >= 1)
   assert_eq(report.phase.findings[0].kind, "phase_loss")
   assert_eq(report.power_quality.events[0].kind, "voltage_sag")
-  assert_eq(report.arbitration.primary_class, "supply_fault")
+  assert_eq(report.arbitration.primary_class, "undetermined")
 }
 
 ///|
@@ -457,11 +457,31 @@ test "arbitration separates supply faults from measurement faults" {
     None,
     None,
     @griddiagnose.diagnose_phase([
-      @griddiagnose.PhaseReading::new("M1", 100.0, 230.0, 230.0, 0.0),
+      @griddiagnose.PhaseReading::new(
+        "M1",
+        100.0,
+        230.0,
+        230.0,
+        0.0,
+        a_current=4.8,
+        b_current=4.7,
+        c_current=0.0,
+      ),
     ]),
     @griddiagnose.diagnose_power_quality([]),
     @griddiagnose.diagnose_telemetry([], [], 100.0),
-    [],
+    [
+      @griddiagnose.PhaseReading::new(
+        "M1",
+        100.0,
+        230.0,
+        230.0,
+        0.0,
+        a_current=4.8,
+        b_current=4.7,
+        c_current=0.0,
+      ),
+    ],
   )
   assert_eq(supply.primary_class, "supply_fault")
 

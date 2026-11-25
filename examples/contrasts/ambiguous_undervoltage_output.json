@@ -43,25 +43,7 @@
     "primary_class": "undetermined",
     "overall_confidence": 0.5,
     "decision_margin": 0,
-    "causes": [
-      {
-        "class": "supply_fault",
-        "raw_score": 0.62,
-        "confidence": 1,
-        "subject_ids": [
-          "M1"
-        ],
-        "supporting_models": [
-          "outage",
-          "phase",
-          "power_quality"
-        ],
-        "evidence": [
-          "voltage model reports voltage_sag at M1"
-        ],
-        "recommended_action": "Dispatch electrical inspection and verify isolation and supply restoration on the affected branches."
-      }
-    ],
+    "causes": [],
     "contributions": [
       {
         "cause_class": "supply_fault",
@@ -73,6 +55,7 @@
     "conflicts": [],
     "independent_evidence_sources": [],
     "undetermined_reasons": [
+      "supply indication has no independent voltage, phase-current, or outage confirmation",
       "single flat sustained voltage has no spatial, temporal-variation, outage, or telemetry-health corroboration"
     ]
   }

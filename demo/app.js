@@ -241,6 +241,10 @@
         measurement_issue: "量测问题",
         topology_issue: "拓扑问题",
       };
+      const caveats = [
+        ...diagnostic.arbitration.undetermined_reasons,
+        ...diagnostic.arbitration.conflicts,
+      ];
       $("#result-panel").innerHTML = `
         <div class="result-hero">
           <div class="result-kicker">CAUSAL ARBITRATION</div>
@@ -254,7 +258,7 @@
           </div>
           <div class="restore-status">
             <strong>综合置信度 ${(diagnostic.arbitration.overall_confidence * 100).toFixed(0)}%</strong>
-            <span>${diagnostic.arbitration.conflicts.length ? escapeXml(diagnostic.arbitration.conflicts.join("；")) : "当前未发现跨模型证据冲突。"}</span>
+            <span>${caveats.length ? escapeXml(caveats.join("；")) : "当前未发现跨模型证据冲突。"}</span>
           </div>
         </div>
         <div class="panel-title">根因分类</div>

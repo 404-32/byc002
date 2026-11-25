@@ -46,13 +46,13 @@
   },
   "arbitration": {
     "primary_class": "measurement_issue",
-    "overall_confidence": 0.9876295852598377,
-    "decision_margin": 0.9752591705196753,
+    "overall_confidence": 1,
+    "decision_margin": 1,
     "causes": [
       {
         "class": "measurement_issue",
         "raw_score": 3.6999999999999997,
-        "confidence": 0.9876295852598377,
+        "confidence": 1,
         "subject_ids": [
           "M1"
         ],
@@ -63,23 +63,6 @@
           "constant_series at M1"
         ],
         "recommended_action": "Validate the meter clock, frozen register, sensor source, and communication channel before using its measurements for repair decisions."
-      },
-      {
-        "class": "supply_fault",
-        "raw_score": -0.68,
-        "confidence": 0.012370414740162428,
-        "subject_ids": [
-          "M1"
-        ],
-        "supporting_models": [
-          "outage",
-          "phase",
-          "power_quality"
-        ],
-        "evidence": [
-          "voltage model reports voltage_sag at M1"
-        ],
-        "recommended_action": "Dispatch electrical inspection and verify isolation and supply restoration on the affected branches."
       }
     ],
     "contributions": [
@@ -128,6 +111,8 @@
       "telemetry_temporal_health",
       "redundant_voltage_conflict"
     ],
-    "undetermined_reasons": []
+    "undetermined_reasons": [
+      "supply indication has no independent voltage, phase-current, or outage confirmation"
+    ]
   }
 }

@@ -192,7 +192,7 @@ def arbitration_case(index: int) -> tuple[dict, callable]:
     )[index % 7]
     case = {
         "analysis_time": 1000
-        if kind in ("measurement_issue", "stuck_sensor", "ambiguous")
+        if kind in ("measurement_issue", "stuck_sensor", "ambiguous", "mixed")
         else 500
     }
     if kind in ("supply_fault", "mixed", "stuck_sensor", "ambiguous"):
@@ -231,6 +231,10 @@ def arbitration_case(index: int) -> tuple[dict, callable]:
     if kind == "stuck_sensor":
         case["phase_readings"][0].update(
             {"a_current": 4.8, "b_current": 4.7, "c_current": 4.8}
+        )
+    if kind in ("supply_fault", "mixed"):
+        case["phase_readings"][0].update(
+            {"a_current": 4.8, "b_current": 4.7, "c_current": 0}
         )
     if kind in ("measurement_issue", "mixed", "stuck_sensor", "ambiguous"):
         case["telemetry_series"] = [

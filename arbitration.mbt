@@ -351,7 +351,8 @@ pub fn arbitrate_causes(
       }
     }
   }
-  if phase_loss_subjects.length() >= 2 {
+  let phase_corroborated = phase_loss_subjects.length() >= 2
+  if phase_corroborated {
     add_unique(independent_evidence_sources, "multi_sensor_phase_loss")
     add_contribution(
       contributions, "supply_fault", "multi_sensor_phase_loss", 1.0, "independent sensors report phase loss",
@@ -366,18 +367,14 @@ pub fn arbitrate_causes(
   if topology_mismatch_count > 0 {
     add_unique(independent_evidence_sources, "observed_parent_relation")
   }
-  let phase_measurement_overlap = count_overlap(
-    phase_loss_subjects, measurement_subjects,
-  )
   let ambiguous_phase = phase_loss_count > 0 &&
     current_support_count == 0 &&
     current_conflict_count == 0 &&
     phase_loss_subjects.length() < 2 &&
-    outage_count == 0 &&
-    phase_measurement_overlap > 0
+    outage_count == 0
   if ambiguous_phase {
     undetermined_reasons.push(
-      "single missing-phase reading also has suspect measurement health; supply and sensor fault remain observationally equivalent",
+      "single missing-phase reading has no independent voltage, current, or outage corroboration",
     )
   }
 
@@ -434,6 +431,15 @@ pub fn arbitrate_causes(
     add_unique(independent_evidence_sources, "redundant_voltage_consensus")
     add_contribution(
       contributions, "supply_fault", "redundant_voltage_consensus", 1.2, "independent voltage sources agree on a sustained excursion",
+    )
+  }
+  let supply_has_independent_evidence = outage_count > 0 ||
+    current_support_count > 0 ||
+    phase_corroborated ||
+    corroborated_voltage
+  if supply_subjects.length() > 0 && !supply_has_independent_evidence {
+    undetermined_reasons.push(
+      "supply indication has no independent voltage, phase-current, or outage confirmation",
     )
   }
   if contradicted_voltage {
@@ -575,7 +581,7 @@ pub fn arbitrate_causes(
   }
 
   let causes : Array[CauseHypothesis] = []
-  if supply_subjects.length() > 0 {
+  if supply_subjects.length() > 0 && supply_has_independent_evidence {
     causes.push({
       class: "supply_fault",
       raw_score: sum_contributions(contributions, "supply_fault"),

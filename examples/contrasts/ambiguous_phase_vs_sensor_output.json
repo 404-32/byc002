@@ -54,7 +54,7 @@
       {
         "class": "measurement_issue",
         "raw_score": 2.5,
-        "confidence": 0.8145725807070178,
+        "confidence": 1,
         "subject_ids": [
           "M1"
         ],
@@ -66,23 +66,6 @@
           "constant_series at M1"
         ],
         "recommended_action": "Validate the meter clock, frozen register, sensor source, and communication channel before using its measurements for repair decisions."
-      },
-      {
-        "class": "supply_fault",
-        "raw_score": 1.02,
-        "confidence": 0.18542741929298226,
-        "subject_ids": [
-          "M1"
-        ],
-        "supporting_models": [
-          "outage",
-          "phase",
-          "power_quality"
-        ],
-        "evidence": [
-          "phase model reports phase_loss at M1"
-        ],
-        "recommended_action": "Dispatch electrical inspection and verify isolation and supply restoration on the affected branches."
       }
     ],
     "contributions": [
@@ -124,7 +107,8 @@
       "telemetry_temporal_health"
     ],
     "undetermined_reasons": [
-      "single missing-phase reading also has suspect measurement health; supply and sensor fault remain observationally equivalent"
+      "single missing-phase reading has no independent voltage, current, or outage corroboration",
+      "supply indication has no independent voltage, phase-current, or outage confirmation"
     ]
   }
 }

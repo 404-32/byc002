@@ -231,6 +231,16 @@ fn diagnostic_text(report : @core.DiagnosticReport) -> String {
     output += percent(cause.confidence) + " -> "
     output += join_ids(cause.subject_ids) + "\n"
   }
+  if report.arbitration.independent_evidence_sources.length() > 0 {
+    output += "  independent evidence: "
+    output += join_ids(report.arbitration.independent_evidence_sources) + "\n"
+  }
+  if report.arbitration.undetermined_reasons.length() > 0 {
+    output += "  undetermined:\n"
+    for reason in report.arbitration.undetermined_reasons {
+      output += "    - " + reason + "\n"
+    }
+  }
   for conflict in report.arbitration.conflicts {
     output += "  conflict: " + conflict + "\n"
   }
